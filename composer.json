@@ -1,0 +1,29 @@
+{
+  "name": "nhagemann/anycontent-php",
+  "description": "",
+  "type": "library",
+  "homepage": "http://www.nilshagemann.de",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nils Hagemann",
+      "email": "mail@nilshagemann.de",
+      "homepage": "http://www.nilshagemann.de"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "nhagemann/cmdl-parser-php": "0.13.*",
+    "psr/log": "1.*",
+    "symfony/filesystem": "2.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~3.7.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "AnyContent": "src/"
+    }
+  },
+  "prefer-stable": true
+}
