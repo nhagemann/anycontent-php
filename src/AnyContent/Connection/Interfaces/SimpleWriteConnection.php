@@ -10,12 +10,15 @@ interface SimpleWriteConnection
     public function saveRecord(Record $record);
 
 
-    public function saveRecords(array $allRecords);
+    public function saveRecords(array $records);
 
 
-    public function deleteRecord(Record $record);
+    public function deleteRecord($recordId);
 
 
-    public function deleteRecords(array $records);
+    public function deleteRecords(array $recordIds);
+
+
+    public function deleteAllRecords();
 
 }

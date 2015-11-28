@@ -48,23 +48,73 @@ class SimpleFileReadWriteConnection extends SimpleFileReadOnlyConnection impleme
 
         if ($this->writeData($this->contentTypes[$this->getCurrentContentTypeName()]['json'], $data))
         {
-            $this->contentTypes[$this->getCurrentContentTypeName()]['records']=$allRecords;
+            $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = $allRecords;
+
             return $record->getID();
 
         }
-        throw new AnyContentClientException('Error when saving record ' . $record->getID() . ' of content type ' . $this->getCurrentContentTypeName());
+        throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());
     }
 
 
-    public function deleteRecord(Record $record)
+    public function deleteRecord($recordId)
     {
 
+        return $this->deleteRecords([ $recordId ]);
     }
 
 
-    public function deleteRecords(array $records)
+    public function deleteRecords(array $recordsIds)
+    {
+        $result = [ ];
+
+        $allRecords = $this->getAllRecords();
+
+        foreach ($recordsIds as $recordId)
+        {
+            if (array_key_exists($recordId, $allRecords))
+            {
+                unset  ($allRecords[$recordId]);
+                $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = $allRecords;
+
+                $result[] = $recordId;
+            }
+
+        }
+
+        if (count($result) > 0)
+        {
+            $data = json_encode([ 'records' => $allRecords ]);
+
+            if ($this->writeData($this->contentTypes[$this->getCurrentContentTypeName()]['json'], $data))
+            {
+                $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = $allRecords;
+
+                return $result;
+
+            }
+            throw new AnyContentClientException('Error when deleting records of content type ' . $this->getCurrentContentTypeName());
+        }
+
+        return $result;
+    }
+
+
+    public function deleteAllRecords()
     {
 
+        $allRecords = $this->getAllRecords();
+
+        $data = json_encode([ 'records' => [ ] ]);
+
+        if ($this->writeData($this->contentTypes[$this->getCurrentContentTypeName()]['json'], $data))
+        {
+            $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = [ ];
+
+            return array_keys($allRecords);
+
+        }
+        throw new AnyContentClientException('Error when deleting records of content type ' . $this->getCurrentContentTypeName());
     }
 
 

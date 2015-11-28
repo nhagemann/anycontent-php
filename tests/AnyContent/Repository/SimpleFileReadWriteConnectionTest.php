@@ -92,7 +92,6 @@ class SimpleFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->selectContentType('temp');
 
-
         $this->assertEquals(609, $connection->countRecords());
 
         $records = [ ];
@@ -119,4 +118,80 @@ class SimpleFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(614, $connection->countRecords());
     }
 
+
+    public function testDeleteRecord()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $result = $connection->deleteRecord(1);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(613, $connection->countRecords());
+
+        $result = $connection->deleteRecord(999);
+
+        $this->assertCount(0, $result);
+        $this->assertEquals(613, $connection->countRecords());
+
+    }
+
+
+    public function testDeleteRecordNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $this->assertEquals(613, $connection->countRecords());
+    }
+
+
+    public function testDeleteRecords()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $result = $connection->deleteRecords([ 2, 5, 999 ]);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(611, $connection->countRecords());
+
+    }
+
+
+    public function testDeleteRecordsNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $this->assertEquals(611, $connection->countRecords());
+    }
+
+
+    public function testDeleteAllRecords()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $result = $connection->deleteAllRecords();
+
+        $this->assertCount(611, $result);
+        $this->assertEquals(0, $connection->countRecords());
+
+    }
+
+
+    public function testDeleteAllRecordsNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('temp');
+
+        $this->assertEquals(0, $connection->countRecords());
+    }
 }
