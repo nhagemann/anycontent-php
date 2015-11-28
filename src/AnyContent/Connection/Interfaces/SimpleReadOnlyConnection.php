@@ -23,10 +23,10 @@ interface SimpleReadOnlyConnection
     public function getCurrentContentTypeName();
 
 
-    public function count();
+    public function countRecords($contentTypeName = null);
 
 
-    public function getAllRecords();
+    public function getAllRecords($contentTypeName = null);
 
 
     public function getRecord($recordId);

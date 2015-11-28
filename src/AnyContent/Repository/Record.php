@@ -7,7 +7,7 @@ use CMDL\Util;
 
 use CMDL\ContentTypeDefinition;
 
-class Record
+class Record implements \JsonSerializable
 {
 
     public $id = null;
@@ -353,8 +353,17 @@ class Record
     }
 
 
-    public function getAttributes()
+    /* public function getAttributes()
+     {
+         return array( 'workspace' => $this->getWorkspace(), 'language' => $this->getLanguage(), 'position' => $this->getPosition(), 'parent_id' => $this->getParentRecordId(), 'level' => $this->getLevelWithinSortedTree() );
+     }*/
+
+    function jsonSerialize()
     {
-        return array( 'workspace' => $this->getWorkspace(), 'language' => $this->getLanguage(), 'position' => $this->getPosition(), 'parent_id' => $this->getParentRecordId(), 'level' => $this->getLevelWithinSortedTree() );
+        $record               = [ ];
+        $record['id']         = $this->getID();
+        $record['properties'] = $this->getProperties();
+
+        return $record;
     }
 }

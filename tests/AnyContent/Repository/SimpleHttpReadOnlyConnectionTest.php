@@ -26,7 +26,7 @@ class SimpleHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         $connection = $this->connection;
 
         $this->setExpectedException('AnyContent\AnyContentClientException');
-        $this->assertEquals(12, $connection->count());
+        $this->assertEquals(12, $connection->countRecords());
     }
 
 
@@ -59,7 +59,7 @@ class SimpleHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->selectContentType('profiles');
 
-        $this->assertEquals(608, $connection->count());
+        $this->assertEquals(608, $connection->countRecords());
 
     }
 

@@ -2,6 +2,7 @@
 
 namespace AnyContent\Repository;
 
+use AnyContent\AnyContentClientException;
 use CMDL\ContentTypeDefinition;
 
 class RecordFactory
@@ -12,15 +13,19 @@ class RecordFactory
     protected $contentRecordClassMap = array();
 
 
-    public function construct($options = [ ])
+    public function __construct($options = [ ])
     {
-
+        $this->options = array_merge($this->options, $options);
     }
 
 
     public function getOption($option)
     {
-        return true;
+        if (array_key_exists($option, $this->options))
+        {
+            return $this->options[$option];
+        }
+        throw new AnyContentClientException('Missing option ' . $option . ' in RecordFactory');
     }
 
 
@@ -30,7 +35,7 @@ class RecordFactory
 
         foreach ($jsonRecords as $jsonRecord)
         {
-            $record = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord);
+            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord);
             $records[$record->getID()] = $record;
         }
 

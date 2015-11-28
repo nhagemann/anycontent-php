@@ -16,7 +16,8 @@
     "nhagemann/cmdl-parser-php": "0.13.*",
     "psr/log": "1.*",
     "symfony/filesystem": "2.*",
-    "guzzlehttp/guzzle": "5.*"
+    "guzzlehttp/guzzle": "5.*",
+    "doctrine/cache": "1.5.*"
   },
   "require-dev": {
     "phpunit/phpunit": "~3.7.0"

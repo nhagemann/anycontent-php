@@ -14,7 +14,7 @@ trait Factories
     {
         if (!$this->recordFactory)
         {
-            $this->recordFactory = new RecordFactory();
+            $this->recordFactory = new RecordFactory([ 'validateProperties' => false ]);
 
         }
 

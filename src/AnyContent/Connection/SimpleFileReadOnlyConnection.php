@@ -5,12 +5,14 @@ namespace AnyContent\Connection;
 use AnyContent\AnyContentClientException;
 use AnyContent\Connection\Interfaces\SimpleReadOnlyConnection;
 
+use AnyContent\Connection\Traits\CMDLCache;
 use AnyContent\Connection\Traits\CMDLParser;
 use AnyContent\Connection\Traits\Factories;
 use AnyContent\Connection\Traits\Logger;
 
 use AnyContent\Repository\Record;
 use CMDL\ContentTypeDefinition;
+
 use Symfony\Component\Filesystem\Filesystem;
 
 class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
@@ -19,6 +21,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
     use CMDLParser;
     use Logger;
     use Factories;
+    use CMDLCache;
 
     protected $currentContentTypeName = null;
 
@@ -73,6 +76,11 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
      */
     public function getContentTypeDefinition($contentTypeName)
     {
+        if ($this->getCMDLCache()->contains($contentTypeName))
+        {
+            return $this->getCMDLCache()->fetch($contentTypeName);
+        }
+
         if (array_key_exists($contentTypeName, $this->contentTypes))
         {
             if ($this->contentTypes[$contentTypeName]['definition'] !== false)
@@ -92,6 +100,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
                 if ($definition)
                 {
                     $this->contentTypes[$contentTypeName]['definition'] = $definition;
+                    $this->getCMDLCache()->save($contentTypeName, $definition, $this->cacheDuration);
 
                     return $definition;
                 }
@@ -182,9 +191,9 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
      * @return int
      * @throws AnyContentClientException
      */
-    public function count()
+    public function countRecords($contentTypeName=null)
     {
-        return count($this->getAllRecords());
+        return count($this->getAllRecords($contentTypeName));
     }
 
 
