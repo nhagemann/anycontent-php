@@ -26,7 +26,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
     protected $currentContentTypeDefinition = null;
 
     /**
-     * @var array  [ 'filename' => , 'cmdl' => , 'definition' => , 'records' => ]
+     * @var array  [ 'json' => , 'cmdl' => , 'definition' => , 'records' => ]
      */
     protected $contentTypes = [ ];
 
@@ -40,7 +40,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
      * @return $this
      * @throws AnyContentClientException
      */
-    public function addContentType($filenameRecords, $filenameCMDL, $contentTypeName = null, $contentTypeTitle = null)
+    public function addContentTypeFile($filenameRecords, $filenameCMDL, $contentTypeName = null, $contentTypeTitle = null)
     {
         $fs = new Filesystem();
 
@@ -58,7 +58,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
             $contentTypeName = basename($filenameCMDL, '.cmdl');
         }
 
-        $this->contentTypes[$contentTypeName] = [ 'filename' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
+        $this->contentTypes[$contentTypeName] = [ 'json' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
 
         return $this;
     }
@@ -80,7 +80,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
                 return $this->contentTypes[$contentTypeName]['definition'];
             }
 
-            $cmdl = file_get_contents($this->contentTypes[$contentTypeName]['cmdl']);
+            $cmdl = $this->readData($this->contentTypes[$contentTypeName]['cmdl']);
 
             if ($cmdl)
             {
@@ -209,7 +209,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
                 return $this->contentTypes[$contentTypeName]['records'];
             }
 
-            $data = file_get_contents($this->contentTypes[$contentTypeName]['filename']);
+            $data = $this->readData($this->contentTypes[$contentTypeName]['json']);
 
             if ($data)
             {
@@ -229,6 +229,12 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
 
+    }
+
+
+    protected function readData($fileName)
+    {
+        return file_get_contents($fileName);
     }
 
 
