@@ -5,6 +5,7 @@ namespace AnyContent\Repository;
 use AnyContent\Connection\SimpleFileReadOnlyConnection;
 use Doctrine\Common\Cache\PhpFileCache;
 use Doctrine\Common\Cache\SQLite3Cache;
+use Symfony\Component\Filesystem\Filesystem;
 
 class CacheTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,6 +22,11 @@ class CacheTest extends \PHPUnit_Framework_TestCase
         $repository = new BulkCachingRepository($connection);
 
         $cache = new PhpFileCache(__DIR__ . '/../../resources/phpfilecache');
+
+        $fs = new Filesystem();
+
+        $fs->remove(__DIR__ . '/../../resources/phpfilecache');
+        $fs->mkdir(__DIR__ . '/../../resources/phpfilecache');
 
         $repository->setContentCache($cache);
         $this->repository = $repository;

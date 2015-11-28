@@ -15,7 +15,7 @@ class SimpleHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $connection = new SimpleHttpReadOnlyConnection();
-        $connection->addContentTypeUrl('profiles','https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.default.default.json','https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.cmdl');
+        $connection->addContentTypeUrl('profiles', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.default.default.json', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.cmdl');
 
         $this->connection = $connection;
     }
