@@ -2,9 +2,9 @@
 
 namespace AnyContent\Repository;
 
-use AnyContent\Connection\SimpleFileReadOnlyConnection;
+use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use Doctrine\Common\Cache\PhpFileCache;
-use Doctrine\Common\Cache\SQLite3Cache;
+
 use Symfony\Component\Filesystem\Filesystem;
 
 class CacheTest extends \PHPUnit_Framework_TestCase
@@ -16,17 +16,17 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $connection = new SimpleFileReadOnlyConnection();
+        $connection = new RecordsFileReadOnlyConnection();
         $connection->addContentTypeFile(__DIR__ . '/../../resources/SimpleFileConnection/profiles.json', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl');
 
         $repository = new BulkCachingRepository($connection);
 
-        $cache = new PhpFileCache(__DIR__ . '/../../resources/phpfilecache');
-
         $fs = new Filesystem();
 
-        $fs->remove(__DIR__ . '/../../resources/phpfilecache');
-        $fs->mkdir(__DIR__ . '/../../resources/phpfilecache');
+        $fs->remove(__DIR__ . '/../../../tmp/phpfilecache');
+        $fs->mkdir(__DIR__ . '/../../../tmp/phpfilecache');
+
+        $cache = new PhpFileCache(__DIR__ . '/../../../tmp/phpfilecache');
 
         $repository->setContentCache($cache);
         $this->repository = $repository;

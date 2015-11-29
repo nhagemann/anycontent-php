@@ -2,9 +2,9 @@
 
 namespace AnyContent\Repository;
 
-use AnyContent\Connection\SimpleFileReadOnlyConnection;
+use AnyContent\Connection\RecordsFileReadOnlyConnection;
 
-class SimpleFileConnectionTest extends \PHPUnit_Framework_TestCase
+class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  SimpleFileConnection */
@@ -13,7 +13,7 @@ class SimpleFileConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $connection = new SimpleFileReadOnlyConnection();
+        $connection = new RecordsFileReadOnlyConnection();
         $connection->addContentTypeFile(__DIR__ . '/../../resources/SimpleFileConnection/profiles.json', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl');
 
         $this->connection = $connection;

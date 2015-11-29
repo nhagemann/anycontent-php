@@ -2,12 +2,12 @@
 
 namespace AnyContent\Repository;
 
-use AnyContent\Connection\Interfaces\SimpleReadOnlyConnection;
+use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 class Repository
 {
 
-    /** @var  SimpleReadOnlyConnection */
+    /** @var  ReadOnlyConnection */
     protected $readConnection;
 
     protected $writeConnection = false;

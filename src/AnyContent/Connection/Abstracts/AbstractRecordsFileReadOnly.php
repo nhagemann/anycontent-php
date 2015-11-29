@@ -1,27 +1,22 @@
 <?php
+namespace AnyContent\Connection\Abstracts;
 
-namespace AnyContent\Connection;
-
-use AnyContent\AnyContentClientException;
-use AnyContent\Connection\Interfaces\SimpleReadOnlyConnection;
-
+use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Traits\CMDLCache;
 use AnyContent\Connection\Traits\CMDLParser;
 use AnyContent\Connection\Traits\Factories;
-use AnyContent\Connection\Traits\Logger;
-
 use AnyContent\Repository\Record;
 use CMDL\ContentTypeDefinition;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
-{
+use AnyContent\AnyContentClientException;
 
-    use CMDLParser;
-    use Logger;
-    use Factories;
+abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
+{
     use CMDLCache;
+    use CMDLParser;
+    use Factories;
 
     protected $currentContentTypeName = null;
 
@@ -191,7 +186,7 @@ class SimpleFileReadOnlyConnection implements SimpleReadOnlyConnection
      * @return int
      * @throws AnyContentClientException
      */
-    public function countRecords($contentTypeName=null)
+    public function countRecords($contentTypeName = null)
     {
         return count($this->getAllRecords($contentTypeName));
     }

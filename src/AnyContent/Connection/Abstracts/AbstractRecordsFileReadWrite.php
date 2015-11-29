@@ -1,21 +1,11 @@
 <?php
-
-namespace AnyContent\Connection;
+namespace AnyContent\Connection\Abstracts;
 
 use AnyContent\AnyContentClientException;
-
-use AnyContent\Connection\Interfaces\SimpleWriteConnection;
-use AnyContent\Connection\Traits\CMDLCache;
-use AnyContent\Connection\Traits\CMDLParser;
-use AnyContent\Connection\Traits\Factories;
-use AnyContent\Connection\Traits\Logger;
-
+use AnyContent\Connection\Interfaces\WriteConnection;
 use AnyContent\Repository\Record;
-use CMDL\ContentTypeDefinition;
 
-use Symfony\Component\Filesystem\Filesystem;
-
-class SimpleFileReadWriteConnection extends SimpleFileReadOnlyConnection implements SimpleWriteConnection
+abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly implements WriteConnection
 {
 
     public function saveRecord(Record $record)
@@ -26,6 +16,12 @@ class SimpleFileReadWriteConnection extends SimpleFileReadOnlyConnection impleme
     }
 
 
+    /**
+     * @param Record[] $records
+     *
+     * @return mixed
+     * @throws AnyContentClientException
+     */
     public function saveRecords(array $records)
     {
         $allRecords = $this->getAllRecords();
@@ -50,7 +46,7 @@ class SimpleFileReadWriteConnection extends SimpleFileReadOnlyConnection impleme
         {
             $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = $allRecords;
 
-            return $record->getID();
+            return true;
 
         }
         throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());
@@ -122,4 +118,5 @@ class SimpleFileReadWriteConnection extends SimpleFileReadOnlyConnection impleme
     {
         return file_put_contents($fileName, $data);
     }
+
 }

@@ -2,10 +2,14 @@
 
 namespace AnyContent\Connection;
 
+use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
+
+use AnyContent\Connection\Interfaces\ReadOnlyConnection;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-class SimpleHttpReadOnlyConnection extends SimpleFileReadOnlyConnection
+class RecordsFileHttpReadOnlyConnection extends AbstractRecordsFileReadOnly implements ReadOnlyConnection
 {
 
     protected $timeout = 30;

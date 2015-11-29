@@ -4,7 +4,7 @@ namespace AnyContent\Connection\Interfaces;
 
 use AnyContent\Repository\Record;
 
-interface SimpleWriteConnection
+interface WriteConnection
 {
 
     public function saveRecord(Record $record);

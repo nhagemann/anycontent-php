@@ -38,6 +38,11 @@ class BulkCachingRepository extends Repository
     }
 
 
+    /**
+     * @param null $dataDimensions
+     *
+     * @return Record[]
+     */
     public function getRecords($dataDimensions = null)
     {
         if ($dataDimensions == null)

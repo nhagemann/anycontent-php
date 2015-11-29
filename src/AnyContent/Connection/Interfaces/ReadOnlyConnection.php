@@ -2,7 +2,7 @@
 
 namespace AnyContent\Connection\Interfaces;
 
-interface SimpleReadOnlyConnection
+interface ReadOnlyConnection
 {
 
     public function getContentTypeNames();

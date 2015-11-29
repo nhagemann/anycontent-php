@@ -2,13 +2,13 @@
 
 namespace AnyContent\Repository;
 
-use AnyContent\Connection\SimpleFileReadWriteConnection;
+use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
-class SimpleFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
+class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  SimpleFileReadWriteConnection */
+    /** @var  RecordsFileReadWriteConnection */
     public $connection;
 
 
@@ -30,7 +30,7 @@ class SimpleFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $connection = new SimpleFileReadWriteConnection();
+        $connection = new RecordsFileReadWriteConnection();
         $connection->addContentTypeFile(__DIR__ . '/../../resources/SimpleFileConnection/temp.json', __DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl');
 
         $this->connection = $connection;
@@ -67,6 +67,7 @@ class SimpleFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $record = $connection->getRecord(1);
 
         $this->assertEquals('UDG', $record->getProperty('name'));
+
     }
 
 
