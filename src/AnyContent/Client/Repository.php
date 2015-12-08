@@ -2,780 +2,176 @@
 
 namespace AnyContent\Client;
 
-use CMDL\Parser;
-use CMDL\CMDLParserException;
-use CMDL\Util;
-
-use CMDL\ContentTypeDefinition;
-
-use AnyContent\Client\ContentFilter;
+use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 class Repository
 {
 
-    /** @var  Client */
-    protected $client;
+    /** @var  ReadOnlyConnection */
+    protected $readConnection;
 
-    protected $title;
+    protected $writeConnection = false;
 
-    protected $contentTypeName = '';
-
-    protected $configTypeName = '';
-
-    protected $contentTypeDefinition = null;
-
-    protected $workspace = 'default';
-
-    protected $viewName = 'default';
-
-    protected $language = 'default';
-
-    protected $timeshift = 0;
-
-    protected $order = 'id';
-
-    protected $stash = array( 'workspace' => 'default', 'viewName' => 'default', 'language' => 'default', 'timeshift' => 0, 'order' => 'id' );
+    /** @var DataDimensions */
+    protected $dataDimensions;
 
 
-    public function __construct($client)
+    public function __construct($readConnection, $writeConnection = null)
     {
-        $this->client = $client;
+        $this->readConnection = $readConnection;
     }
 
 
-    /**
-     * @return Client
-     */
-    public function getClient()
+    public function getContentTypeNames()
     {
-        return $this->client;
-    }
-
-
-    public function getName()
-    {
-        return $this->getRepositoryName();
-    }
-
-
-    public function getRepositoryName()
-    {
-        $url   = trim($this->getClient()->getUrl(), '/');
-        $parts = explode('/', $url);
-
-        return array_pop($parts);
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
+        return $this->readConnection->getContentTypeNames();
     }
 
 
     public function getContentTypes()
     {
-        return $this->client->getContentTypesList();
+        return $this->readConnection->getContentTypes();
     }
 
 
-    public function getConfigTypes()
+    public function getContentTypeDefinition($contentTypeName)
     {
-
-        return $this->client->getConfigTypesList();
+        return $this->readConnection->getContentTypeDefinition($contentTypeName);
     }
 
 
-    public function getContentTypeDefinition($contentTypeName = null)
+    public function getCurrentContentType()
     {
-        if ($contentTypeName == null)
-        {
-            $contentTypeName = $this->contentTypeName;
-        }
-
-        return $this->client->getContentTypeDefinition($contentTypeName);
+        return $this->readConnection->getCurrentContentType();
     }
 
 
-    public function getConfigTypeDefinition($configTypeName = null)
+    public function getCurrentContentTypeName()
     {
-        if ($configTypeName == null)
-        {
-            $configTypeName = $this->configTypeName;
-        }
-
-        return $this->client->getConfigTypeDefinition($configTypeName);
+        return $this->readConnection->getCurrentContentTypeName();
     }
 
 
-    public function hasContentType($contentTypeName)
+    public function countRecords()
     {
-
-        return array_key_exists($contentTypeName, $this->client->getContentTypesList());
-    }
-
-
-    public function hasConfigType($configTypeName)
-    {
-        return array_key_exists($configTypeName, $this->client->getConfigTypesList());
+        return $this->readConnection->countRecords($this->getCurrentContentTypeName());
     }
 
 
     public function selectContentType($contentTypeName)
     {
-        if ($this->hasContentType($contentTypeName))
-        {
-            if ($this->contentTypeName != $contentTypeName)
-            {
-                $this->contentTypeName       = $contentTypeName;
-                $this->contentTypeDefinition = $this->getContentTypeDefinition($contentTypeName);
-
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-
-    public function selectConfigType($configTypeName)
-    {
-        if ($this->hasConfigType($configTypeName))
-        {
-            if ($this->configTypeName != $configTypeName)
-            {
-                $this->configTypeName = $configTypeName;
-
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getLanguage()
-    {
-        return $this->language;
-    }
-
-
-    /**
-     * @param string $language
-     */
-    public function setLanguage($language)
-    {
-        $this->language = $language;
+        $this->readConnection->selectContentType($contentTypeName);
 
         return $this;
     }
 
 
-    /**
-     * @return int
-     */
-    public function getTimeshift()
+    public function selectView($viewName)
     {
-        return $this->timeshift;
+        $this->getDataDimensions()->setViewName($viewName);
 
         return $this;
     }
 
 
-    /**
-     * @param int $timeshift
-     */
-    public function setTimeshift($timeshift)
+    public function setDataDimensions(DataDimensions $dataDimensions)
     {
-        $this->timeshift = $timeshift;
+        $this->dataDimensions = $dataDimensions;
 
         return $this;
     }
 
 
-    /**
-     * @return string
-     */
-    public function getViewName()
+    public function selectDataDimensions($workspace, $language = null, $timeshift = null)
     {
-        return $this->viewName;
+        $dataDimension = $this->getDataDimensions();
+
+        $dataDimension->setWorkspace($workspace);
+        if ($language !== null)
+        {
+            $dataDimension->setLanguage($language);
+        }
+        if ($timeshift !== null)
+        {
+            $dataDimension->setTimeShift($timeshift);
+        }
+
+        return $this;
+
+    }
+
+
+    public function selectWorkspace($workspace)
+    {
+        $this->getDataDimensions()->setWorkspace($workspace);
 
         return $this;
     }
 
 
-    /**
-     * @param string $viewName
-     */
-    public function setViewName($viewName)
+    public function selectLanguage($language)
     {
-        $this->viewName = $viewName;
+        $this->getDataDimensions()->setLanguage($language);
 
         return $this;
     }
 
 
-    /**
-     * @return string
-     */
-    public function getWorkspace()
+    public function setTimeShift($timeshift)
     {
-        return $this->workspace;
-    }
-
-
-    /**
-     * @param string $workspace
-     */
-    public function setWorkspace($workspace)
-    {
-        $this->workspace = $workspace;
+        $this->getDataDimensions()->setTimeShift($timeshift);
 
         return $this;
     }
 
 
-    /**
-     * @return string
-     */
-    public function getOrder()
+    public function resetDataDimensions()
     {
-        return $this->order;
+
+        $this->dataDimensions = new DataDimensions($this->getCurrentContentType());
+
+        return $this->dataDimensions;
     }
 
 
-    /**
-     * @param string $order
-     */
-    public function setOrder($order)
+    public function getDataDimensions()
     {
-        $this->order = $order;
+        if (!$this->dataDimensions)
+        {
+            return $this->resetDataDimensions();
+        }
 
-        return $this;
+        return $this->dataDimensions;
     }
 
 
-    public function resetDimensions()
+    public function getRecord($recordId, $dataDimensions = null)
     {
-        $this->workspace = 'default';
-        $this->language  = 'default';
-        $this->timeshift = 0;
-        $this->viewName  = 'default';
-        $this->order     = 'id';
-
-        return $this;
+        return $this->readConnection->getRecord($recordId, $dataDimensions);
     }
 
 
-    public function stashDimensions()
+    public function getRecords($dataDimensions = null)
     {
-        $this->stash = array( 'workspace' => $this->workspace, 'viewName' => $this->viewName, 'language' => $this->language, 'timeshift' => $this->timeshift, 'order' => $this->order );
-
-        return $this;
+        return $this->readConnection->getAllRecords();
     }
 
 
-    public function unStashDimensions()
+    public function getPaginatedRecords($page = 1, $count = 100, $dataDimensions = null)
     {
-        $this->workspace = $this->stash['workspace'];
-        $this->language  = $this->stash['language'];
-        $this->timeshift = $this->stash['timeshift'];
-        $this->viewName  = $this->stash['viewName'];
-        $this->order     = $this->stash['order'];
-
-        return $this;
+        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName());
     }
 
 
-    /**
-     * @param      $id
-     * @param null $workspace
-     * @param null $viewName
-     * @param null $language
-     * @param null $timeshift
-     *
-     * @return bool|Record
-     * @throws AnyContentClientException
-     */
-    public function getRecord($id, $workspace = null, $viewName = null, $language = null, $timeshift = null)
+    public function getFilteredRecords($filter, $count, $page, $dataDimensions = null)
     {
-        if ($this->contentTypeDefinition == null)
-        {
-            throw new AnyContentClientException('You must first select a content type (->selectContentType($contentTypeName))');
-        }
-
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-        if ($timeshift === null)
-        {
-            $timeshift = $this->getTimeshift();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->getRecord($this->contentTypeDefinition, $id, $workspace, $viewName, $language, $timeshift);
-        }
-
-        return false;
 
     }
 
 
-    /**
-     * @param ContentFilter $filter
-     * @param null          $workspace
-     * @param null          $viewName
-     * @param null          $language
-     * @param null          $order
-     * @param array         $properties
-     * @param null          $timeshift
-     *
-     * @return bool|Record
-     * @throws AnyContentClientException
-     */
-    public function getFirstRecord(ContentFilter $filter, $workspace = null, $viewName = null, $language = null, $order = null, $properties = array(), $timeshift = null)
+    public function getSortedRecords($parentId, $includeParent = true, $depth = null, $dataDimensions = null)
     {
-        if ($this->contentTypeDefinition == null)
-        {
-            throw new AnyContentClientException('You must first select a content type (->selectContentType($contentTypeName))');
-        }
-
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-        if ($timeshift === null)
-        {
-            $timeshift = $this->getTimeshift();
-        }
-        if ($order === null)
-        {
-            $order = $this->getOrder();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            $records = $this->client->getRecords($this->contentTypeDefinition, $workspace, $viewName, $language, $order, $properties, 1, 1, $filter, null, $timeshift);
-            if (count($records) == 1)
-            {
-                return array_shift($records);
-            }
-        }
-
-        return false;
-    }
-
-
-    public function saveRecord(Record $record, $workspace = null, $viewName = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        return $this->client->saveRecord($record, $workspace, $viewName, $language);
-    }
-
-
-    public function saveRecords(Array $records, $workspace = null, $viewName = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        return $this->client->saveRecords($records, $workspace, $viewName, $language);
-    }
-
-
-    /**
-     * @param null $filter
-     * @param null $limit
-     * @param int  $page
-     * @param null $className
-     *
-     * @return Record[]|bool
-     * @throws AnyContentClientException
-     */
-    public function getRecordsAsRecordObjects($filter = null, $limit = null, $page = 1, $className = null)
-    {
-        $currentClassName = $this->getClient()->getClassForContentType($this->contentTypeName);
-
-        if ($className != null && $currentClassName != $className)
-        {
-            $this->getClient()->registerRecordClassForContentType($this->contentTypeName, $className);
-        }
-
-        $result = $this->getRecords(null, null, null, null, array(), $limit, $page, $filter);
-
-        if ($className != null && $currentClassName != $className)
-        {
-            $this->getClient()->registerRecordClassForContentType($this->contentTypeName, $currentClassName);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param null $filter
-     * @param null $limit
-     * @param int  $page
-     *
-     * @return array|bool
-     * @throws AnyContentClientException
-     */
-    public function getRecordsAsIDNameList($filter = null, $limit = null, $page = 1)
-    {
-        if ($this->contentTypeDefinition == null)
-        {
-            throw new AnyContentClientException('You must first select a content type (->selectContentType($contentTypeName))');
-        }
-
-        $result = $this->client->rawFetchRecords($this->contentTypeDefinition, $this->getWorkspace(), $this->getViewName(), $this->getLanguage(), $this->getOrder(), array(), $limit, $page, $filter, null, $this->getTimeshift());
-
-        if ($result && array_key_exists('records', $result))
-        {
-            $items = array();
-            foreach ($result['records'] as $id => $record)
-            {
-                $items[$id] = @$record['properties']['name'];
-            }
-
-            return $items;
-
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @param null $filter
-     * @param null $limit
-     * @param int  $page
-     *
-     * @return array|bool
-     * @throws AnyContentClientException
-     */
-    public function getRecordsAsPropertiesArray($filter = null, $limit = null, $page = 1)
-    {
-        if ($this->contentTypeDefinition == null)
-        {
-            throw new AnyContentClientException('You must first select a content type (->selectContentType($contentTypeName))');
-        }
-
-        $result = $this->client->rawFetchRecords($this->contentTypeDefinition, $this->getWorkspace(), $this->getViewName(), $this->getLanguage(), $this->getOrder(), array(), $limit, $page, $filter, null, $this->getTimeshift());
-
-        if ($result && array_key_exists('records', $result))
-        {
-            $items = array();
-            foreach ($result['records'] as $id => $record)
-            {
-                $items[$id] = $record['properties'];
-            }
-
-            return $items;
-
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @param null  $workspace
-     * @param null  $viewName
-     * @param null  $language
-     * @param null  $order
-     * @param array $properties
-     * @param null  $limit
-     * @param null  $page
-     * @param null  $filter
-     * @param null  $subset
-     * @param null  $timeshift
-     *
-     * @return array|bool
-     */
-    public function getRecords($workspace = null, $viewName = null, $language = null, $order = null, $properties = array(), $limit = null, $page = 1, $filter = null, $subset = null, $timeshift = null)
-    {
-        if ($this->contentTypeDefinition == null)
-        {
-            throw new AnyContentClientException('You must first select a content type (->selectContentType($contentTypeName))');
-        }
-
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-        if ($timeshift === null)
-        {
-            $timeshift = $this->getTimeshift();
-        }
-        if ($order === null)
-        {
-            $order = $this->getOrder();
-        }
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->getRecords($this->contentTypeDefinition, $workspace, $viewName, $language, $order, $properties, $limit, $page, $filter, $subset, $timeshift);
-        }
-
-        return false;
-    }
-
-
-    public function countRecords($workspace = null, $viewName = null, $language = null, $order = null, $properties = array(), $limit = null, $page = 1, $filter = null, $timeshift = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-        if ($timeshift === null)
-        {
-            $timeshift = $this->getTimeshift();
-        }
-        if ($order === null)
-        {
-            $order = $this->getOrder();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->countRecords($this->contentTypeDefinition, $workspace, $viewName, $language, $order, $properties, $limit, $page, $filter, $timeshift);
-        }
-
-        return false;
-    }
-
-
-    public function getSubset($parentId, $includeParent = true, $depth = null, $workspace = null, $viewName = null, $language = null, $timeshift = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($viewName === null)
-        {
-            $viewName = $this->getViewName();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-        if ($timeshift === null)
-        {
-            $timeshift = $this->getTimeshift();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->getSubset($this->contentTypeDefinition, $parentId, $includeParent, $depth, $workspace, $viewName, $language, $timeshift);
-        }
-
-        return false;
-    }
-
-
-    public function sortRecords($list, $workspace = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->sortRecords($this->contentTypeDefinition, $list, $workspace, $language);
-        }
-
-        return false;
 
     }
 
-
-    public function deleteRecord($id, $workspace = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->deleteRecord($this->contentTypeDefinition, $id, $workspace, $language);
-        }
-
-        return false;
-
-    }
-
-
-    public function deleteRecords($workspace = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        if ($this->contentTypeDefinition)
-        {
-            return $this->client->deleteRecords($this->contentTypeDefinition, $workspace, $language);
-        }
-
-        return false;
-
-    }
-
-
-    public function getConfig($configTypeName = null)
-    {
-        if ($configTypeName == null)
-        {
-            $configTypeName = $this->configTypeName;
-        }
-
-        return $this->client->getConfig($configTypeName);
-    }
-
-
-    public function saveConfig(Config $config, $workspace = null, $language = null)
-    {
-        if ($workspace === null)
-        {
-            $workspace = $this->getWorkspace();
-        }
-        if ($language === null)
-        {
-            $language = $this->getLanguage();
-        }
-
-        return $this->client->saveConfig($config, $workspace, $language);
-    }
-
-
-    /**
-     * @param string $path
-     *
-     * @return Folder|bool
-     */
-    public function getFolder($path = '')
-    {
-        return $this->client->getFolder($path);
-    }
-
-
-    public function getFile($id)
-    {
-        return $this->client->getFile($id);
-    }
-
-
-    public function getBinary(File $file)
-    {
-        return $this->client->getBinary($file);
-    }
-
-
-    public function saveFile($id, $binary)
-    {
-        return $this->client->saveFile($id, $binary);
-    }
-
-
-    public function deleteFile($id, $deleteEmptyFolder = true)
-    {
-        return $this->client->deleteFile($id, $deleteEmptyFolder);
-    }
-
-
-    public function createFolder($path)
-    {
-        return $this->client->createFolder($path);
-    }
-
-
-    public function deleteFolder($path, $deleteIfNotEmpty = false)
-    {
-        return $this->client->deleteFolder($path, $deleteIfNotEmpty);
-    }
 }

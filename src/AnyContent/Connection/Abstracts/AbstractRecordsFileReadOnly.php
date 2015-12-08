@@ -5,7 +5,7 @@ use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Traits\CMDLCache;
 use AnyContent\Connection\Traits\CMDLParser;
 use AnyContent\Connection\Traits\Factories;
-use AnyContent\Repository\Record;
+use AnyContent\Client\Record;
 use CMDL\ContentTypeDefinition;
 
 use Symfony\Component\Filesystem\Filesystem;

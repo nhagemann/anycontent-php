@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use AnyContent\AnyContentClientException;
 use CMDL\ContentTypeDefinition;
@@ -101,7 +101,7 @@ class RecordFactory
             return $this->contentRecordClassMap[$contentTypeName];
         }
 
-        return 'AnyContent\Repository\Record';
+        return 'AnyContent\Client\Record';
     }
 }
 

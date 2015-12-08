@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use CMDL\CMDLParserException;
 use CMDL\Util;
@@ -27,7 +27,7 @@ class Record implements \JsonSerializable
 
     public $position = null;
     public $parentRecordId = null;
-    public $levelWithinSortedTree = null;
+    public $level = null;
 
     public $creationUserInfo;
     public $lastChangeUserInfo;
@@ -322,7 +322,7 @@ class Record implements \JsonSerializable
 
     public function setLevelWithinSortedTree($levelWithinSortedTree)
     {
-        $this->levelWithinSortedTree = $levelWithinSortedTree;
+        $this->level = $levelWithinSortedTree;
     }
 
 
@@ -331,7 +331,7 @@ class Record implements \JsonSerializable
      */
     public function getLevelWithinSortedTree()
     {
-        return $this->levelWithinSortedTree;
+        return $this->level;
     }
 
 

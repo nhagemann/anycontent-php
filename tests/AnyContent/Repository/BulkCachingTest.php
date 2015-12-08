@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use Doctrine\Common\Cache\PhpFileCache;

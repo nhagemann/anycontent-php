@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 
@@ -71,7 +71,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         $record = $connection->getRecord(1);
 
-        $this->assertInstanceOf('AnyContent\Repository\Record', $record);
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
 
         $this->assertEquals('UDG United Digital Group', $record->getProperty('name'));
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;

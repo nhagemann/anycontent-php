@@ -3,7 +3,7 @@ namespace AnyContent\Connection\Abstracts;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Connection\Interfaces\WriteConnection;
-use AnyContent\Repository\Record;
+use AnyContent\Client\Record;
 
 abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly implements WriteConnection
 {

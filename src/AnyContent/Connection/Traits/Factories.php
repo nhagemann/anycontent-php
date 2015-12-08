@@ -1,7 +1,7 @@
 <?php
 namespace AnyContent\Connection\Traits;
 
-use AnyContent\Repository\RecordFactory;
+use AnyContent\Client\RecordFactory;
 
 trait Factories
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use AnyContent\Connection\RecordsFileGitReadWriteConnection;
 
@@ -86,7 +86,7 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $record = $connection->getRecord(1);
 
-        $this->assertInstanceOf('AnyContent\Repository\Record', $record);
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
 
         $this->assertEquals('UDG United Digital Group', $record->getProperty('name'));
 
@@ -120,7 +120,7 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $record = $connection->getRecord(5);
 
-        $this->assertInstanceOf('AnyContent\Repository\Record', $record);
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
 
         $record->setProperty('name', self::$randomString);
 
@@ -137,7 +137,7 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $record = $connection->getRecord(5);
 
-        $this->assertInstanceOf('AnyContent\Repository\Record', $record);
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
 
         $this->assertEquals(self::$randomString, $record->getName());
 

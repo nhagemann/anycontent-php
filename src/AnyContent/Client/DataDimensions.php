@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Repository;
+namespace AnyContent\Client;
 
 use CMDL\DataTypeDefinition;
 use CMDL\Util;

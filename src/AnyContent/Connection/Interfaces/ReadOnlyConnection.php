@@ -2,7 +2,7 @@
 
 namespace AnyContent\Connection\Interfaces;
 
-use AnyContent\Repository\Record;
+use AnyContent\Client\Record;
 use CMDL\ContentTypeDefinition;
 
 interface ReadOnlyConnection
