@@ -29,8 +29,11 @@ class Record implements \JsonSerializable
     public $parentRecordId = null;
     public $level = null;
 
-    public $creationUserInfo;
-    public $lastChangeUserInfo;
+    /** @var  UserInfo */
+    public $creationUserInfo = null;
+
+    /** @var UserInfo */
+    public $lastChangeUserInfo = null;
 
 
     public function __construct(ContentTypeDefinition $contentTypeDefinition, $name, $view = 'default', $workspace = 'default', $language = 'default')
@@ -236,7 +239,7 @@ class Record implements \JsonSerializable
     }
 
 
-    public function setLastChangeUserInfo($lastChangeUserInfo)
+    public function setLastChangeUserInfo(UserInfo $lastChangeUserInfo)
     {
         $this->lastChangeUserInfo = $lastChangeUserInfo;
     }
@@ -244,12 +247,21 @@ class Record implements \JsonSerializable
 
     public function getLastChangeUserInfo()
     {
+        if ($this->lastChangeUserInfo == null)
+        {
+            $this->lastChangeUserInfo = new UserInfo();
+        }
+
         return $this->lastChangeUserInfo;
     }
 
 
-    public function setCreationUserInfo($creationUserInfo)
+    public function setCreationUserInfo(UserInfo $creationUserInfo)
     {
+        if ($this->creationUserInfo == null)
+        {
+            $this->creationUserInfo = new UserInfo();
+        }
         $this->creationUserInfo = $creationUserInfo;
     }
 

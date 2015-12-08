@@ -3,6 +3,7 @@
 namespace AnyContent\Client;
 
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
+use AnyContent\Connection\Interfaces\WriteConnection;
 
 class Repository
 {
@@ -10,15 +11,136 @@ class Repository
     /** @var  ReadOnlyConnection */
     protected $readConnection;
 
-    protected $writeConnection = false;
+    /** @var WriteConnection */
+    protected $writeConnection;
 
     /** @var DataDimensions */
     protected $dataDimensions;
+
+    /**
+     * @var string unique identifier extracted from the connection
+     */
+    protected $id;
+
+    /**
+     * @var string human readable title
+     */
+    protected $title;
+
+    /**
+     * @var string custom identifier
+     */
+    protected $shortcut;
 
 
     public function __construct($readConnection, $writeConnection = null)
     {
         $this->readConnection = $readConnection;
+        if ($writeConnection != null)
+        {
+            $this->writeConnection = $writeConnection;
+        }
+        elseif ($readConnection instanceof WriteConnection)
+        {
+            $this->writeConnection = $readConnection;
+        }
+
+    }
+
+
+    /**
+     * @return ReadOnlyConnection
+     */
+    public function getReadConnection()
+    {
+        return $this->readConnection;
+    }
+
+
+    /**
+     * @param ReadOnlyConnection $readConnection
+     */
+    public function setReadConnection($readConnection)
+    {
+        $this->readConnection = $readConnection;
+    }
+
+
+    /**
+     * @return
+     */
+    public function getWriteConnection()
+    {
+        return $this->writeConnection;
+    }
+
+
+    /**
+     * @param boolean $writeConnection
+     */
+    public function setWriteConnection($writeConnection)
+    {
+        $this->writeConnection = $writeConnection;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getShortcut()
+    {
+        return $this->shortcut;
+    }
+
+
+    /**
+     * @param string $shortcut
+     */
+    public function setShortcut($shortcut)
+    {
+        $this->shortcut = $shortcut;
+
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
     }
 
 
@@ -28,14 +150,23 @@ class Repository
     }
 
 
+    /**
+     * @return \CMDL\ContentTypeDefinition[]
+     */
     public function getContentTypes()
     {
         return $this->readConnection->getContentTypes();
     }
 
 
-    public function getContentTypeDefinition($contentTypeName)
+    public function getContentTypeDefinition($contentTypeName = null)
     {
+
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
         return $this->readConnection->getContentTypeDefinition($contentTypeName);
     }
 
@@ -172,6 +303,12 @@ class Repository
     public function getSortedRecords($parentId, $includeParent = true, $depth = null, $dataDimensions = null)
     {
 
+    }
+
+
+    public function saveRecord($record, $dataDimensions = null)
+    {
+        return $this->writeConnection->saveRecord($record);
     }
 
 }

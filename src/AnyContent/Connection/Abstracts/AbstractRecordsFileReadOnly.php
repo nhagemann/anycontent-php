@@ -214,7 +214,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
                 return $this->contentTypes[$contentTypeName]['records'];
             }
 
-            $data = $this->readData($this->contentTypes[$contentTypeName]['json']);
+            $data = $this->readRecords($this->contentTypes[$contentTypeName]['json']);
 
             if ($data)
             {
@@ -292,4 +292,11 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     {
         return $this->readData($filename);
     }
+
+
+    protected function readRecords($filename)
+    {
+        return $this->readData($filename);
+    }
+
 }

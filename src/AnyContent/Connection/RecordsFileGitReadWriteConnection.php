@@ -7,14 +7,15 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Connection\Abstracts\AbstractRecordsFileReadWrite;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
+use AnyContent\Connection\Interfaces\UniqueConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
 
 use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitWrapper;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite implements ReadOnlyConnection, WriteConnection
+class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite implements ReadOnlyConnection, WriteConnection, UniqueConnection
 {
-
 
     /**
      * @var GitWrapper
@@ -24,10 +25,22 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     /** @var  GitWorkingCopy[] */
     protected $git = [ ];
 
+    protected $uniqueConnection = false;
+
     /**
      * @var int seconds not checking for remote changes
      */
     protected $confidence = 300;
+
+    /**
+     * @var string url of the remote git repository
+     */
+    protected $remoteUrl;
+
+    /**
+     * @var string directory containing the local copy of the git repository
+     */
+    protected $directory;
 
 
     /**
@@ -35,70 +48,82 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
      *
      * @return $this
      */
-    public function addContentType($options)
+    public function addContentType($contentTypeName, $filenameCMDL, $filenameRecords, $contentTypeTitle = null)
     {
-        $mandatory = [ 'filenameRecords', 'filenameCMDL', 'repositoryUrl', 'repositoryPath' ];
-
-        $diff = array_diff($mandatory, array_keys($options));
-
-        if (count($diff) > 0)
-        {
-            throw new AnyContentClientException ('Missing mandatory option(s): ' . join(', ', $diff));
-        }
-
-        $contentTypeName = basename($options['filenameCMDL'], '.cmdl');
-
-        if (array_key_exists('contentTypeName', $options))
-        {
-            $contentTypeName = $options['contentTypeName'];
-        }
-
-        $contentTypeTitle = null;
-
-        if (array_key_exists('contentTypeTitle', $options))
-        {
-            $contentTypeTitle = $options['contentTypeTitle'];
-        }
-
-        if (array_key_exists('confidence', $options))
-        {
-            $this->confidence = $options['confidence'];
-        }
-
-        $this->contentTypes[$contentTypeName] = [ 'json' => $options['filenameRecords'], 'cmdl' => $options['filenameCMDL'], 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
-
-        $wrapper = new GitWrapper();
-
-        if (array_key_exists('fileNamePrivateKey', $options))
-        {
-            $wrapper->setPrivateKey($options['fileNamePrivateKey']);
-        }
-
-        if (file_exists($options['repositoryPath']))
-        {
-            $git = $wrapper->init($options['repositoryPath']);
-        }
-        else
-        {
-            $git = $wrapper->cloneRepository($options['repositoryUrl'], $options['repositoryPath']);
-        }
-
-        $this->wrapper = $wrapper;
-        $this->git     = $git;
+        $this->contentTypes[$contentTypeName] = [ 'json' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
 
         return $this;
     }
 
 
-    /**
-     * @param $fileName
-     *
-     * @return \GuzzleHttp\Stream\StreamInterface|null
-     * @throws ClientException
-     */
+    protected function readRecords($fileName)
+    {
+        try
+        {
+            return $this->readData($fileName);
+        }
+        catch (FileNotFoundException $e)
+        {
+
+        }
+
+        return json_encode([ 'records' => [ ] ]);
+    }
+
+
     protected function readData($fileName)
     {
-        $directory = $this->git->getDirectory();
+
+        $directory = $this->getDirectory();
+
+        $this->occasionalPull();
+
+        if (!file_exists($directory . '/' . $fileName))
+        {
+            throw new FileNotFoundException($directory . '/' . $fileName);
+        }
+
+        return file_get_contents($directory . '/' . $fileName);
+
+    }
+
+
+    protected function writeData($fileName, $data)
+    {
+        $directory = $this->getDirectory();
+
+        if ($this->isUniqueConnection())
+        {
+
+            $this->occasionalPull();
+        }
+        else
+        {
+            $this->getGit()->pull();
+        }
+
+        file_put_contents($directory . '/' . $fileName, $data);
+
+        if ($this->getGit()->hasChanges())
+        {
+            $this->getGit()->commit('AnyContent Connection Commit');
+            $this->getGit()->push();
+        }
+        //@upgrade force pull on error
+        if ($this->getGit()->hasChanges())
+        {
+            $this->getGit()->add('*.json');
+            $this->getGit()->commit('AnyContent Connection Add Commit');
+            $this->getGit()->push();
+        }
+
+        return true;
+    }
+
+
+    protected function occasionalPull()
+    {
+        $directory = $this->getDirectory();
 
         // http://stackoverflow.com/questions/2993902/how-do-i-check-the-date-and-time-of-the-latest-git-pull-that-was-executed
         $timestamp = 0;
@@ -109,28 +134,67 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
 
         if (time() > ($timestamp + $this->confidence))
         {
-            $this->git->pull();
+            $this->getGit()->pull();
         }
-
-        return file_get_contents($directory . '/' . $fileName);
     }
 
 
-    protected function writeData($fileName, $data)
+    /**
+     * @return boolean
+     */
+    public function isUniqueConnection()
     {
-        $directory = $this->git->getDirectory();
+        return $this->uniqueConnection;
+    }
 
-        $this->git->pull();
 
-        file_put_contents($directory . '/' . $fileName, $data);
+    public function setUniqueConnection($confidence = 60)
+    {
+        $this->confidence       = (int)$confidence;
+        $this->uniqueConnection = (boolean)$confidence;
+    }
 
-        if ($this->git->hasChanges())
+
+    /**
+     * @return string
+     */
+    public function getRemoteUrl()
+    {
+        return $this->remoteUrl;
+    }
+
+
+    /**
+     * @param string $remoteUrl
+     */
+    public function setRemoteUrl($remoteUrl)
+    {
+        $this->remoteUrl = $remoteUrl;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getDirectory()
+    {
+        if ($this->directory == '')
         {
-            $this->git->commit('AnyContent Connection Commit');
-            $this->git->push();
+            throw new AnyContentClientException ('No git working directory set.');
         }
 
-        return true;
+        return rtrim($this->directory, '/');
+    }
+
+
+    /**
+     * @param mixed $directory
+     */
+    public function setDirectory($directory)
+    {
+        $this->directory = $directory;
+
+        return $this;
     }
 
 
@@ -139,6 +203,11 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
      */
     public function getWrapper()
     {
+        if (!$this->wrapper)
+        {
+            $this->wrapper = new GitWrapper();
+        }
+
         return $this->wrapper;
     }
 
@@ -152,22 +221,40 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     }
 
 
-    /**
-     * @return \GitWrapper\GitWorkingCopy[]
-     */
+    /** @return GitWorkingCopy */
     public function getGit()
     {
+        if (!$this->git)
+        {
+            if (file_exists($this->getDirectory()))
+            {
+                $this->git = $this->getWrapper()->init($this->getDirectory());
+            }
+            else
+            {
+
+                $this->git = $this->getWrapper()->cloneRepository($this->getRemoteUrl(), $this->getDirectory());
+            }
+        }
+
         return $this->git;
     }
 
 
     /**
-     * @param \GitWrapper\GitWorkingCopy[] $git
+     * @param GitWorkingCopy $git
      */
     public function setGit($git)
     {
         $this->git = $git;
     }
 
+
+    public function setPrivateKey($filename)
+    {
+        $this->getWrapper()->setPrivateKey($filename);
+
+        return $this;
+    }
 }
 

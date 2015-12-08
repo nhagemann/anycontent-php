@@ -12,7 +12,8 @@ abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly 
     {
         $records = [ $record ];
 
-        return $this->saveRecords($records);
+        $recordIds = $this->saveRecords($records);
+        return array_pop($recordIds);
     }
 
 
@@ -24,6 +25,7 @@ abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly 
      */
     public function saveRecords(array $records)
     {
+        $recordIds = [];
         $allRecords = $this->getAllRecords();
 
         foreach ($records as $record)
@@ -38,6 +40,7 @@ abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly 
             $record->setRevision($record->getRevision() + 1);
             $record->setRevisionTimestamp(time());
             $allRecords[$record->getID()] = $record;
+            $recordIds[]=$record->getID();
         }
 
         $data = json_encode([ 'records' => $allRecords ],JSON_PRETTY_PRINT);
@@ -46,7 +49,7 @@ abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly 
         {
             $this->contentTypes[$this->getCurrentContentTypeName()]['records'] = $allRecords;
 
-            return true;
+            return $recordIds;
 
         }
         throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());

@@ -23,14 +23,14 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
 
         $connection = new RecordsFileGitReadWriteConnection();
+        $connection->setDirectory(__DIR__ . '/../../../tmp/git')->setPrivateKey('/var/www/github/gitrepos/id_rsa');
+        $connection->setRemoteUrl('git@bitbucket.org:nhagemann/anycontent-git-repository.git');
+        $connection->setUniqueConnection(300);
 
-        $options = [ 'filenameRecords' => 'phpunit/profiles.json', 'filenameCMDL' => 'phpunit/profiles.cmdl', 'repositoryUrl' => 'git@bitbucket.org:nhagemann/anycontent-git-repository.git', 'repositoryPath' => __DIR__ . '/../../../tmp/git', 'fileNamePrivateKey' => '/home/vagrant/.ssh/id_rsa' ];
-
-        $connection->addContentType($options);
+        $connection->addContentType('profiles','profiles.cmdl','profiles.json');
         $this->connection = $connection;
 
-        $connection->getGit()->config('user.name', 'nhagemann');
-        $connection->getGit()->config('user.email', 'nhagemann@bitbucket.org');
+
 
     }
 
