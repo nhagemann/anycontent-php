@@ -40,7 +40,7 @@ abstract class AbstractRecordsFileReadWrite extends AbstractRecordsFileReadOnly 
             $allRecords[$record->getID()] = $record;
         }
 
-        $data = json_encode([ 'records' => $allRecords ]);
+        $data = json_encode([ 'records' => $allRecords ],JSON_PRETTY_PRINT);
 
         if ($this->writeData($this->contentTypes[$this->getCurrentContentTypeName()]['json'], $data))
         {

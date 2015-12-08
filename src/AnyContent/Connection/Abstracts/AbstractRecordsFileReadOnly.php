@@ -14,6 +14,7 @@ use AnyContent\AnyContentClientException;
 
 abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
 {
+
     use CMDLCache;
     use CMDLParser;
     use Factories;
@@ -83,7 +84,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
                 return $this->contentTypes[$contentTypeName]['definition'];
             }
 
-            $cmdl = $this->readData($this->contentTypes[$contentTypeName]['cmdl']);
+            $cmdl = $this->readCMDL($this->contentTypes[$contentTypeName]['cmdl']);
 
             if ($cmdl)
             {
@@ -236,9 +237,29 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     }
 
 
-    protected function readData($fileName)
+    /**
+     * @param $contentTypeName
+     *
+     * @return bool
+     * @throws AnyContentClientException
+     */
+    public function hasLoadedAllRecords($contentTypeName)
     {
-        return file_get_contents($fileName);
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
+        if (array_key_exists($contentTypeName, $this->contentTypes))
+        {
+
+            if ($this->contentTypes[$contentTypeName]['records'] !== false)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -258,5 +279,17 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
         }
 
         throw new AnyContentClientException ('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+    }
+
+
+    protected function readData($fileName)
+    {
+        return file_get_contents($fileName);
+    }
+
+
+    protected function readCMDL($filename)
+    {
+        return $this->readData($filename);
     }
 }

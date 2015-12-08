@@ -15,6 +15,12 @@ if (!function_exists('apc_exists'))
 }
 
 
+if (file_exists(__DIR__.'/_credentials.php'))
+{
+    require_once(__DIR__.'/_credentials.php');
+}
+
+
 
 
 

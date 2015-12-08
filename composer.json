@@ -18,7 +18,8 @@
     "symfony/filesystem": "2.*",
     "guzzlehttp/guzzle": "5.*",
     "doctrine/cache": "1.5.*",
-    "cpliakas/git-wrapper": "1.*"
+    "cpliakas/git-wrapper": "1.*",
+    "ktamas77/firebase-php": "2.*"
   },
   "require-dev": {
     "phpunit/phpunit": "~3.7.0"
