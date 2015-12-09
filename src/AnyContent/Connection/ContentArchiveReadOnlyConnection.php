@@ -5,8 +5,10 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
 
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
-class ContentArchiveConnection extends AbstractRecordsFileReadOnly implements ReadOnlyConnection
+class ContentArchiveReadOnlyConnection extends RecordFilesReadOnlyConnection implements ReadOnlyConnection
 {
 
     protected $path;
@@ -16,7 +18,10 @@ class ContentArchiveConnection extends AbstractRecordsFileReadOnly implements Re
 
     public function setContentArchiveFolder($path)
     {
+        $path       = rtrim($path, '/');
         $this->path = $path;
+
+        $this->initContentTypes();
     }
 
 
@@ -28,9 +33,26 @@ class ContentArchiveConnection extends AbstractRecordsFileReadOnly implements Re
 
     public function setContentArchiveFile($path)
     {
-       // TODO
+        // TODO
     }
 
 
+    protected function initContentTypes()
+    {
+        $finder = new Finder();
 
+        $finder->in($this->getContentArchiveFolder())->depth(1);
+
+        /** @var SplFileInfo $file */
+        foreach ($finder->files('*.cmdl') as $file)
+        {
+            $contentTypeName = $file->getBasename('.cmdl');
+
+            $filenameCMDL    = $this->getContentArchiveFolder() . '/cmdl/' . $contentTypeName . '.cmdl';
+            $filenameRecords = $this->getContentArchiveFolder() . '/data/content/' . $contentTypeName;
+
+            $this->contentTypes[$contentTypeName] = [ 'json' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => false, 'folder'=>$filenameRecords ];
+
+        }
+    }
 }

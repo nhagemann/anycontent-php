@@ -21,7 +21,7 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
         $folder = $this->getContentTypeConnectionData($contentTypeName, 'folder');
 
         $finder = new Finder();
-        $finder->in($folder);
+        $finder->in($folder)->depth(0);
 
         return $finder->files()->name('*.json')->count();
 
@@ -85,7 +85,7 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
         $folder = $this->getContentTypeConnectionData($contentTypeName, 'folder');
 
         $finder = new Finder();
-        $finder->in($folder);
+        $finder->in($folder)->depth(0);
 
         $data = [ ];
 
