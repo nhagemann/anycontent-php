@@ -8,6 +8,6 @@ use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 abstract class AbstractRecordFilesReadOnly extends AbstractRecordsFileReadOnly implements ReadOnlyConnection
 {
-      use AddRecordFiles;
+      //use AddRecordFiles;
 
 }

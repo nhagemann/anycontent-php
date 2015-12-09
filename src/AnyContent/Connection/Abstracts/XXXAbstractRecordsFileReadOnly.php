@@ -29,7 +29,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     /**
      * @var array  [ 'json' => , 'cmdl' => , 'definition' => , 'records' => ]
      */
-    protected $contentTypes = [ ];
+    //protected $contentTypes = [ ];
 
 
     /**
@@ -38,6 +38,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
      * @return mixed
      * @throws AnyContentClientException
      */
+    /*
     protected function getContentTypeConnectionData($contentTypeName = null, $name = null)
     {
         if ($contentTypeName == null)
@@ -61,6 +62,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
 
     }
+    */
 
 
     /**

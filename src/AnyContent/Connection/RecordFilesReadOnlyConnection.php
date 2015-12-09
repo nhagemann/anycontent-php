@@ -3,13 +3,24 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
-use AnyContent\Connection\Abstracts\AbstractRecordFilesReadOnly;
+
+use AnyContent\Connection\Configuration\RecordFilesConfiguration;
+
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implements ReadOnlyConnection
+class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implements ReadOnlyConnection
 {
+
+    /**
+     * @return RecordFilesConfiguration
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
+
 
     /**
      * @return int
@@ -17,15 +28,18 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
      */
     public function countRecords($contentTypeName = null)
     {
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
 
-        $folder = $this->getContentTypeConnectionData($contentTypeName, 'folder');
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
 
         $finder = new Finder();
         $finder->in($folder)->depth(0);
 
         return $finder->files()->name('*.json')->count();
 
-        throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
     }
 
 
@@ -39,7 +53,7 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
     {
         $contentTypeName = $this->getCurrentContentTypeName();
 
-        $folder = $this->getContentTypeConnectionData($contentTypeName, 'folder');
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
 
         $fileName = $folder . '/' . $recordId . '.json';
 
@@ -79,10 +93,10 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
 
         if ($this->hasLoadedAllRecords($contentTypeName))
         {
-            return $this->getContentTypeConnectionData($contentTypeName, 'records');
+            return $this->records[$contentTypeName];
         }
 
-        $folder = $this->getContentTypeConnectionData($contentTypeName, 'folder');
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
 
         $finder = new Finder();
         $finder->in($folder)->depth(0);
@@ -101,7 +115,7 @@ class RecordFilesReadOnlyConnection extends AbstractRecordFilesReadOnly implemen
         $records = $this->getRecordFactory()
                         ->createRecordsFromJSONArray($definition, $data);
 
-        $this->contentTypes[$contentTypeName]['records'] = $records;
+        $this->records[$contentTypeName]= $records;
 
         return $records;
 

@@ -2,19 +2,23 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
 use AnyContent\Connection\RecordsFileHttpReadOnlyConnection;
 
 class RecordsFileHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  SimpleFileConnection */
+    /** @var  RecordsFileHttpReadOnlyConnection */
     public $connection;
 
 
     public function setUp()
     {
-        $connection = new RecordsFileHttpReadOnlyConnection();
-        $connection->addContentTypeUrl('profiles', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.default.default.json', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.cmdl');
+        $configuration = new RecordsFileHttpConfiguration();
+
+        $configuration->addContentType('profiles', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.default.default.json', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.cmdl');
+
+        $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
     }

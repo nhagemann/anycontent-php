@@ -4,42 +4,23 @@ namespace AnyContent\Connection;
 
 use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
 
+use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-class RecordsFileHttpReadOnlyConnection extends AbstractRecordsFileReadOnly implements ReadOnlyConnection
+class RecordsFileHttpReadOnlyConnection extends RecordsFileReadOnlyConnection implements ReadOnlyConnection
 {
 
-    protected $timeout = 30;
-
-
     /**
-     * @return int
+     * @return RecordsFileHttpConfiguration
      */
-    public function getTimeout()
+    public function getConfiguration()
     {
-        return $this->timeout;
+        return $this->configuration;
     }
 
-
-    /**
-     * @param int $timeout
-     */
-    public function setTimeout($timeout)
-    {
-        $this->timeout = $timeout;
-    }
-
-
-    public function addContentTypeUrl($contentTypeName, $urlRecords, $urlCMDL, $contentTypeTitle = null)
-    {
-
-        $this->contentTypes[$contentTypeName] = [ 'json' => $urlRecords, 'cmdl' => $urlCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
-
-        return $this;
-    }
 
 
     /**
@@ -50,7 +31,7 @@ class RecordsFileHttpReadOnlyConnection extends AbstractRecordsFileReadOnly impl
      */
     protected function readData($fileName)
     {
-        $client   = new Client([ 'defaults' => [ 'timeout' => $this->getTimeout() ] ]);
+        $client   = new Client([ 'defaults' => [ 'timeout' => $this->getConfiguration()->getTimeout() ] ]);
         $response = $client->get($fileName);
 
         return $response->getBody();

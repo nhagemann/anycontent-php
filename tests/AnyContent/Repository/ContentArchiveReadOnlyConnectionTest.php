@@ -52,7 +52,7 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testCountRecords()
+   /* public function testCountRecords()
     {
         $connection = $this->connection;
 
@@ -60,7 +60,7 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(3, $connection->countRecords());
 
-    }
+    }*/
 
        /*
     public function testGetRecord()

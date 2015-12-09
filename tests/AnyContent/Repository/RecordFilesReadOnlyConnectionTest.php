@@ -2,6 +2,7 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
 
 class RecordFilesReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
@@ -13,8 +14,11 @@ class RecordFilesReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $connection = new RecordFilesReadOnlyConnection();
-        $connection->addContentType('profiles', __DIR__ . '/../../resources/RecordFilesReadOnlyConnection/profiles.cmdl', __DIR__ . '/../../resources/RecordFilesReadOnlyConnection/records');
+        $configuration = new RecordFilesConfiguration();
+
+        $configuration->addContentType('profiles', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/RecordFilesReadOnlyConnection/records');
+
+        $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
     }
