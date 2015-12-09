@@ -32,6 +32,35 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     protected $contentTypes = [ ];
 
 
+    /**
+     * @param null $contentTypeName
+     *
+     * @return mixed
+     * @throws AnyContentClientException
+     */
+    protected function getContentTypeConnectionData($contentTypeName = null, $name = null)
+    {
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+        if (array_key_exists($contentTypeName, $this->contentTypes))
+        {
+            if ($name == null)
+            {
+                return $this->contentTypes[$contentTypeName];
+            }
+            if (array_key_exists($name, $this->contentTypes[$contentTypeName]))
+            {
+                return $this->contentTypes[$contentTypeName][$name];
+            }
+
+            return null;
+        }
+
+        throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+
+    }
 
 
     /**
@@ -253,6 +282,12 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     }
 
 
+    protected function fileExists($filename)
+    {
+        return file_exists($filename);
+    }
+
+
     protected function readData($fileName)
     {
         return file_get_contents($fileName);
@@ -264,6 +299,10 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
         return $this->readData($filename);
     }
 
+    protected function readRecord($filename)
+    {
+        return $this->readData($filename);
+    }
 
     protected function readRecords($filename)
     {

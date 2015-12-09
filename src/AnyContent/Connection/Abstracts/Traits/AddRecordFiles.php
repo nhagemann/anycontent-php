@@ -4,7 +4,8 @@ namespace AnyContent\Connection\Abstracts\Traits;
 use AnyContent\AnyContentClientException;
 use Symfony\Component\Filesystem\Filesystem;
 
-trait AddRecordFiles{
+trait AddRecordFiles
+{
 
     /**
      * @return \AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly
@@ -24,7 +25,7 @@ trait AddRecordFiles{
             throw new AnyContentClientException('Folder ' . $folderRecords . ' not found.');
         }
 
-        $this->contentTypes[$contentTypeName] = [ 'json' => $folderRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
+        $this->contentTypes[$contentTypeName] = [ 'json' => $folderRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle, 'folder' => $folderRecords ];
 
         return $this;
     }
