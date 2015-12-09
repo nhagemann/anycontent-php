@@ -17,7 +17,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $connection = new RecordsFileReadOnlyConnection();
-        $connection->addContentTypeFile(__DIR__ . '/../../resources/SimpleFileConnection/profiles.json', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl');
+        $connection->addContentType('profiles',__DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/profiles.json');
 
         $repository = new BulkCachingRepository($connection);
 

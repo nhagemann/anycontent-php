@@ -31,7 +31,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $connection = new RecordsFileReadWriteConnection();
-        $connection->addContentTypeFile(__DIR__ . '/../../resources/SimpleFileConnection/temp.json', __DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl');
+        $connection->addContentType('temp',__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.json');
 
         $this->connection = $connection;
     }

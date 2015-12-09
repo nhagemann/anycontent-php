@@ -1,6 +1,7 @@
 <?php
 namespace AnyContent\Connection\Abstracts;
 
+use AnyContent\Connection\Abstracts\Traits\AddRecordsFile;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Traits\CMDLCache;
 use AnyContent\Connection\Traits\CMDLParser;
@@ -18,6 +19,7 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     use CMDLCache;
     use CMDLParser;
     use Factories;
+    use AddRecordsFile;
 
     protected $currentContentTypeName = null;
 
@@ -30,37 +32,6 @@ abstract class AbstractRecordsFileReadOnly implements ReadOnlyConnection
     protected $contentTypes = [ ];
 
 
-    /**
-     * @param      $filenameRecords
-     * @param      $filenameCMDL
-     * @param null $contentTypeName
-     * @param null $contentTypeTitle
-     *
-     * @return $this
-     * @throws AnyContentClientException
-     */
-    public function addContentTypeFile($filenameRecords, $filenameCMDL, $contentTypeName = null, $contentTypeTitle = null)
-    {
-        $fs = new Filesystem();
-
-        if (!$fs->exists($filenameRecords))
-        {
-            throw new AnyContentClientException('File ' . $filenameRecords . ' not found.');
-        }
-        if (!$fs->exists($filenameCMDL))
-        {
-            throw new AnyContentClientException('File ' . $filenameRecords . ' not found.');
-        }
-
-        if ($contentTypeName == null)
-        {
-            $contentTypeName = basename($filenameCMDL, '.cmdl');
-        }
-
-        $this->contentTypes[$contentTypeName] = [ 'json' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
-
-        return $this;
-    }
 
 
     /**
