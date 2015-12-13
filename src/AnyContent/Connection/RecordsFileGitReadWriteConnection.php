@@ -2,9 +2,8 @@
 
 namespace AnyContent\Connection;
 
-use AnyContent\AnyContentClientException;
 
-use AnyContent\Connection\Abstracts\AbstractRecordsFileReadWrite;
+use AnyContent\Connection\Configuration\RecordsFileGitConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 use AnyContent\Connection\Interfaces\UniqueConnection;
@@ -14,7 +13,7 @@ use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitWrapper;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite implements ReadOnlyConnection, WriteConnection, UniqueConnection
+class RecordsFileGitReadWriteConnection extends RecordsFileReadWriteConnection implements ReadOnlyConnection, WriteConnection, UniqueConnection
 {
 
     /**
@@ -25,6 +24,7 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     /** @var  GitWorkingCopy[] */
     protected $git = [ ];
 
+
     protected $uniqueConnection = false;
 
     /**
@@ -32,28 +32,32 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
      */
     protected $confidence = 300;
 
-    /**
-     * @var string url of the remote git repository
-     */
-    protected $remoteUrl;
 
     /**
-     * @var string directory containing the local copy of the git repository
+     * @return RecordsFileGitConfiguration
      */
-    protected $directory;
-
-
-    /**
-     * @param $options (filenameRecords, filenameCMDL, repositoryUrl,repositoryPath, contentTypeName, confidence, fileNamePrivateKey)
-     *
-     * @return $this
-     */
-    public function addContentType($contentTypeName, $filenameCMDL, $filenameRecords, $contentTypeTitle = null)
+    public function getConfiguration()
     {
-        $this->contentTypes[$contentTypeName] = [ 'json' => $filenameRecords, 'cmdl' => $filenameCMDL, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle ];
-
-        return $this;
+        return $this->configuration;
     }
+
+
+    /**
+     * @return boolean
+     */
+    public function isUniqueConnection()
+    {
+        return $this->uniqueConnection;
+    }
+
+
+    public function setUniqueConnection($confidence = 60)
+    {
+        $this->confidence       = (int)$confidence;
+        $this->uniqueConnection = (boolean)$confidence;
+    }
+
+
 
 
     protected function readRecords($fileName)
@@ -74,7 +78,7 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     protected function readData($fileName)
     {
 
-        $directory = $this->getDirectory();
+        $directory = $this->getConfiguration()->getDirectory();
 
         $this->occasionalPull();
 
@@ -90,7 +94,7 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
 
     protected function writeData($fileName, $data)
     {
-        $directory = $this->getDirectory();
+        $directory = $this->getConfiguration()->getDirectory();
 
         if ($this->isUniqueConnection())
         {
@@ -123,7 +127,7 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
 
     protected function occasionalPull()
     {
-        $directory = $this->getDirectory();
+        $directory = $this->getConfiguration()->getDirectory();
 
         // http://stackoverflow.com/questions/2993902/how-do-i-check-the-date-and-time-of-the-latest-git-pull-that-was-executed
         $timestamp = 0;
@@ -139,63 +143,7 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     }
 
 
-    /**
-     * @return boolean
-     */
-    public function isUniqueConnection()
-    {
-        return $this->uniqueConnection;
-    }
 
-
-    public function setUniqueConnection($confidence = 60)
-    {
-        $this->confidence       = (int)$confidence;
-        $this->uniqueConnection = (boolean)$confidence;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getRemoteUrl()
-    {
-        return $this->remoteUrl;
-    }
-
-
-    /**
-     * @param string $remoteUrl
-     */
-    public function setRemoteUrl($remoteUrl)
-    {
-        $this->remoteUrl = $remoteUrl;
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getDirectory()
-    {
-        if ($this->directory == '')
-        {
-            throw new AnyContentClientException ('No git working directory set.');
-        }
-
-        return rtrim($this->directory, '/');
-    }
-
-
-    /**
-     * @param mixed $directory
-     */
-    public function setDirectory($directory)
-    {
-        $this->directory = $directory;
-
-        return $this;
-    }
 
 
     /**
@@ -226,14 +174,14 @@ class RecordsFileGitReadWriteConnection extends AbstractRecordsFileReadWrite imp
     {
         if (!$this->git)
         {
-            if (file_exists($this->getDirectory()))
+            if (file_exists($this->getConfiguration()->getDirectory()))
             {
-                $this->git = $this->getWrapper()->init($this->getDirectory());
+                $this->git = $this->getWrapper()->init($this->getConfiguration()->getDirectory());
             }
             else
             {
 
-                $this->git = $this->getWrapper()->cloneRepository($this->getRemoteUrl(), $this->getDirectory());
+                $this->git = $this->getWrapper()->cloneRepository($this->getConfiguration()->getRemoteUrl(), $this->getConfiguration()->getDirectory());
             }
         }
 

@@ -1,6 +1,8 @@
 <?php
 namespace AnyContent\Connection\Configuration;
 
+use AnyContent\Connection\AbstractConnection;
+
 class AbstractConfiguration
 {
 
@@ -30,7 +32,7 @@ class AbstractConfiguration
     }
 
 
-    public function apply()
+    public function apply(AbstractConnection $connection)
     {
 
     }

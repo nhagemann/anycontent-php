@@ -2,6 +2,7 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\RecordsFileGitConfiguration;
 use AnyContent\Connection\RecordsFileGitReadWriteConnection;
 
 class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
@@ -21,16 +22,15 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $configuration = new RecordsFileGitConfiguration();
 
-        $connection = new RecordsFileGitReadWriteConnection();
-        $connection->setDirectory(__DIR__ . '/../../../tmp/git')->setPrivateKey('/var/www/github/gitrepos/id_rsa');
-        $connection->setRemoteUrl('git@bitbucket.org:nhagemann/anycontent-git-repository.git');
-        $connection->setUniqueConnection(300);
+        $configuration->setDirectory(__DIR__ . '/../../../tmp/git')->setPrivateKey('/var/www/github/gitrepos/id_rsa');
+        $configuration->setRemoteUrl('git@bitbucket.org:nhagemann/anycontent-git-repository.git');
+        $configuration->setUniqueConnection(300);
 
-        $connection->addContentType('profiles','profiles.cmdl','profiles.json');
-        $this->connection = $connection;
+        $configuration->addContentType('profiles', 'profiles.cmdl', 'profiles.json');
 
-
+        $this->connection = $configuration->createReadWriteConnection();
 
     }
 

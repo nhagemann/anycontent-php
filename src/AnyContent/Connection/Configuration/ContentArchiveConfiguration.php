@@ -3,9 +3,8 @@ namespace AnyContent\Connection\Configuration;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
+use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
-use AnyContent\Connection\RecordFilesReadOnlyConnection;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 class ContentArchiveConfiguration extends AbstractConfiguration
@@ -37,7 +36,7 @@ class ContentArchiveConfiguration extends AbstractConfiguration
     }
 
 
-    public function apply()
+    public function apply(AbstractConnection $connection)
     {
 
         $finder = new Finder();

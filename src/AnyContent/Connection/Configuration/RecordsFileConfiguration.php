@@ -22,7 +22,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
     {
         $fs = new Filesystem();
 
-        if (!$fs->exists($filenameCMDL))
+        /*if (!$fs->exists($filenameCMDL))
         {
             throw new AnyContentClientException('File ' . $filenameRecords . ' not found.');
         }
@@ -30,7 +30,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
         if (!$fs->exists($filenameRecords))
         {
             throw new AnyContentClientException('File ' . $filenameRecords . ' not found.');
-        }
+        }*/
 
         $this->contentTypes[$contentTypeName] = [ 'records' => $filenameRecords, 'cmdl' => $filenameCMDL, 'title' => $contentTypeTitle ];
 

@@ -46,7 +46,7 @@ class AbstractConnection
     public function __construct(AbstractConfiguration $configuration)
     {
         $this->configuration = $configuration;
-        $this->configuration->apply();
+        $this->configuration->apply($this);
     }
 
 
