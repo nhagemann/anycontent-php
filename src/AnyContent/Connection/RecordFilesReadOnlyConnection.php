@@ -33,7 +33,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
 
         $finder = new Finder();
         $finder->in($folder)->depth(0);
@@ -53,7 +53,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
     {
         $contentTypeName = $this->getCurrentContentTypeName();
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
 
         $fileName = $folder . '/' . $recordId . '.json';
 
@@ -96,7 +96,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             return $this->records[$contentTypeName];
         }
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName);
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
 
         $finder = new Finder();
         $finder->in($folder)->depth(0);

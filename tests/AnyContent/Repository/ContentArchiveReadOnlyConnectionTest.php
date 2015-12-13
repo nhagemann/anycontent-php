@@ -2,6 +2,7 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
 
 class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
@@ -13,8 +14,11 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $connection = new ContentArchiveReadOnlyConnection();
-        $connection->setContentArchiveFolder(__DIR__ . '/../../resources/ContentArchiveReadOnlyConnection');
+        $configuration = new ContentArchiveConfiguration();
+
+        $configuration->setContentArchiveFolder(__DIR__ . '/../../resources/ContentArchiveReadOnlyConnection');
+
+        $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
     }
@@ -52,7 +56,7 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
-   /* public function testCountRecords()
+    public function testCountRecords()
     {
         $connection = $this->connection;
 
@@ -60,9 +64,9 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(3, $connection->countRecords());
 
-    }*/
+    }
 
-       /*
+
     public function testGetRecord()
     {
         $connection = $this->connection;
@@ -75,24 +79,39 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('dmc digital media center', $record->getProperty('name'));
 
-    }*/
+    }
 
-//    public function testGetRecords()
-//    {
-//        $connection = $this->connection;
-//
-//        $connection->selectContentType('profiles');
-//
-//        $records = $connection->getAllRecords();
-//
-//        $this->assertCount(608, $records);
-//
-//        foreach ($records as $record)
-//        {
-//            $id          = $record->getID();
-//            $fetchRecord = $connection->getRecord($id);
-//            $this->assertEquals($id, $fetchRecord->getID());
-//        }
-//    }
+
+    public function testGetRecords()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $records = $connection->getAllRecords();
+
+        $this->assertCount(3, $records);
+
+        foreach ($records as $record)
+        {
+            $id          = $record->getID();
+            $fetchRecord = $connection->getRecord($id);
+            $this->assertEquals($id, $fetchRecord->getID());
+        }
+    }
+
+
+    public function testWorkspaces()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $connection->selectWorkspace('live');
+
+        $records = $connection->getAllRecords();
+
+        $this->assertCount(2, $records);
+    }
 
 }

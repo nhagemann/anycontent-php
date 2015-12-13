@@ -3,7 +3,6 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
-use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 

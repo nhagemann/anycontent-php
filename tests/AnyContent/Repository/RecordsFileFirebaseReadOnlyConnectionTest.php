@@ -2,6 +2,7 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
 use AnyContent\Connection\RecordsFileFirebaseReadOnlyConnection;
 
 class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
@@ -13,12 +14,14 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
 
     public function setUp()
     {
-        $connection = new RecordsFileFirebaseReadOnlyConnection();
+        $configuration = new RecordsFileFirebaseConfiguration();
 
         if (defined('PHPUNIT_CREDENTIALS_FIREBASE_URL'))
         {
-            $connection->selectFirebase(PHPUNIT_CREDENTIALS_FIREBASE_URL, PHPUNIT_CREDENTIALS_FIREBASE_TOKEN, 'phpunit');
-            $connection->addContentType('profiles', 'profiles/data', 'profiles/cmdl');
+            $configuration->setFirebase(PHPUNIT_CREDENTIALS_FIREBASE_URL, PHPUNIT_CREDENTIALS_FIREBASE_TOKEN, 'phpunit');
+            $configuration->addContentType('profiles', 'profiles/cmdl', 'profiles/data');
+
+            $connection = $configuration->createReadOnlyConnection();
 
             $this->connection = $connection;
         }
@@ -28,6 +31,7 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
 
     public function testContentTypeNotSelected()
     {
+
         $connection = $this->connection;
 
         if (!$connection)
@@ -42,6 +46,7 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
 
     public function testContentTypeNames()
     {
+
         $connection = $this->connection;
 
         if (!$connection)

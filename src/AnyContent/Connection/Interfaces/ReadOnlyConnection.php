@@ -2,6 +2,7 @@
 
 namespace AnyContent\Connection\Interfaces;
 
+use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use CMDL\ContentTypeDefinition;
 

@@ -10,10 +10,10 @@ class RecordsFileHttpConfiguration extends AbstractConfiguration
     protected $timeout = 30;
 
 
-    public function addContentType($contentTypeName, $urlRecords, $urlCMDL, $contentTypeTitle = null)
+    public function addContentType($contentTypeName, $uriRecords, $urlCMDL, $contentTypeTitle = null)
     {
 
-        $this->contentTypes[$contentTypeName] = [ 'url' => $urlRecords, 'cmdl' => $urlCMDL, 'title' => $contentTypeTitle ];
+        $this->contentTypes[$contentTypeName] = [ 'uri' => $uriRecords, 'cmdl' => $urlCMDL, 'title' => $contentTypeTitle ];
 
         return $this;
     }
@@ -40,7 +40,7 @@ class RecordsFileHttpConfiguration extends AbstractConfiguration
     {
         if ($this->hasContentType($contentTypeName))
         {
-            return $this->contentTypes[$contentTypeName]['url'];
+            return $this->contentTypes[$contentTypeName]['uri'];
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);

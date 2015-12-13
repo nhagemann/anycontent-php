@@ -2,93 +2,48 @@
 
 namespace AnyContent\Connection;
 
-use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
-
+use AnyContent\AnyContentClientException;
+use AnyContent\Client\Record;
+use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
 use Firebase\FirebaseLib;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 
-class RecordsFileFirebaseReadOnlyConnection extends AbstractRecordsFileReadOnly implements ReadOnlyConnection
+class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnection implements ReadOnlyConnection
 {
 
     /** @var  FirebaseLib */
     protected $firebase;
 
-    protected $defaultPath;
-
-    protected $maxNumberOfSingleRecordFetches = 5;
-
     protected $numberOfSingleRecordFetches = 0;
 
 
-    public function selectFirebase($url, $token, $defaultPath)
+    /**
+     * @param RecordsFileFirebaseConfiguration $configuration
+     */
+    public function __construct(RecordsFileFirebaseConfiguration $configuration)
     {
-        $firebase       = new FirebaseLib($url, $token);
+        parent::__construct($configuration);
+
+        $firebase       = new FirebaseLib($configuration->getBaseUri(), $configuration->getToken());
         $this->firebase = $firebase;
-        $this->setDefaultPath($defaultPath);
 
-    }
-
-
-    public function addContentType($contentTypeName, $recordsKey, $cmdlKey, $contentTypeTitle = null)
-    {
-
-        $this->contentTypes[$contentTypeName] = [ 'json' => $recordsKey, 'cmdl' => $cmdlKey, 'definition' => false, 'records' => false, 'title' => $contentTypeTitle, 'recordsKey' => $recordsKey ];
-
-        return $this;
     }
 
 
     /**
-     * @return mixed
+     * @return RecordsFileFirebaseConfiguration
      */
-    public function getDefaultPath()
+    public function getConfiguration()
     {
-        return $this->defaultPath;
-    }
-
-
-    /**
-     * @param mixed $defaultPath
-     */
-    public function setDefaultPath($defaultPath)
-    {
-        $path = trim($defaultPath, '/');
-        if ($path == '')
-        {
-            $this->defaultPath = '/';
-        }
-        else
-        {
-            $this->defaultPath = '/' . $path . '/';
-        }
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getMaxNumberOfSingleRecordFetches()
-    {
-        return $this->maxNumberOfSingleRecordFetches;
-    }
-
-
-    /**
-     * @param int $maxNumberOfSingleRecordFetches
-     */
-    public function setMaxNumberOfSingleRecordFetches($maxNumberOfSingleRecordFetches)
-    {
-        $this->maxNumberOfSingleRecordFetches = $maxNumberOfSingleRecordFetches;
+        return $this->configuration;
     }
 
 
     protected function readData($fileName)
     {
 
-        $data = $this->firebase->get($this->getDefaultPath() . $fileName);
+        $data = $this->firebase->get($this->getConfiguration()->getDefaultPath() . $fileName);
 
         return $data;
     }
@@ -96,7 +51,8 @@ class RecordsFileFirebaseReadOnlyConnection extends AbstractRecordsFileReadOnly 
 
     protected function readCMDL($fileName)
     {
-        $data = $this->firebase->get($this->getDefaultPath() . $fileName);
+
+        $data = $this->firebase->get($this->getConfiguration()->getDefaultPath() . $fileName);
 
         $data = json_decode($data);
 
@@ -119,7 +75,8 @@ class RecordsFileFirebaseReadOnlyConnection extends AbstractRecordsFileReadOnly 
         {
             // try to get the count information directly
 
-            $path = $this->getDefaultPath() . $this->contentTypes[$contentTypeName]['recordsKey'] . '/info/count';
+            $path = $this->getConfiguration()
+                         ->getDefaultPath() . $this->getConfiguration()->getUriRecords($contentTypeName) . '/info/count';
             $c    = json_decode($this->firebase->get($path));
 
             if ($c !== null)
@@ -131,6 +88,7 @@ class RecordsFileFirebaseReadOnlyConnection extends AbstractRecordsFileReadOnly 
         return count($this->getAllRecords($contentTypeName));
 
     }
+
 
 
     /**
@@ -146,11 +104,12 @@ class RecordsFileFirebaseReadOnlyConnection extends AbstractRecordsFileReadOnly 
         if (!$this->hasLoadedAllRecords($contentTypeName))
         {
             // try to get the record directly
-            if ($this->numberOfSingleRecordFetches < $this->maxNumberOfSingleRecordFetches)
+            if ($this->numberOfSingleRecordFetches < $this->getConfiguration()->getMaxNumberOfSingleRecordFetches())
             {
                 $this->numberOfSingleRecordFetches++;
 
-                $path = $this->getDefaultPath() . $this->contentTypes[$contentTypeName]['recordsKey'] . '/records/' . $recordId;
+                $path = $this->getConfiguration()
+                             ->getDefaultPath() . $this->getConfiguration()->getUriRecords($contentTypeName) . '/records/' . $recordId;
                 $data = $this->firebase->get($path);
 
                 $data = json_decode($data, true);

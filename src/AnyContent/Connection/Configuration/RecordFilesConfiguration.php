@@ -2,6 +2,7 @@
 namespace AnyContent\Connection\Configuration;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -49,7 +50,7 @@ class RecordFilesConfiguration extends AbstractConfiguration
     }
 
 
-    public function getFolderNameRecords($contentTypeName)
+    public function getFolderNameRecords($contentTypeName, DataDimensions $dataDimensions)
     {
         if ($this->hasContentType($contentTypeName))
         {

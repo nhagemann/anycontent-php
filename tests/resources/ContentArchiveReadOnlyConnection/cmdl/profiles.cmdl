@@ -93,3 +93,5 @@ Geolokation = geolocation
 @custom content-view default
 @custom content-view map geolokation "Karte"
 @custom content-view glossary "Glossar"
+
+@workspaces (default,live)

@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\RecordFactory;
 use AnyContent\Connection\Configuration\AbstractConfiguration;
@@ -37,6 +38,9 @@ class AbstractConnection
 
     /** @var Record[] */
     protected $records = [ ];
+
+    /** @var DataDimensions */
+    protected $dataDimensions;
 
 
     public function __construct(AbstractConfiguration $configuration)
@@ -249,4 +253,110 @@ class AbstractConnection
 
         return false;
     }
+
+
+    public function selectView($viewName)
+    {
+        $this->getDataDimensions()->setViewName($viewName);
+
+        return $this;
+    }
+
+
+    public function setDataDimensions(DataDimensions $dataDimensions)
+    {
+        $this->dataDimensions = $dataDimensions;
+
+        return $this;
+    }
+
+
+    public function selectDataDimensions($workspace, $language = null, $timeshift = null)
+    {
+        $dataDimension = $this->getDataDimensions();
+
+        $dataDimension->setWorkspace($workspace);
+        if ($language !== null)
+        {
+            $dataDimension->setLanguage($language);
+        }
+        if ($timeshift !== null)
+        {
+            $dataDimension->setTimeShift($timeshift);
+        }
+
+        return $this;
+
+    }
+
+
+    public function selectWorkspace($workspace)
+    {
+        $this->getDataDimensions()->setWorkspace($workspace);
+
+        return $this;
+    }
+
+
+    public function selectLanguage($language)
+    {
+        $this->getDataDimensions()->setLanguage($language);
+
+        return $this;
+    }
+
+
+    public function setTimeShift($timeshift)
+    {
+        $this->getDataDimensions()->setTimeShift($timeshift);
+
+        return $this;
+    }
+
+
+    public function resetDataDimensions()
+    {
+
+        $this->dataDimensions = new DataDimensions($this->getCurrentContentType());
+
+        return $this->dataDimensions;
+    }
+
+
+    public function getDataDimensions()
+    {
+        if (!$this->dataDimensions)
+        {
+            return $this->resetDataDimensions();
+        }
+
+        return $this->dataDimensions;
+    }
+
+    /*
+     public function selectWorkspace($workspace)
+     {
+         $definition = $this->getCurrentContentType();
+
+         if ($definition->hasWorkspace($workspace))
+         {
+             $this->workspace = $workspace;
+
+             return $this;
+         }
+         throw new AnyContentClientException('Content Type ' . $definition->getName() . ' does not support workspace ' . $workspace);
+     }
+
+
+     public function selectLanguage($language)
+     {
+         $definition = $this->getCurrentContentType();
+         if ($definition->hasLangauge($language))
+         {
+             $this->language = $language;
+
+             return $this;
+         }
+         throw new AnyContentClientException('Content Type ' . $definition->getName() . ' does not support language ' . $language);
+     } */
 }
