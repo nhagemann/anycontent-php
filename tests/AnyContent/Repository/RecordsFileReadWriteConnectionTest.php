@@ -2,6 +2,7 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -28,13 +29,20 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
+
     public function setUp()
     {
-        $connection = new RecordsFileReadWriteConnection();
-        $connection->addContentType('temp',__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.json');
+        $configuration = new RecordsFileConfiguration();
+
+        $configuration->addContentType('temp',__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.json');
+
+        $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
     }
+
+
+
 
 
     public function testSaveRecordSameConnection()

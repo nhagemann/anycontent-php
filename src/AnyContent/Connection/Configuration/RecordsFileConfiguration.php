@@ -3,11 +3,11 @@ namespace AnyContent\Connection\Configuration;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
+use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileConfiguration extends AbstractConfiguration
 {
-
 
     /**
      * @param      $filenameRecords
@@ -38,16 +38,6 @@ class RecordsFileConfiguration extends AbstractConfiguration
     }
 
 
-
-
-
-
-    public function createReadOnlyConnection()
-    {
-        return new RecordsFileReadOnlyConnection($this);
-    }
-
-
     public function getUriCMDL($contentTypeName)
     {
         if ($this->hasContentType($contentTypeName))
@@ -67,6 +57,18 @@ class RecordsFileConfiguration extends AbstractConfiguration
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+    }
+
+
+    public function createReadOnlyConnection()
+    {
+        return new RecordsFileReadOnlyConnection($this);
+    }
+
+
+    public function createReadWriteConnection()
+    {
+        return new RecordsFileReadWriteConnection($this);
     }
 
 }
