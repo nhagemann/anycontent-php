@@ -159,11 +159,18 @@ class Record implements \JsonSerializable
     }
 
 
+    /**
+     * @deprecated
+     */
     public function getContentType()
     {
         return $this->contentTypeDefinition->getName();
     }
 
+    public function getContentTypeName()
+    {
+        return $this->contentTypeDefinition->getName();
+    }
 
     public function getContentTypeDefinition()
     {

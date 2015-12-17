@@ -298,7 +298,7 @@ abstract class AbstractConnection
 
     public function selectView($viewName)
     {
-        $this->getDataDimensions()->setViewName($viewName);
+        $this->getCurrentDataDimensions()->setViewName($viewName);
 
         return $this;
     }
@@ -314,7 +314,7 @@ abstract class AbstractConnection
 
     public function selectDataDimensions($workspace, $language = null, $timeshift = null)
     {
-        $dataDimension = $this->getDataDimensions();
+        $dataDimension = $this->getCurrentDataDimensions();
 
         $dataDimension->setWorkspace($workspace);
         if ($language !== null)
@@ -333,7 +333,7 @@ abstract class AbstractConnection
 
     public function selectWorkspace($workspace)
     {
-        $this->getDataDimensions()->setWorkspace($workspace);
+        $this->getCurrentDataDimensions()->setWorkspace($workspace);
 
         return $this;
     }
@@ -341,7 +341,7 @@ abstract class AbstractConnection
 
     public function selectLanguage($language)
     {
-        $this->getDataDimensions()->setLanguage($language);
+        $this->getCurrentDataDimensions()->setLanguage($language);
 
         return $this;
     }
@@ -349,7 +349,7 @@ abstract class AbstractConnection
 
     public function setTimeShift($timeshift)
     {
-        $this->getDataDimensions()->setTimeShift($timeshift);
+        $this->getCurrentDataDimensions()->setTimeShift($timeshift);
 
         return $this;
     }
@@ -364,7 +364,7 @@ abstract class AbstractConnection
     }
 
 
-    public function getDataDimensions()
+    public function getCurrentDataDimensions()
     {
         if (!$this->dataDimensions)
         {
@@ -375,38 +375,62 @@ abstract class AbstractConnection
     }
 
 
-    protected function hasStashedRecord($contentTypeName, $recordId, DataDimensions $dataDimensions)
+    protected function hasStashedRecord($contentTypeName, $recordId, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
+    {
+        return (boolean)$this->getStashedRecord($contentTypeName, $recordId, $dataDimensions, $recordClass);
+
+    }
+
+
+    protected function getStashedRecord($contentTypeName, $recordId, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
+    {
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash = md5($contentTypeName . $dataDimensions . $recordClass);
+            if (array_key_exists($hash, $this->recordsStash))
+            {
+                if (array_key_exists($recordId, $this->recordsStash[$hash]))
+                {
+                    return $this->recordsStash[$hash][$recordId];
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+
+    protected function stashRecord(Record $record, DataDimensions $dataDimensions)
+    {
+        $hash                                        = md5($record->getContentTypeName() . $dataDimensions . get_class($record));
+        $this->recordsStash[$hash][$record->getID()] = $record;
+    }
+
+
+
+    protected function unstashRecord(Record $record, DataDimensions $dataDimensions)
+    {
+        $hash                                        = md5($record->getContentTypeName() . $dataDimensions . get_class($record));
+        unset($this->recordsStash[$hash][$record->getID()]);
+    }
+
+    protected function hasStashedAllRecords($contentTypeName, DataDimensions $dataDimensions)
     {
 
     }
 
 
-    protected function stashRecord($record, DataDimensions $dataDimensions)
+    protected function stashAllRecords($records, DataDimensions $dataDimensions)
     {
 
     }
 
 
-    protected function hasStashedRecords($contentTypeName, DataDimensions $dataDimensions)
+    protected function unstashAllRecords($record, DataDimensions $dataDimensions)
     {
 
     }
 
 
-    protected function stashRecords($records, DataDimensions $dataDimensions)
-    {
-
-    }
-
-
-    protected function unstashRecord($record, DataDimensions $dataDimensions)
-    {
-
-    }
-
-
-    protected function unstashRecords($records, DataDimensions $dataDimensions)
-    {
-
-    }
 }

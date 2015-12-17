@@ -29,7 +29,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
         $record->setRevisionTimestamp(time());
 
         $filename = $this->getConfiguration()
-                         ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getDataDimensions());
+                         ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getCurrentDataDimensions());
         $filename .= '/' . $record->getID() . '.json';
 
         $data = json_encode($record, JSON_PRETTY_PRINT);
@@ -71,7 +71,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
     {
 
         $filename = realpath($this->getConfiguration()
-                                  ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getDataDimensions()));
+                                  ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getCurrentDataDimensions()));
         $filename .= '/' . $recordId . '.json';
 
         if ($this->hasLoadedAllRecords($this->getCurrentContentTypeName()))

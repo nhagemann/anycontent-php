@@ -35,7 +35,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
         }
         if ($dataDimensions == null)
         {
-            $dataDimensions = $this->getDataDimensions();
+            $dataDimensions = $this->getCurrentDataDimensions();
         }
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
@@ -64,7 +64,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
 
         if ($dataDimensions == null)
         {
-            $dataDimensions = $this->getDataDimensions();
+            $dataDimensions = $this->getCurrentDataDimensions();
         }
 
 
@@ -109,7 +109,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
         }
         if ($dataDimensions == null)
         {
-            $dataDimensions = $this->getDataDimensions();
+            $dataDimensions = $this->getCurrentDataDimensions();
         }
 
         if ($this->hasLoadedAllRecords($contentTypeName))

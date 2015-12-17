@@ -68,7 +68,7 @@ interface ReadOnlyConnection
     /**
      * @return DataDimensions
      */
-    public function getDataDimensions();
+    public function getCurrentDataDimensions();
 
 
     /**

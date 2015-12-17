@@ -101,22 +101,20 @@ class DataDimensions
     }
 
 
-    /**
-     *
-     */
-    public function getTimeStamp()
+    public function hasRelativeTimeShift()
     {
-        if ($this->timeShift < self::MAX_TIMESHIFT)
+        if ($this->timeShift != 0 & $this->timeShift < self::MAX_TIMESHIFT)
         {
-            return time() - $this->timeShift;
+            return true;
         }
 
-        return 0;
+        return false;
     }
+
 
 
     public function __toString()
     {
-        return 'workspace: ' . $this->getWorkspace() . ', language: ' . $this->getLanguage() . ', view: ' . $this->getViewName() . ', timestamp: ' . $this->getTimeStamp();
+        return 'workspace: ' . $this->getWorkspace() . ', language: ' . $this->getLanguage() . ', view: ' . $this->getViewName() . ', timeshift: ' . $this->getTimeShift();
     }
 }
