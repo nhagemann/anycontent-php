@@ -32,6 +32,8 @@ class Repository
      */
     protected $shortcut;
 
+    protected $contentRecordClassMap = [ ];
+
 
     public function __construct($readConnection, $writeConnection = null)
     {
@@ -159,6 +161,11 @@ class Repository
     }
 
 
+    public function hasContentType($contentTypeName)
+    {
+        return $this->readConnection->hasContentType($contentTypeName);
+    }
+
     public function getContentTypeDefinition($contentTypeName = null)
     {
 
@@ -282,9 +289,14 @@ class Repository
     }
 
 
+    /**
+     * @param null $dataDimensions
+     *
+     * @return Record[]
+     */
     public function getRecords($dataDimensions = null)
     {
-        return $this->readConnection->getAllRecords();
+        return $this->readConnection->getAllRecords($dataDimensions);
     }
 
 
@@ -306,9 +318,43 @@ class Repository
     }
 
 
+    /*
+    public function getRecordProperties($properties=[],$dataDimensions = null)
+    {
+
+    } */
+
     public function saveRecord($record, $dataDimensions = null)
     {
         return $this->writeConnection->saveRecord($record);
     }
 
+
+    public function registerRecordClassForContentType($contentTypeName, $classname)
+    {
+
+        if ($this->hasContentType($contentTypeName))
+        {
+            $this->contentRecordClassMap[$contentTypeName] = $classname;
+            $this->readConnection->registerRecordClassForContentType($contentTypeName,$classname);
+            if ($this->writeConnection & $this->readConnection!=$this->writeConnection)
+            {
+                $this->writeConnection->registerRecordClassForContentType($contentTypeName,$classname);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function getClassForContentType($contentTypeName)
+    {
+        if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
+        {
+            return $this->contentRecordClassMap[$contentTypeName];
+        }
+
+        return 'AnyContent\Client\Record';
+    }
 }

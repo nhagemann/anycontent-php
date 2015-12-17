@@ -5,6 +5,7 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
+use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use Symfony\Component\Finder\Finder;
 
 class ContentArchiveConfiguration extends AbstractConfiguration
@@ -114,6 +115,12 @@ class ContentArchiveConfiguration extends AbstractConfiguration
     {
         return new ContentArchiveReadOnlyConnection($this);
     }
+
+    public function createReadWriteConnection()
+    {
+        return new ContentArchiveReadWriteConnection($this);
+    }
+
 
 
     public function getUriCMDL($contentTypeName)

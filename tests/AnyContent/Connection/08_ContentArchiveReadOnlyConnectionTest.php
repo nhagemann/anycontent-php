@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Client;
+namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;

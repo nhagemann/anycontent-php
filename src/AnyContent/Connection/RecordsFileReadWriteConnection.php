@@ -2,21 +2,20 @@
 
 namespace AnyContent\Connection;
 
-
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Abstracts\AbstractRecordsFileReadWrite;
 use AnyContent\Connection\Interfaces\WriteConnection;
 
-
-
 class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection implements WriteConnection
 {
+
     public function saveRecord(Record $record)
     {
         $records = [ $record ];
 
         $recordIds = $this->saveRecords($records);
+
         return array_pop($recordIds);
     }
 
@@ -29,7 +28,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
      */
     public function saveRecords(array $records)
     {
-        $recordIds = [];
+        $recordIds  = [ ];
         $allRecords = $this->getAllRecords();
 
         foreach ($records as $record)
@@ -44,10 +43,10 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
             $record->setRevision($record->getRevision() + 1);
             $record->setRevisionTimestamp(time());
             $allRecords[$record->getID()] = $record;
-            $recordIds[]=$record->getID();
+            $recordIds[]                  = $record->getID();
         }
 
-        $data = json_encode([ 'records' => $allRecords ],JSON_PRETTY_PRINT);
+        $data = json_encode([ 'records' => $allRecords ], JSON_PRETTY_PRINT);
 
         if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
         {
@@ -63,7 +62,13 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
     public function deleteRecord($recordId)
     {
 
-        return $this->deleteRecords([ $recordId ]);
+        $recordIds = $this->deleteRecords([ $recordId ]);
+        if (count($recordIds) == 1)
+        {
+            return array_shift($recordIds);
+        }
+
+        return false;
     }
 
 

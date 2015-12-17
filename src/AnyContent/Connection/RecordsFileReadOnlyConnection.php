@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
@@ -30,9 +31,9 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      * @return int
      * @throws AnyContentClientException
      */
-    public function countRecords($contentTypeName = null)
+    public function countRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-        return count($this->getAllRecords($contentTypeName));
+        return count($this->getAllRecords($contentTypeName, $dataDimensions));
     }
 
 
@@ -42,7 +43,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      * @return Record[]
      * @throws AnyContentClientException
      */
-    public function getAllRecords($contentTypeName = null)
+    public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
 
         if ($contentTypeName == null)
@@ -87,9 +88,14 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      * @return Record
      * @throws AnyContentClientException
      */
-    public function getRecord($recordId)
+    public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-        $records = $this->getAllRecords($this->getCurrentContentTypeName());
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
+        $records = $this->getAllRecords($contentTypeName);
 
         if (array_key_exists($recordId, $records))
         {

@@ -1,6 +1,6 @@
 <?php
 
-namespace AnyContent\Client;
+namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;

@@ -4,13 +4,14 @@ namespace AnyContent\Connection\Configuration;
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
+use AnyContent\Connection\RecordFilesReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesConfiguration extends AbstractConfiguration
 {
 
     /**
-     * @return \AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly
+     * @return RecordFilesConfiguration
      * @throws AnyContentClientException
      */
     public function addContentType($contentTypeName = null, $filenameCMDL, $folderRecords, $contentTypeTitle = null)
@@ -38,6 +39,10 @@ class RecordFilesConfiguration extends AbstractConfiguration
         return new RecordFilesReadOnlyConnection($this);
     }
 
+    public function createReadWriteConnection()
+    {
+        return new RecordFilesReadWriteConnection($this);
+    }
 
     public function getUriCMDL($contentTypeName)
     {

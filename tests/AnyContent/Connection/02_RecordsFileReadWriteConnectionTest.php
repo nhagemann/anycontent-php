@@ -1,7 +1,8 @@
 <?php
 
-namespace AnyContent\Client;
+namespace AnyContent\Connection;
 
+use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
@@ -136,12 +137,12 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $result = $connection->deleteRecord(1);
 
-        $this->assertCount(1, $result);
+        $this->assertEquals(1, $result);
         $this->assertEquals(613, $connection->countRecords());
 
         $result = $connection->deleteRecord(999);
 
-        $this->assertCount(0, $result);
+        $this->assertEquals(false, $result);
         $this->assertEquals(613, $connection->countRecords());
 
     }

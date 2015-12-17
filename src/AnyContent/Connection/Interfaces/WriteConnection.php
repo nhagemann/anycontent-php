@@ -21,4 +21,10 @@ interface WriteConnection
 
     public function deleteAllRecords();
 
+
+    public function registerRecordClassForContentType($contentTypeName, $classname);
+
+
+    public function getClassForContentType($contentTypeName);
+
 }

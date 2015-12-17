@@ -1,0 +1,219 @@
+<?php
+
+namespace AnyContent\Connection;
+
+use AnyContent\Client\Record;
+use AnyContent\Connection\Configuration\RecordFilesConfiguration;
+use Symfony\Component\Filesystem\Filesystem;
+
+class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
+{
+
+    /** @var  RecordFilesReadWriteConnection */
+    public $connection;
+
+    public static function setUpBeforeClass()
+    {
+        $source = __DIR__ . '/../../resources/RecordFilesReadOnlyConnection';
+        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+
+        $fs = new Filesystem();
+
+        if (file_exists($target))
+        {
+            $fs->remove($target);
+        }
+
+        $fs->mkdir($target);
+
+        $directoryIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
+        foreach ($iterator as $item)
+        {
+            if ($item->isDir())
+            {
+                $fs->mkdir($target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+            }
+            else
+            {
+                $fs->copy($item, $target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+            }
+        }
+    }
+
+
+    public function setUp()
+    {
+
+        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+
+
+        $configuration = new RecordFilesConfiguration();
+
+        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records');
+
+        $connection = $configuration->createReadWriteConnection();
+
+        $this->connection = $connection;
+    }
+
+
+    public function testSaveRecordSameConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $record = $connection->getRecord(5);
+
+        $this->assertEquals('dmc digital media center', $record->getProperty('name'));
+
+        $record->setProperty('name', 'dmc');
+
+        $connection->saveRecord($record);
+
+        $record = $connection->getRecord(5);
+
+        $this->assertEquals('dmc', $record->getProperty('name'));
+
+    }
+
+
+    public function testSaveRecordNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $record = $connection->getRecord(5);
+
+        $this->assertEquals('dmc', $record->getProperty('name'));
+
+    }
+
+
+    public function testAddRecord()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $record = new Record($connection->getCurrentContentType(), 'test');
+
+        $id = $connection->saveRecord($record);
+
+        $this->assertEquals(17, $record->getID());
+        $this->assertEquals(17, $id);
+
+    }
+
+
+    public function testSaveRecordsSameConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $this->assertEquals(4, $connection->countRecords());
+
+        $records = [ ];
+
+        for ($i = 1; $i <= 5; $i++)
+        {
+            $record    = new Record($connection->getCurrentContentType(), 'Test ' . $i);
+            $records[] = $record;
+        }
+
+        $connection->saveRecords($records);
+
+        $this->assertEquals(9, $connection->countRecords());
+
+    }
+
+
+    public function testSaveRecordsNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $this->assertEquals(9, $connection->countRecords());
+    }
+
+
+    public function testDeleteRecord()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $result = $connection->deleteRecord(5);
+
+        $this->assertEquals(5,$result);
+        $this->assertEquals(8, $connection->countRecords());
+
+        $result = $connection->deleteRecord(999);
+
+        $this->assertEquals(false, $result);
+        $this->assertEquals(8, $connection->countRecords());
+
+    }
+
+
+    public function testDeleteRecordNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $this->assertEquals(8, $connection->countRecords());
+    }
+
+
+    public function testDeleteRecords()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $result = $connection->deleteRecords([ 6, 999 ]);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(7, $connection->countRecords());
+
+    }
+
+
+    public function testDeleteRecordsNewConnection()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $this->assertEquals(7, $connection->countRecords());
+    }
+
+
+    public function testDeleteAllRecords()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $result = $connection->deleteAllRecords();
+
+        $this->assertCount(7, $result);
+        $this->assertEquals(0, $connection->countRecords());
+
+    }
+//
+//
+//    public function testDeleteAllRecordsNewConnection()
+//    {
+//        $connection = $this->connection;
+//
+//        $connection->selectContentType('temp');
+//
+//        $this->assertEquals(0, $connection->countRecords());
+//    }
+}

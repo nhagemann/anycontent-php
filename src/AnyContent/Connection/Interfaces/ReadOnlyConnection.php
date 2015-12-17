@@ -24,6 +24,14 @@ interface ReadOnlyConnection
     /**
      * @param $contentTypeName
      *
+     * @return mixed
+     */
+    public function hasContentType($contentTypeName);
+
+
+    /**
+     * @param $contentTypeName
+     *
      * @return ReadOnlyConnection
      */
     public function selectContentType($contentTypeName);
@@ -50,11 +58,25 @@ interface ReadOnlyConnection
 
 
     /**
+     * @param DataDimensions $dataDimensions
+     *
+     * @return ReadOnlyConnection
+     */
+    public function setDataDimensions(DataDimensions $dataDimensions);
+
+
+    /**
+     * @return DataDimensions
+     */
+    public function getDataDimensions();
+
+
+    /**
      * @param null $contentTypeName
      *
      * @return int
      */
-    public function countRecords($contentTypeName = null);
+    public function countRecords($contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
     /**
@@ -62,7 +84,7 @@ interface ReadOnlyConnection
      *
      * @return Record[]
      */
-    public function getAllRecords($contentTypeName = null);
+    public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
     /**
@@ -70,6 +92,12 @@ interface ReadOnlyConnection
      *
      * @return Record
      */
-    public function getRecord($recordId);
+    public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null);
+
+
+    public function registerRecordClassForContentType($contentTypeName, $classname);
+
+
+    public function getClassForContentType($contentTypeName);
 
 }

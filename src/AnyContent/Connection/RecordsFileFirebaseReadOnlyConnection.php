@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
@@ -64,7 +65,7 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
      * @return int
      * @throws AnyContentClientException
      */
-    public function countRecords($contentTypeName = null)
+    public function countRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
         if ($contentTypeName == null)
         {
@@ -97,9 +98,12 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
      * @return Record
      * @throws AnyContentClientException
      */
-    public function getRecord($recordId)
+    public function getRecord($recordId, $contentTypeName = null ,DataDimensions $dataDimensions = null)
     {
-        $contentTypeName = $this->getCurrentContentTypeName();
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
 
         if (!$this->hasLoadedAllRecords($contentTypeName))
         {

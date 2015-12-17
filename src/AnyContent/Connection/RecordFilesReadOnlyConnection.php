@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
 
+use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
@@ -26,14 +27,18 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
      * @return int
      * @throws AnyContentClientException
      */
-    public function countRecords($contentTypeName = null)
+    public function countRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
         if ($contentTypeName == null)
         {
             $contentTypeName = $this->getCurrentContentTypeName();
         }
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getDataDimensions();
+        }
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
         $finder = new Finder();
         $finder->in($folder)->depth(0);
@@ -49,11 +54,21 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
      * @return Record
      * @throws AnyContentClientException
      */
-    public function getRecord($recordId)
+    public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-        $contentTypeName = $this->getCurrentContentTypeName();
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
+
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getDataDimensions();
+        }
+
+
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
         $fileName = $folder . '/' . $recordId . '.json';
 
@@ -84,11 +99,17 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
      * @return Record[]
      * @throws AnyContentClientException
      */
-    public function getAllRecords($contentTypeName = null)
+    public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        $records = [ ];
+
         if ($contentTypeName == null)
         {
             $contentTypeName = $this->getCurrentContentTypeName();
+        }
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getDataDimensions();
         }
 
         if ($this->hasLoadedAllRecords($contentTypeName))
@@ -96,26 +117,29 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             return $this->records[$contentTypeName];
         }
 
-        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName,$this->getDataDimensions());
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
-        $finder = new Finder();
-        $finder->in($folder)->depth(0);
-
-        $data = [ ];
-
-        /** @var SplFileInfo $file */
-        foreach ($finder->files()->name('*.json') as $file)
+        if (file_exists($folder))
         {
-            $data[] = json_decode($file->getContents(), true);
+            $finder = new Finder();
+            $finder->in($folder)->depth(0);
+
+            $data = [ ];
+
+            /** @var SplFileInfo $file */
+            foreach ($finder->files()->name('*.json') as $file)
+            {
+                $data[] = json_decode($file->getContents(), true);
+
+            }
+
+            $definition = $this->getContentTypeDefinition($contentTypeName);
+
+            $records = $this->getRecordFactory()
+                            ->createRecordsFromJSONArray($definition, $data);
 
         }
-
-        $definition = $this->getContentTypeDefinition($contentTypeName);
-
-        $records = $this->getRecordFactory()
-                        ->createRecordsFromJSONArray($definition, $data);
-
-        $this->records[$contentTypeName]= $records;
+        $this->records[$contentTypeName] = $records;
 
         return $records;
 

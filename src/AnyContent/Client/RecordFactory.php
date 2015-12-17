@@ -83,22 +83,19 @@ class RecordFactory
 
     public function registerRecordClassForContentType($contentTypeName, $classname)
     {
-        if ($this->hasContentType($contentTypeName))
-        {
-            $this->contentRecordClassMap[$contentTypeName] = $classname;
 
-            return true;
-        }
+        $this->contentRecordClassMap[$contentTypeName] = $classname;
 
-        return false;
     }
 
 
     public function getClassForContentType($contentTypeName)
     {
+
         if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
         {
             return $this->contentRecordClassMap[$contentTypeName];
+
         }
 
         return 'AnyContent\Client\Record';

@@ -12,7 +12,7 @@ use CMDL\Parser;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 
-class AbstractConnection
+abstract class AbstractConnection
 {
 
     /**
@@ -39,8 +39,12 @@ class AbstractConnection
     /** @var Record[] */
     protected $records = [ ];
 
+    protected $recordsStash = [ ];
+
     /** @var DataDimensions */
     protected $dataDimensions;
+
+    protected $contentRecordClassMap = [ ];
 
 
     public function __construct(AbstractConfiguration $configuration)
@@ -113,6 +117,32 @@ class AbstractConnection
     }
 
 
+    public function registerRecordClassForContentType($contentTypeName, $classname)
+    {
+        if ($this->hasContentType($contentTypeName))
+        {
+            $this->contentRecordClassMap[$contentTypeName] = $classname;
+
+            $this->getRecordFactory()->registerRecordClassForContentType($contentTypeName, $classname);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function getClassForContentType($contentTypeName)
+    {
+        if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
+        {
+            return $this->contentRecordClassMap[$contentTypeName];
+        }
+
+        return 'AnyContent\Client\Record';
+    }
+
+
     /**
      * @param $contentTypeName
      *
@@ -178,6 +208,17 @@ class AbstractConnection
 
         return $contentTypes;
 
+    }
+
+
+    public function hasContentType($contentTypeName)
+    {
+        if (in_array($contentTypeName, $this->getContentTypeNames()))
+        {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -333,30 +374,39 @@ class AbstractConnection
         return $this->dataDimensions;
     }
 
-    /*
-     public function selectWorkspace($workspace)
-     {
-         $definition = $this->getCurrentContentType();
 
-         if ($definition->hasWorkspace($workspace))
-         {
-             $this->workspace = $workspace;
+    protected function hasStashedRecord($contentTypeName, $recordId, DataDimensions $dataDimensions)
+    {
 
-             return $this;
-         }
-         throw new AnyContentClientException('Content Type ' . $definition->getName() . ' does not support workspace ' . $workspace);
-     }
+    }
 
 
-     public function selectLanguage($language)
-     {
-         $definition = $this->getCurrentContentType();
-         if ($definition->hasLangauge($language))
-         {
-             $this->language = $language;
+    protected function stashRecord($record, DataDimensions $dataDimensions)
+    {
 
-             return $this;
-         }
-         throw new AnyContentClientException('Content Type ' . $definition->getName() . ' does not support language ' . $language);
-     } */
+    }
+
+
+    protected function hasStashedRecords($contentTypeName, DataDimensions $dataDimensions)
+    {
+
+    }
+
+
+    protected function stashRecords($records, DataDimensions $dataDimensions)
+    {
+
+    }
+
+
+    protected function unstashRecord($record, DataDimensions $dataDimensions)
+    {
+
+    }
+
+
+    protected function unstashRecords($records, DataDimensions $dataDimensions)
+    {
+
+    }
 }

@@ -1,32 +1,43 @@
 <?php
 
-namespace AnyContent\Client;
+namespace AnyContent\Connection;
 
-use AnyContent\Connection\Configuration\RecordsFileConfiguration;
-use AnyContent\Connection\RecordsFileReadOnlyConnection;
+use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
+use AnyContent\Connection\RecordsFileFirebaseReadOnlyConnection;
 
-class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
+class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RecordsFileReadOnlyConnection */
+    /** @var  RecordsFileFirebaseReadOnlyConnection */
     public $connection;
 
 
     public function setUp()
     {
-        $configuration = new RecordsFileConfiguration();
+        $configuration = new RecordsFileFirebaseConfiguration();
 
-        $configuration->addContentType('profiles',__DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/profiles.json');
+        if (defined('PHPUNIT_CREDENTIALS_FIREBASE_URL'))
+        {
+            $configuration->setFirebase(PHPUNIT_CREDENTIALS_FIREBASE_URL, PHPUNIT_CREDENTIALS_FIREBASE_TOKEN, 'phpunit');
+            $configuration->addContentType('profiles', 'profiles/cmdl', 'profiles/data');
 
-        $connection = $configuration->createReadOnlyConnection();
+            $connection = $configuration->createReadOnlyConnection();
 
-        $this->connection = $connection;
+            $this->connection = $connection;
+        }
+
     }
 
 
     public function testContentTypeNotSelected()
     {
+
         $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
 
         $this->setExpectedException('AnyContent\AnyContentClientException');
         $this->assertEquals(12, $connection->countRecords());
@@ -35,7 +46,13 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNames()
     {
+
         $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
 
         $contentTypeNames = $connection->getContentTypeNames();
 
@@ -46,6 +63,11 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
     public function testContentTypeDefinitions()
     {
         $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
 
         $contentTypes = $connection->getContentTypes();
 
@@ -60,16 +82,26 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
+
         $connection->selectContentType('profiles');
 
         $this->assertEquals(608, $connection->countRecords());
 
     }
-     /*
+
 
     public function testGetRecord()
     {
         $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
 
         $connection->selectContentType('profiles');
 
@@ -86,6 +118,11 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
+
         $connection->selectContentType('profiles');
 
         $records = $connection->getAllRecords();
@@ -99,5 +136,5 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($id, $fetchRecord->getID());
         }
     }
-   */
+
 }

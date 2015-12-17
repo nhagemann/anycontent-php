@@ -19,6 +19,8 @@ class DataDimensions
 
     protected $timeShift = 0;
 
+    const MAX_TIMESHIFT = 315532800; // roundabout 10 years, equals to 1.1.1980
+
 
     public function __construct(DataTypeDefinition $definition)
     {
@@ -99,9 +101,22 @@ class DataDimensions
     }
 
 
+    /**
+     *
+     */
+    public function getTimeStamp()
+    {
+        if ($this->timeShift < self::MAX_TIMESHIFT)
+        {
+            return time() - $this->timeShift;
+        }
+
+        return 0;
+    }
+
+
     public function __toString()
     {
-        //TODO: Timeshift in Timestamp umrechnen  bzw. weglassen
-        return 'workspace: ' . $this->getWorkspace() . ', language: ' . $this->getLanguage() . ', view: ' . $this->getViewName() . ', timestamp: ' . $this->getTimeShift();
+        return 'workspace: ' . $this->getWorkspace() . ', language: ' . $this->getLanguage() . ', view: ' . $this->getViewName() . ', timestamp: ' . $this->getTimeStamp();
     }
 }

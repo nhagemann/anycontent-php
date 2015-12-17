@@ -1,26 +1,36 @@
 <?php
 
-namespace AnyContent\Client;
+namespace AnyContent\Connection;
+use AnyContent\Connection\Configuration\RecordsFileGitConfiguration;
+use AnyContent\Connection\RecordsFileGitReadWriteConnection;
 
-use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
-use AnyContent\Connection\RecordsFileHttpReadOnlyConnection;
-
-class RecordsFileHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
+class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RecordsFileHttpReadOnlyConnection */
+    /** @var  RecordsFileGitReadWriteConnection */
     public $connection;
+
+    static $randomString;
+
+
+    public static function setUpBeforeClass()
+    {
+        self::$randomString = md5(time());
+    }
 
 
     public function setUp()
     {
-        $configuration = new RecordsFileHttpConfiguration();
+        $configuration = new RecordsFileGitConfiguration();
 
-        $configuration->addContentType('profiles', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.default.default.json', 'https://s3-eu-west-1.amazonaws.com/backup01.contentbox.io/da08517dc866617a075c0c2d38c5fb95/profiles.cmdl');
+        $configuration->setDirectory(__DIR__ . '/../../../tmp/git')->setPrivateKey('/var/www/github/gitrepos/id_rsa');
+        $configuration->setRemoteUrl('git@bitbucket.org:nhagemann/anycontent-git-repository.git');
+        $configuration->setUniqueConnection(300);
 
-        $connection = $configuration->createReadOnlyConnection();
+        $configuration->addContentType('profiles', 'profiles.cmdl', 'profiles.json');
 
-        $this->connection = $connection;
+        $this->connection = $configuration->createReadWriteConnection();
+
     }
 
 
@@ -100,4 +110,35 @@ class RecordsFileHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+
+    public function testChangeRecord()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $record = $connection->getRecord(5);
+
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
+
+        $record->setProperty('name', self::$randomString);
+
+        $connection->saveRecord($record);
+
+    }
+
+
+    public function testChangedRecord()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $record = $connection->getRecord(5);
+
+        $this->assertInstanceOf('AnyContent\Client\Record', $record);
+
+        $this->assertEquals(self::$randomString, $record->getName());
+
+    }
 }
