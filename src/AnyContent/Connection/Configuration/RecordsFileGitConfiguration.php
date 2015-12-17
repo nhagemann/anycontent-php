@@ -86,6 +86,7 @@ class RecordsFileGitConfiguration extends RecordsFileConfiguration
     public function setPrivateKey($privateKey)
     {
         $this->privateKey = $privateKey;
+        return $this;
     }
 
 
@@ -93,6 +94,7 @@ class RecordsFileGitConfiguration extends RecordsFileConfiguration
     {
         $this->confidence       = (int)$confidence;
         $this->uniqueConnection = (boolean)$confidence;
+        return $this;
     }
 
 

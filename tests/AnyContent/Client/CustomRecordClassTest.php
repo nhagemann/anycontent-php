@@ -7,7 +7,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use CMDL\Parser;
 use Symfony\Component\Filesystem\Filesystem;
 
-class AlternateRecordClassTest extends \PHPUnit_Framework_TestCase
+class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */
