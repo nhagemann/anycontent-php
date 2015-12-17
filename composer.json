@@ -27,7 +27,8 @@
   },
   "autoload": {
     "psr-0": {
-      "AnyContent": "src/"
+      "AnyContent": "src/",
+      "HahnAir": "src/"
     }
   },
   "prefer-stable": true

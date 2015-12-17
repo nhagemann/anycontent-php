@@ -47,7 +47,7 @@ class BulkCachingRepository extends Repository
     {
         if ($dataDimensions == null)
         {
-            $dataDimensions = $this->getDataDimensions();
+            $dataDimensions = $this->getCurrentDataDimensions();
         }
 
         $cacheKey = 'records-all-' . md5((string)$dataDimensions);

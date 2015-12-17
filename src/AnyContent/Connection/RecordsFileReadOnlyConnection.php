@@ -119,6 +119,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
 
     protected function readData($fileName)
     {
+
         return file_get_contents($fileName);
     }
 

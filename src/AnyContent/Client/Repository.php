@@ -206,7 +206,7 @@ class Repository
 
     public function selectView($viewName)
     {
-        $this->getDataDimensions()->setViewName($viewName);
+        $this->getCurrentDataDimensions()->setViewName($viewName);
 
         return $this;
     }
@@ -222,7 +222,7 @@ class Repository
 
     public function selectDataDimensions($workspace, $language = null, $timeshift = null)
     {
-        $dataDimension = $this->getDataDimensions();
+        $dataDimension = $this->getCurrentDataDimensions();
 
         $dataDimension->setWorkspace($workspace);
         if ($language !== null)
@@ -241,7 +241,7 @@ class Repository
 
     public function selectWorkspace($workspace)
     {
-        $this->getDataDimensions()->setWorkspace($workspace);
+        $this->getCurrentDataDimensions()->setWorkspace($workspace);
 
         return $this;
     }
@@ -249,7 +249,7 @@ class Repository
 
     public function selectLanguage($language)
     {
-        $this->getDataDimensions()->setLanguage($language);
+        $this->getCurrentDataDimensions()->setLanguage($language);
 
         return $this;
     }
@@ -257,7 +257,7 @@ class Repository
 
     public function setTimeShift($timeshift)
     {
-        $this->getDataDimensions()->setTimeShift($timeshift);
+        $this->getCurrentDataDimensions()->setTimeShift($timeshift);
 
         return $this;
     }
@@ -272,7 +272,7 @@ class Repository
     }
 
 
-    public function getDataDimensions()
+    public function getCurrentDataDimensions()
     {
         if (!$this->dataDimensions)
         {
@@ -285,7 +285,7 @@ class Repository
 
     public function getRecord($recordId, $dataDimensions = null)
     {
-        return $this->readConnection->getRecord($recordId, $dataDimensions);
+        return $this->readConnection->getRecord($recordId, $this->getCurrentContentTypeName(),$dataDimensions);
     }
 
 
@@ -296,7 +296,9 @@ class Repository
      */
     public function getRecords($dataDimensions = null)
     {
-        return $this->readConnection->getAllRecords($dataDimensions);
+
+
+        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName(),$dataDimensions);
     }
 
 

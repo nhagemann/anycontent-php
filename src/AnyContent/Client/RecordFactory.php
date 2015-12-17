@@ -42,6 +42,32 @@ class RecordFactory
         return $records;
     }
 
+    public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [], $viewName = "default", $workspace = "default", $language = "default")
+    {
+        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+
+        /** @var Record $record */
+        $record = new $classname($contentTypeDefinition, '' , $viewName, $workspace, $language);
+
+        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 1;
+        $record->setRevision($revision);
+
+        if ($this->getOption('validateProperties') == true)
+        {
+            foreach ($properties AS $property => $value)
+            {
+                $record->setProperty($property, $value);
+            }
+        }
+        else
+        {
+            $record->setProperties($properties);
+        }
+
+        return $record;
+    }
+
+
 
     public function createRecordFromJSONObject(ContentTypeDefinition $contentTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
     {
