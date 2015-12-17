@@ -51,12 +51,17 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
         if ($this->getConfiguration()->hasContentType($contentTypeName))
         {
 
-            if (array_key_exists($contentTypeName, $this->records))
+            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
             {
-                return $this->records[$contentTypeName];
+                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
             }
 
             $data = $this->readRecords($this->getConfiguration()->getUriRecords($contentTypeName));
@@ -70,7 +75,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
                 $records = $this->getRecordFactory()
                                 ->createRecordsFromJSONArray($definition, $data['records']);
 
-                $this->records[$contentTypeName] = $records;
+                $this->stashAllRecords($records, $dataDimensions);
 
                 return $records;
             }

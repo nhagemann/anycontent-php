@@ -4,7 +4,6 @@ namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\Record;
-use AnyContent\Connection\Abstracts\AbstractRecordsFileReadWrite;
 use AnyContent\Connection\Interfaces\WriteConnection;
 
 class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection implements WriteConnection
@@ -50,7 +49,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
         {
-            $this->records = $allRecords;
+            $this->stashAllRecords($allRecords,$this->getCurrentDataDimensions());
 
             return $recordIds;
 
@@ -80,10 +79,10 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         foreach ($recordsIds as $recordId)
         {
+
             if (array_key_exists($recordId, $allRecords))
             {
                 unset  ($allRecords[$recordId]);
-                $this->records = $allRecords;
 
                 $result[] = $recordId;
             }
@@ -96,7 +95,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
             if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
             {
-                $this->records = $allRecords;
+                $this->stashAllRecords($allRecords,$this->getCurrentDataDimensions());
 
                 return $result;
 
@@ -117,7 +116,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
         {
-            $this->records = [ ];
+            $this->unstashAllRecords($this->getCurrentContentTypeName(),$this->getCurrentDataDimensions(),$this->getClassForContentType($this->getCurrentContentTypeName()));
 
             return array_keys($allRecords);
 

@@ -36,10 +36,9 @@ abstract class AbstractConnection
     /** @var  RecordFactory */
     protected $recordFactory;
 
-    /** @var Record[] */
-    protected $records = [ ];
-
     protected $recordsStash = [ ];
+
+    protected $hasStashedAllRecords = [ ];
 
     /** @var DataDimensions */
     protected $dataDimensions;
@@ -270,30 +269,30 @@ abstract class AbstractConnection
     }
 
 
-    /**
-     * @param $contentTypeName
-     *
-     * @return bool
-     * @throws AnyContentClientException
-     */
-    public function hasLoadedAllRecords($contentTypeName = null)
-    {
-        if ($contentTypeName == null)
-        {
-            $contentTypeName = $this->getCurrentContentTypeName();
-        }
-
-        if ($this->getConfiguration()->hasContentType($contentTypeName))
-        {
-
-            if (array_key_exists($contentTypeName, $this->records))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * @param $contentTypeName
+//     *
+//     * @return bool
+//     * @throws AnyContentClientException
+//     */
+//    public function hasLoadedAllRecords($contentTypeName = null)
+//    {
+//        if ($contentTypeName == null)
+//        {
+//            $contentTypeName = $this->getCurrentContentTypeName();
+//        }
+//
+//        if ($this->getConfiguration()->hasContentType($contentTypeName))
+//        {
+//
+//            if (array_key_exists($contentTypeName, $this->records))
+//            {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
 
     public function selectView($viewName)
@@ -403,34 +402,88 @@ abstract class AbstractConnection
 
     protected function stashRecord(Record $record, DataDimensions $dataDimensions)
     {
-        $hash                                        = md5($record->getContentTypeName() . $dataDimensions . get_class($record));
-        $this->recordsStash[$hash][$record->getID()] = $record;
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash                                        = md5($record->getContentTypeName() . $dataDimensions . get_class($record));
+            $this->recordsStash[$hash][$record->getID()] = $record;
+        }
     }
 
 
-
-    protected function unstashRecord(Record $record, DataDimensions $dataDimensions)
+    protected function unstashRecord($contentTypeName, $recordId, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
     {
-        $hash                                        = md5($record->getContentTypeName() . $dataDimensions . get_class($record));
-        unset($this->recordsStash[$hash][$record->getID()]);
+        $hash = md5($contentTypeName . $dataDimensions . $recordClass);
+        unset($this->recordsStash[$hash][$recordId]);
     }
 
-    protected function hasStashedAllRecords($contentTypeName, DataDimensions $dataDimensions)
+
+    protected function hasStashedAllRecords($contentTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
+    {
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash = md5($contentTypeName . $dataDimensions . $recordClass);
+            if (array_key_exists($hash, $this->hasStashedAllRecords))
+            {
+
+                return $this->hasStashedAllRecords[$hash];
+
+            }
+        }
+
+        return false;
+    }
+
+
+    protected function getStashedAllRecords($contentTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
     {
 
+        $hash = md5($contentTypeName . $dataDimensions . $recordClass);
+
+        if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $recordClass))
+        {
+            return $this->recordsStash[$hash];
+        }
+
+        return false;
     }
 
 
     protected function stashAllRecords($records, DataDimensions $dataDimensions)
     {
 
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            if (count($records) > 0)
+            {
+                /** @var Record $firstRecord */
+                $firstRecord = reset($records);
+
+                $this->unstashAllRecords($firstRecord->getContentTypeName(), $dataDimensions, get_class($firstRecord));
+
+                foreach ($records as $record)
+                {
+                    $this->stashRecord($record, $dataDimensions);
+                }
+
+                $hash = md5($firstRecord->getContentTypeName() . $dataDimensions . get_class($firstRecord));
+
+                $this->hasStashedAllRecords[$hash] = true;
+
+            }
+        }
     }
 
 
-    protected function unstashAllRecords($record, DataDimensions $dataDimensions)
+    protected function unstashAllRecords($contentTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
     {
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash = md5($contentTypeName . $dataDimensions . $recordClass);
 
+            unset($this->recordsStash[$hash]);
+            $this->hasStashedAllRecords[$hash] = false;
+
+        }
     }
-
 
 }

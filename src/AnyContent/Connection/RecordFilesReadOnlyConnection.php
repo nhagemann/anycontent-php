@@ -112,9 +112,9 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        if ($this->hasLoadedAllRecords($contentTypeName))
+        if ($this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName)))
         {
-            return $this->records[$contentTypeName];
+            return $this->getStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName));
         }
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
@@ -139,7 +139,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                             ->createRecordsFromJSONArray($definition, $data);
 
         }
-        $this->records[$contentTypeName] = $records;
+        $this->stashAllRecords($records,$dataDimensions);
 
         return $records;
 

@@ -65,7 +65,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(608, $connection->countRecords());
 
     }
-     /*
+
 
     public function testGetRecord()
     {
@@ -94,10 +94,10 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         foreach ($records as $record)
         {
-            $id          = $record->getID();
+            $id          = $record->getId();
             $fetchRecord = $connection->getRecord($id);
-            $this->assertEquals($id, $fetchRecord->getID());
+            $this->assertEquals($id, $fetchRecord->getId());
         }
     }
-   */
+
 }

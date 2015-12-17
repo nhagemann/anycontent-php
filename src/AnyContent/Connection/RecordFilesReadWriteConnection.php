@@ -34,10 +34,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
 
         $data = json_encode($record, JSON_PRETTY_PRINT);
 
-        if ($this->hasLoadedAllRecords($this->getCurrentContentTypeName()))
-        {
-            $this->records[$this->getCurrentContentTypeName()][$record->getID()] = $record;
-        }
+        $this->stashRecord($record,$this->getCurrentDataDimensions());
 
         if (!$this->writeData($filename, $data))
         {
@@ -74,10 +71,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
                                   ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getCurrentDataDimensions()));
         $filename .= '/' . $recordId . '.json';
 
-        if ($this->hasLoadedAllRecords($this->getCurrentContentTypeName()))
-        {
-            unset ($this->records[$this->getCurrentContentTypeName()][$recordId]);
-        }
+        $this->unstashRecord($this->getCurrentContentTypeName(),$recordId,$this->getCurrentDataDimensions());
 
         if ($this->deleteData($filename))
         {
@@ -127,13 +121,13 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
     {
         $fs = new Filesystem();
 
-        $dir = pathinfo($fileName,PATHINFO_DIRNAME);
+        $dir = pathinfo($fileName, PATHINFO_DIRNAME);
         if (!file_exists($dir))
         {
             $fs->mkdir($dir);
         }
 
-        var_dump ($fileName);
+        var_dump($fileName);
 
         return file_put_contents($fileName, $data);
     }

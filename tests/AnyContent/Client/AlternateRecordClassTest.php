@@ -73,8 +73,6 @@ class AlternateRecordClassTest extends \PHPUnit_Framework_TestCase
 
         $repository->selectContentType('example01');
 
-        $repository->registerRecordClassForContentType('example01','AnyContent\Client\AlternateGetRecordsTestRecordClass');
-
         $records = $repository->getRecords();
 
         $this->assertCount(5, $records);
@@ -88,7 +86,7 @@ class AlternateRecordClassTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Test ' . $i, $record->getProperty('article'));
         }
 
-        $repository->registerRecordClassForContentType('example01','AnyContent\Client\AlternateGetRecordsTestRecordClass');
+        $repository->registerRecordClassForContentType('example01','AnyContent\Client\AlternateRecordClass');
 
         $records = $repository->getRecords();
 
@@ -96,7 +94,7 @@ class AlternateRecordClassTest extends \PHPUnit_Framework_TestCase
         foreach ($records as $id => $record)
         {
             $i++;
-            $this->assertInstanceOf('AnyContent\Client\AlternateGetRecordsTestRecordClass',$record);
+            $this->assertInstanceOf('AnyContent\Client\AlternateRecordClass',$record);
             $this->assertEquals($i, $id);
             $this->assertEquals('New Record '.$i,$record->getName());
             $this->assertEquals('Test ' . $i, $record->getProperty('article'));
@@ -107,7 +105,7 @@ class AlternateRecordClassTest extends \PHPUnit_Framework_TestCase
 }
 
 
-class AlternateGetRecordsTestRecordClass extends Record
+class AlternateRecordClass extends Record
 {
 
     public function getArticle()
