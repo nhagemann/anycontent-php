@@ -26,7 +26,7 @@ abstract class Mapper
 
     public function getFieldValue($fieldName)
     {
-        $fieldName = 'field_' . $fieldName;
+
         if (array_key_exists($fieldName, $this->data))
         {
             if (array_key_exists('und', $this->data[$fieldName]))

@@ -12,18 +12,25 @@ class Airline extends Mapper
 
         $record->setProperty('status', (int)$data['status']);
 
-        $mapping = [ 'code'          => 'code',
-                     'history'       => 'history',
-                     'fleet'         => 'fleet',
-                     'service'       => 'service',
-                     'onlinecheckin' => 'onlinecheckin',
-                     'profile'       => 'profile',
+        $mapping = [ 'field_code'                   => 'code',
+                     'field_airline_history'        => 'history',
+                     'field_airline_fleet'          => 'fleet',
+                     'field_airline_services'       => 'services',
+                     'field_airline_ffp'            => 'ffp',
+                     'field_airline_online_checkin' => 'onlinecheckin',
+                     'field_airline_lounges'        => 'lounges',
+                      'field_foundation_year'        => 'year'
         ];
+
 
         foreach ($mapping as $fieldName => $property)
         {
             $record->setProperty($property, $this->getFieldValue($fieldName));
         }
+
+        $sequence = [];
+        $sequence[]=['richtext'=>['richtext'=>$this->getFieldValue('field_airline_profile')]];
+        $record->setProperty('content',json_encode($sequence));
 
         return $record;
     }
