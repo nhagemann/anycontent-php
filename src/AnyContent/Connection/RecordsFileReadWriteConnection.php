@@ -3,17 +3,23 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Interfaces\WriteConnection;
 
 class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection implements WriteConnection
 {
 
-    public function saveRecord(Record $record)
+    public function saveRecord(Record $record, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
         $records = [ $record ];
 
-        $recordIds = $this->saveRecords($records);
+        $recordIds = $this->saveRecords($records,$dataDimensions);
 
         return array_pop($recordIds);
     }
@@ -25,43 +31,63 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
      * @return mixed
      * @throws AnyContentClientException
      */
-    public function saveRecords(array $records)
+    public function saveRecords(array $records, DataDimensions $dataDimensions = null)
     {
-        $recordIds  = [ ];
-        $allRecords = $this->getAllRecords();
-
-        foreach ($records as $record)
+        if (count($records)>0)
         {
-            if ($record->getID() == '')
+            $record = reset($records);
+            $contentTypeName = $record->getContentTypeName();
+
+            if (!$dataDimensions)
             {
-                $nextId = max(array_keys($allRecords)) + 1;
-                $record->setID($nextId);
-                $record->setRevision(0);
+                $dataDimensions = $this->getCurrentDataDimensions();
             }
 
-            $record->setRevision($record->getRevision() + 1);
-            $record->setRevisionTimestamp(time());
-            $allRecords[$record->getID()] = $record;
-            $recordIds[]                  = $record->getID();
+            $recordIds  = [ ];
+            $allRecords = $this->getAllRecords($contentTypeName, $dataDimensions);
+
+            foreach ($records as $record)
+            {
+                if ($record->getID() == '')
+                {
+                    $nextId = max(array_keys($allRecords)) + 1;
+                    $record->setID($nextId);
+                    $record->setRevision(0);
+                }
+
+                $record->setRevision($record->getRevision() + 1);
+                $record->setRevisionTimestamp(time());
+                $allRecords[$record->getID()] = $record;
+                $recordIds[]                  = $record->getID();
+            }
+
+            $data = json_encode([ 'records' => $allRecords ], JSON_PRETTY_PRINT);
+
+            if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
+            {
+                $this->stashAllRecords($allRecords, $dataDimensions);
+
+                return $recordIds;
+
+            }
+            throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());
         }
-
-        $data = json_encode([ 'records' => $allRecords ], JSON_PRETTY_PRINT);
-
-        if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
-        {
-            $this->stashAllRecords($allRecords,$this->getCurrentDataDimensions());
-
-            return $recordIds;
-
-        }
-        throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());
+        return [];
     }
 
 
-    public function deleteRecord($recordId)
+    public function deleteRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
 
-        $recordIds = $this->deleteRecords([ $recordId ]);
+        $recordIds = $this->deleteRecords([ $recordId ],$contentTypeName, $dataDimensions);
         if (count($recordIds) == 1)
         {
             return array_shift($recordIds);
@@ -71,11 +97,20 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
     }
 
 
-    public function deleteRecords(array $recordsIds)
+    public function deleteRecords(array $recordsIds,$contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
         $result = [ ];
 
-        $allRecords = $this->getAllRecords();
+        $allRecords = $this->getAllRecords($contentTypeName,$dataDimensions);
 
         foreach ($recordsIds as $recordId)
         {
@@ -93,35 +128,43 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
         {
             $data = json_encode([ 'records' => $allRecords ]);
 
-            if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
+            if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
             {
-                $this->stashAllRecords($allRecords,$this->getCurrentDataDimensions());
+                $this->stashAllRecords($allRecords,$dataDimensions);
 
                 return $result;
 
             }
-            throw new AnyContentClientException('Error when deleting records of content type ' . $this->getCurrentContentTypeName());
+            throw new AnyContentClientException('Error when deleting records of content type ' . $contentTypeName);
         }
 
         return $result;
     }
 
 
-    public function deleteAllRecords()
+    public function deleteAllRecords( $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
 
-        $allRecords = $this->getAllRecords();
+        $allRecords = $this->getAllRecords($contentTypeName,$dataDimensions);
 
         $data = json_encode([ 'records' => [ ] ]);
 
-        if ($this->writeData($this->getConfiguration()->getUriRecords($this->getCurrentContentTypeName()), $data))
+        if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
         {
-            $this->unstashAllRecords($this->getCurrentContentTypeName(),$this->getCurrentDataDimensions(),$this->getClassForContentType($this->getCurrentContentTypeName()));
+            $this->unstashAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($this->getCurrentContentTypeName()));
 
             return array_keys($allRecords);
 
         }
-        throw new AnyContentClientException('Error when deleting records of content type ' . $this->getCurrentContentTypeName());
+        throw new AnyContentClientException('Error when deleting records of content type ' . $contentTypeName);
     }
 
 

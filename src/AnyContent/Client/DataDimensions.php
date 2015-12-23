@@ -3,13 +3,11 @@
 namespace AnyContent\Client;
 
 use CMDL\DataTypeDefinition;
-use CMDL\Util;
 
 class DataDimensions
 {
 
-    /** @var  DataTypeDefinition */
-    protected $definition;
+
 
     protected $viewName = 'default';
 
@@ -22,11 +20,6 @@ class DataDimensions
     const MAX_TIMESHIFT = 315532800; // roundabout 10 years, equals to 1.1.1980
 
 
-    public function __construct(DataTypeDefinition $definition)
-    {
-        $this->definition = $definition;
-
-    }
 
 
     /**
@@ -61,7 +54,10 @@ class DataDimensions
      */
     public function setWorkspace($workspace)
     {
-        $this->workspace = $workspace;
+
+
+            $this->workspace = $workspace;
+
     }
 
 
@@ -79,7 +75,9 @@ class DataDimensions
      */
     public function setLanguage($language)
     {
-        $this->language = $language;
+
+            $this->language = $language;
+
     }
 
 
@@ -110,7 +108,6 @@ class DataDimensions
 
         return false;
     }
-
 
 
     public function __toString()

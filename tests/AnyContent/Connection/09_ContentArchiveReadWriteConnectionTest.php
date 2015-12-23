@@ -3,19 +3,20 @@
 namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
-use AnyContent\Connection\Configuration\RecordFilesConfiguration;
+use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
+class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RecordFilesReadWriteConnection */
+    /** @var  ContentArchiveReadWriteConnection */
     public $connection;
+
 
     public static function setUpBeforeClass()
     {
-        $source = __DIR__ . '/../../resources/RecordFilesReadOnlyConnection';
-        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+        $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
+        $source = __DIR__ . '/../../resources/ContentArchiveReadOnlyConnection';
 
         $fs = new Filesystem();
 
@@ -24,37 +25,33 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
             $fs->remove($target);
         }
 
-        $fs->mkdir($target);
+        $fs->mirror($source, $target);
 
-        $directoryIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
-        foreach ($iterator as $item)
-        {
-            if ($item->isDir())
-            {
-                $fs->mkdir($target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-            else
-            {
-                $fs->copy($item, $target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-        }
+    }
+
+
+    public static function tearDownAfterClass()
+    {
+        $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
+
+        $fs = new Filesystem();
+        $fs->remove($target);
+
     }
 
 
     public function setUp()
     {
+        $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
 
-        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+        $configuration = new ContentArchiveConfiguration();
 
-
-        $configuration = new RecordFilesConfiguration();
-
-        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records');
+        $configuration->setContentArchiveFolder($target);
 
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+
     }
 
 
@@ -75,6 +72,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $record = $connection->getRecord(5);
 
         $this->assertEquals('dmc', $record->getProperty('name'));
+
 
     }
 
@@ -216,4 +214,5 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(0, $connection->countRecords());
     }
+
 }

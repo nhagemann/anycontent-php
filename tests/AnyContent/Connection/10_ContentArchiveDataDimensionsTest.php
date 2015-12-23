@@ -3,19 +3,20 @@
 namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
-use AnyContent\Connection\Configuration\RecordFilesConfiguration;
+use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
+class ContentArchiveDataDimensionsTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RecordFilesReadWriteConnection */
+    /** @var  ContentArchiveReadWriteConnection */
     public $connection;
+
 
     public static function setUpBeforeClass()
     {
-        $source = __DIR__ . '/../../resources/RecordFilesReadOnlyConnection';
-        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+        $target = __DIR__ . '/../../../tmp/TestContentArchive';
+        $source = __DIR__ . '/../../resources/ContentArchiveReadOnlyConnection';
 
         $fs = new Filesystem();
 
@@ -24,37 +25,33 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
             $fs->remove($target);
         }
 
-        $fs->mkdir($target);
+        $fs->mirror($source, $target);
 
-        $directoryIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
-        foreach ($iterator as $item)
-        {
-            if ($item->isDir())
-            {
-                $fs->mkdir($target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-            else
-            {
-                $fs->copy($item, $target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-        }
+    }
+
+
+    public static function tearDownAfterClass()
+    {
+        $target = __DIR__ . '/../../../tmp/TestContentArchive';
+
+        $fs = new Filesystem();
+        $fs->remove($target);
+
     }
 
 
     public function setUp()
     {
+        $target = __DIR__ . '/../../../tmp/TestContentArchive';
 
-        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+        $configuration = new ContentArchiveConfiguration();
 
-
-        $configuration = new RecordFilesConfiguration();
-
-        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records');
+        $configuration->setContentArchiveFolder($target);
 
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+
     }
 
 
@@ -76,17 +73,48 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('dmc', $record->getProperty('name'));
 
+
+
     }
 
+    public function testWorkSpaceLive()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles');
+
+        $connection->selectWorkspace('live');
+
+        $record = $connection->getRecord(5);
+
+        $this->assertEquals('live',$record->getWorkspace());
+
+
+        $record->setProperty('name', 'dmc');
+
+        $connection->saveRecord($record);
+
+        $record = $connection->getRecord(5);
+
+        $this->assertEquals('dmc', $record->getProperty('name'));
+
+
+        $record = $connection->getRecord(99);
+
+        $this->assertFalse($record);
+    }
 
     public function testSaveRecordNewConnection()
     {
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
+        $connection->selectWorkspace('live');
+
 
         $record = $connection->getRecord(5);
 
+        $this->assertEquals('live',$record->getWorkspace());
         $this->assertEquals('dmc', $record->getProperty('name'));
 
     }
@@ -96,7 +124,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
         $record = new Record($connection->getCurrentContentType(), 'test');
 
@@ -112,9 +140,9 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
-        $this->assertEquals(4, $connection->countRecords());
+        $this->assertEquals(3, $connection->countRecords());
 
         $records = [ ];
 
@@ -126,7 +154,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->saveRecords($records);
 
-        $this->assertEquals(9, $connection->countRecords());
+        $this->assertEquals(8, $connection->countRecords());
 
     }
 
@@ -137,7 +165,11 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->selectContentType('profiles');
 
-        $this->assertEquals(9, $connection->countRecords());
+        $this->assertEquals(3, $connection->countRecords());
+
+        $connection->selectWorkspace('live');
+
+        $this->assertEquals(8, $connection->countRecords());
     }
 
 
@@ -145,17 +177,17 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
         $result = $connection->deleteRecord(5);
 
         $this->assertEquals(5,$result);
-        $this->assertEquals(8, $connection->countRecords());
+        $this->assertEquals(7, $connection->countRecords());
 
         $result = $connection->deleteRecord(999);
 
         $this->assertEquals(false, $result);
-        $this->assertEquals(8, $connection->countRecords());
+        $this->assertEquals(7, $connection->countRecords());
 
     }
 
@@ -164,9 +196,9 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
-        $this->assertEquals(8, $connection->countRecords());
+        $this->assertEquals(7, $connection->countRecords());
     }
 
 
@@ -174,12 +206,12 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
         $result = $connection->deleteRecords([ 6, 999 ]);
 
         $this->assertCount(1, $result);
-        $this->assertEquals(7, $connection->countRecords());
+        $this->assertEquals(6, $connection->countRecords());
 
     }
 
@@ -188,9 +220,9 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
-        $this->assertEquals(7, $connection->countRecords());
+        $this->assertEquals(6, $connection->countRecords());
     }
 
 
@@ -198,11 +230,11 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
         $result = $connection->deleteAllRecords();
 
-        $this->assertCount(7, $result);
+        $this->assertCount(6, $result);
         $this->assertEquals(0, $connection->countRecords());
 
     }
@@ -212,8 +244,18 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('profiles');
+        $connection->selectContentType('profiles')->selectWorkspace('live');
 
         $this->assertEquals(0, $connection->countRecords());
     }
+
+    public function testSwitchLanguage()
+    {
+        $connection = $this->connection;
+
+        $connection->selectContentType('profiles')->selectWorkspace('live')->selectLanguage('de');
+
+        $this->assertEquals(1, $connection->countRecords());
+    }
+
 }

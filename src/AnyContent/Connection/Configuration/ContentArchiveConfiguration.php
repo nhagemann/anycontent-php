@@ -13,8 +13,6 @@ class ContentArchiveConfiguration extends AbstractConfiguration
 
     protected $path;
 
-    protected $filename = null;
-
 
     public function setContentArchiveFolder($path)
     {
@@ -30,73 +28,12 @@ class ContentArchiveConfiguration extends AbstractConfiguration
     }
 
 
-    public function setContentArchiveFile($path)
-    {
-        $this->setContentArchiveFolder(pathinfo($path, PATHINFO_DIRNAME));
-        $this->filename = basename($path);
-    }
-
-
     public function apply(AbstractConnection $connection)
     {
 
         $finder = new Finder();
 
         $uri = 'file://'.$this->getContentArchiveFolder().'/cmdl';
-
-
-
-
-        /*
-        if ($this->filename!=null)
-        {
-            $uri = 'zip://./'.$this->getContentArchiveFolder().'/'.$this->filename;
-        }
-        */
-
-
-
-        $z = new \ZipArchive();
-        if ($z->open($this->getContentArchiveFolder().'/'.$this->filename)) {
-            //$uri = $z->getStream('ContentArchiveReadOnlyConnection/test.txt');
-            //var_dump ($a);
-            //$uri = 'zip:/'.$this->getContentArchiveFolder().'/'.$this->filename.'#'.$this->filename.'/cmdl';
-            //  $uri = 'zip://' . realpath($this->getContentArchiveFolder(). '/'.$this->filename).'#ContentArchiveReadOnlyConnection/cmdl/';
-
-        }
-        /*
-        $fp = fopen('zip://' . realpath($this->getContentArchiveFolder(). '/'.$this->filename).'#ContentArchiveReadOnlyConnection/test.txt', 'r');
-        if (!$fp) {
-            exit("Datei kann nicht geöffnet werden\n");
-        }
-        */
-
-
-        //var_dump(stream_get_meta_data($uri));
-
-        /*$contents = '';
-        $fp = fopen('zip:/' . $this->getContentArchiveFolder(). '/'.$this->filename.'#test.txt', 'r');
-        if (!$fp) {
-            exit("Datei kann nicht geöffnet werden\n");
-        }
-        while (!feof($fp)) {
-            $contents .= fread($fp, 2);
-        }
-        echo "$contents\n";
-        fclose($fp);
-        echo "Erledigt.\n";
-
-         */
-       /*
-        var_dump($this->getContentArchiveFolder().'/'.$this->filename);
-
-        $uri = 'zip://file://'.$this->getContentArchiveFolder().'/'.$this->filename;
-
-        $xml = file_get_contents($uri);
-
-        var_dump ($uri);
-         */
-
 
         $finder->in($uri)->depth(0);
 

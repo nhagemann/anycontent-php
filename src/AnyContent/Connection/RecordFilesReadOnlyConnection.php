@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\AnyContentClientException;
 
 use AnyContent\Client\DataDimensions;
+use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
@@ -40,10 +41,18 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
-        $finder = new Finder();
-        $finder->in($folder)->depth(0);
+        $folder = realpath($folder);
 
-        return $finder->files()->name('*.json')->count();
+        if ($folder)
+        {
+
+            $finder = new Finder();
+            $finder->in($folder)->depth(0);
+
+            return $finder->files()->name('*.json')->count();
+        }
+
+        return 0;
 
     }
 
@@ -61,12 +70,10 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-
         if ($dataDimensions == null)
         {
             $dataDimensions = $this->getCurrentDataDimensions();
         }
-
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
@@ -83,12 +90,14 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                 $definition = $this->getContentTypeDefinition($contentTypeName);
 
                 $record = $this->getRecordFactory()
-                               ->createRecordFromJSONObject($definition, $data);
+                               ->createRecordFromJSONObject($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getTimeShift());
 
                 return $record;
             }
         }
 
+        // upgrade decide Exception vs false
+        return false;
         throw new AnyContentClientException ('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
     }
 
@@ -112,9 +121,9 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        if ($this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName)))
+        if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
         {
-            return $this->getStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName));
+            return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
         }
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
@@ -139,7 +148,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                             ->createRecordsFromJSONArray($definition, $data);
 
         }
-        $this->stashAllRecords($records,$dataDimensions);
+        $this->stashAllRecords($records, $dataDimensions);
 
         return $records;
 

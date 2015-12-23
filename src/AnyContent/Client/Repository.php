@@ -2,16 +2,18 @@
 
 namespace AnyContent\Client;
 
+use AnyContent\AnyContentClientException;
+use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
 
 class Repository
 {
 
-    /** @var  ReadOnlyConnection */
+    /** @var  AbstractConnection */
     protected $readConnection;
 
-    /** @var WriteConnection */
+    /** @var AbstractConnection */
     protected $writeConnection;
 
     /** @var DataDimensions */
@@ -166,6 +168,7 @@ class Repository
         return $this->readConnection->hasContentType($contentTypeName);
     }
 
+
     public function getContentTypeDefinition($contentTypeName = null)
     {
 
@@ -187,12 +190,6 @@ class Repository
     public function getCurrentContentTypeName()
     {
         return $this->readConnection->getCurrentContentTypeName();
-    }
-
-
-    public function countRecords()
-    {
-        return $this->readConnection->countRecords($this->getCurrentContentTypeName());
     }
 
 
@@ -283,9 +280,33 @@ class Repository
     }
 
 
+    public function createRecord($name = '', $recordId = null)
+    {
+        /**
+         * We use the readConnection, since you might want to create records, even if you're not gonna be able to store them
+         *
+         * @var Record $record
+         */
+        $record = $this->readConnection->getRecordFactory()
+                                       ->createRecord($this->getContentTypeDefinition(), [ ], $this->getCurrentDataDimensions()
+                                                                                                   ->getViewName(), $this->getCurrentDataDimensions()
+                                                                                                                         ->getWorkspace(), $this->getCurrentDataDimensions()
+                                                                                                                                                ->getLanguage());
+        $record->setId($recordId);
+        $record->setName($name);
+
+        return $record;
+    }
+
+
     public function getRecord($recordId, $dataDimensions = null)
     {
-        return $this->readConnection->getRecord($recordId, $this->getCurrentContentTypeName(),$dataDimensions);
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->readConnection->getRecord($recordId, $this->getCurrentContentTypeName(), $dataDimensions);
     }
 
 
@@ -296,27 +317,52 @@ class Repository
      */
     public function getRecords($dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
+    }
 
 
-        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName(),$dataDimensions);
+    public function countRecords($dataDimensions = null)
+    {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->readConnection->countRecords($this->getCurrentContentTypeName(), $dataDimensions);
     }
 
 
     public function getPaginatedRecords($page = 1, $count = 100, $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
         return $this->readConnection->getAllRecords($this->getCurrentContentTypeName());
     }
 
 
     public function getFilteredRecords($filter, $count, $page, $dataDimensions = null)
     {
-
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
     }
 
 
     public function getSortedRecords($parentId, $includeParent = true, $depth = null, $dataDimensions = null)
     {
-
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
     }
 
 
@@ -328,7 +374,16 @@ class Repository
 
     public function saveRecord($record, $dataDimensions = null)
     {
-        return $this->writeConnection->saveRecord($record);
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->writeConnection->saveRecord($record, $dataDimensions);
     }
 
 
@@ -338,11 +393,12 @@ class Repository
         if ($this->hasContentType($contentTypeName))
         {
             $this->contentRecordClassMap[$contentTypeName] = $classname;
-            $this->readConnection->registerRecordClassForContentType($contentTypeName,$classname);
-            if ($this->writeConnection & $this->readConnection!=$this->writeConnection)
+            $this->readConnection->registerRecordClassForContentType($contentTypeName, $classname);
+            if ($this->writeConnection && $this->readConnection != $this->writeConnection)
             {
-                $this->writeConnection->registerRecordClassForContentType($contentTypeName,$classname);
+                $this->writeConnection->registerRecordClassForContentType($contentTypeName, $classname);
             }
+
             return true;
         }
 

@@ -141,6 +141,12 @@ class Record implements \JsonSerializable
     }
 
 
+    public function setName($value)
+    {
+        return $this->setProperty('name', $value);
+    }
+
+
     public function getName()
     {
         return $this->getProperty('name');
@@ -167,10 +173,12 @@ class Record implements \JsonSerializable
         return $this->contentTypeDefinition->getName();
     }
 
+
     public function getContentTypeName()
     {
         return $this->contentTypeDefinition->getName();
     }
+
 
     public function getContentTypeDefinition()
     {

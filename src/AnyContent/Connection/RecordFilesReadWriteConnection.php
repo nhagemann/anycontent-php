@@ -3,21 +3,27 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 
 use AnyContent\Connection\Interfaces\WriteConnection;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //implements WriteConnection
+class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection implements WriteConnection
 {
 
-    public function saveRecord(Record $record)
+    public function saveRecord(Record $record, DataDimensions $dataDimensions = null)
     {
+
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
 
         if ($record->getID() == '')
         {
             $nextId = 1;
-            if (count($this->getAllRecords()) > 0)
+            if (count($this->getAllRecords($record->getContentTypeName(), $dataDimensions)) > 0)
             {
                 $nextId = max(array_keys($this->getAllRecords())) + 1;
             }
@@ -29,16 +35,16 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
         $record->setRevisionTimestamp(time());
 
         $filename = $this->getConfiguration()
-                         ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getCurrentDataDimensions());
+                         ->getFolderNameRecords($record->getContentTypeName(), $dataDimensions);
         $filename .= '/' . $record->getID() . '.json';
 
         $data = json_encode($record, JSON_PRETTY_PRINT);
 
-        $this->stashRecord($record,$this->getCurrentDataDimensions());
+        $this->stashRecord($record, $dataDimensions);
 
         if (!$this->writeData($filename, $data))
         {
-            throw new AnyContentClientException('Error when saving record of content type ' . $this->getCurrentContentTypeName());
+            throw new AnyContentClientException('Error when saving record of content type ' . $record->getContentTypeName());
         }
 
         return $record->getID();
@@ -51,12 +57,17 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
      * @return mixed
      * @throws AnyContentClientException
      */
-    public function saveRecords(array $records)
+    public function saveRecords(array $records, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
         $recordIds = [ ];
         foreach ($records as $record)
         {
-            $recordIds[] = $this->saveRecord($record);
+            $recordIds[] = $this->saveRecord($record, $dataDimensions);
         }
 
         return $recordIds;
@@ -64,14 +75,23 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
     }
 
 
-    public function deleteRecord($recordId)
+    public function deleteRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
 
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
         $filename = realpath($this->getConfiguration()
-                                  ->getFolderNameRecords($this->getCurrentContentTypeName(), $this->getCurrentDataDimensions()));
+                                  ->getFolderNameRecords($contentTypeName, $dataDimensions));
         $filename .= '/' . $recordId . '.json';
 
-        $this->unstashRecord($this->getCurrentContentTypeName(),$recordId,$this->getCurrentDataDimensions());
+        $this->unstashRecord($contentTypeName, $recordId, $dataDimensions);
 
         if ($this->deleteData($filename))
         {
@@ -82,12 +102,21 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
     }
 
 
-    public function deleteRecords(array $recordsIds)
+    public function deleteRecords(array $recordsIds, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
         $recordIds = [ ];
         foreach ($recordsIds as $recordId)
         {
-            if ($this->deleteRecord($recordId))
+            if ($this->deleteRecord($recordId, $contentTypeName, $dataDimensions))
             {
                 $recordIds[] = $recordId;
             }
@@ -98,16 +127,23 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
     }
 
 
-    public function deleteAllRecords()
+    public function deleteAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+        if (!$contentTypeName)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
         $recordIds = [ ];
 
-        $allRecords = $this->getAllRecords();
+        $allRecords = $this->getAllRecords($contentTypeName, $dataDimensions);
 
         foreach ($allRecords as $record)
         {
-            if ($this->deleteRecord($record->getId()))
+            if ($this->deleteRecord($record->getId(), $contentTypeName, $dataDimensions))
             {
                 $recordIds[] = $record->getId();
             }
@@ -126,8 +162,6 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection //imp
         {
             $fs->mkdir($dir);
         }
-
-        var_dump($fileName);
 
         return file_put_contents($fileName, $data);
     }

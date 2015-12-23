@@ -95,3 +95,4 @@ Geolokation = geolocation
 @custom content-view glossary "Glossar"
 
 @workspaces (default,live)
+@languages (default,de)
