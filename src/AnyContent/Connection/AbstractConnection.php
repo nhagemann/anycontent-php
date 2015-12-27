@@ -6,50 +6,55 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\RecordFactory;
+use AnyContent\Client\UserInfo;
 use AnyContent\Connection\Configuration\AbstractConfiguration;
 use CMDL\ContentTypeDefinition;
 use CMDL\Parser;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
+use KVMoniLog\KVMoniLogAwareTrait;
 
 abstract class AbstractConnection
 {
+
+    use KVMoniLogAwareTrait;
 
     /**
      * @var AbstractConfiguration
      */
     protected $configuration;
 
-    protected $currentContentTypeName = null;
-
     /** @var  ContentTypeDefinition[] */
     protected $contentTypeDefinitions = [ ];
 
+    protected $currentContentTypeName = null;
+
     /** @var  ContentTypeDefinition */
     protected $currentContentTypeDefinition = null;
+
+    /** @var DataDimensions */
+    protected $dataDimensions;
+
+    /** @var  RecordFactory */
+    protected $recordFactory;
+
+    protected $contentRecordClassMap = [ ];
+
+    protected $recordsStash = [ ];
+
+    protected $hasStashedAllRecords = [ ];
 
     /** @var  CacheProvider */
     protected $cache;
 
     protected $cacheDuration;
 
-    /** @var  RecordFactory */
-    protected $recordFactory;
-
-    protected $recordsStash = [ ];
-
-    protected $hasStashedAllRecords = [ ];
-
-    /** @var DataDimensions */
-    protected $dataDimensions;
-
-    protected $contentRecordClassMap = [ ];
-
 
     public function __construct(AbstractConfiguration $configuration)
     {
         $this->configuration = $configuration;
         $this->configuration->apply($this);
+        $this->userInfo = new UserInfo();
     }
 
 
@@ -60,6 +65,8 @@ abstract class AbstractConnection
     {
         return $this->configuration;
     }
+
+
 
 
     /**
@@ -293,7 +300,6 @@ abstract class AbstractConnection
 //
 //        return false;
 //    }
-
 
     public function selectView($viewName)
     {

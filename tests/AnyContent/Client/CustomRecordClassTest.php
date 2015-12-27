@@ -5,6 +5,8 @@ namespace AnyContent\Client;
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use CMDL\Parser;
+use Katzgrau\KLogger\Logger;
+use KVMoniLog\KVMoniLog;
 use Symfony\Component\Filesystem\Filesystem;
 
 class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
@@ -71,6 +73,15 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
     {
         $repository = new Repository($this->connection);
 
+
+        $moniLog = new KVMoniLog();
+        $klogger = new Logger(__DIR__.'/../../../tmp');
+        $moniLog->addLogger($klogger);
+        $repository->setKVMoniLog($moniLog);
+
+
+
+
         $repository->selectContentType('example01');
 
         $records = $repository->getRecords();
@@ -101,6 +112,8 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
         }
 
     }
+
+
 
 }
 

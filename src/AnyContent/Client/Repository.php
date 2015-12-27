@@ -6,9 +6,13 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
+use KVMoniLog\KVMoniLog;
+use KVMoniLog\KVMoniLogAwareTrait;
 
 class Repository
 {
+
+    use KVMoniLogAwareTrait;
 
     /** @var  AbstractConnection */
     protected $readConnection;
@@ -18,6 +22,9 @@ class Repository
 
     /** @var DataDimensions */
     protected $dataDimensions;
+
+    /** @var  UserInfo */
+    protected $userInfo;
 
     /**
      * @var string unique identifier extracted from the connection
@@ -48,7 +55,22 @@ class Repository
         {
             $this->writeConnection = $readConnection;
         }
+        $this->userInfo = new UserInfo();
 
+    }
+
+
+    public function setKVMoniLog(KVMoniLog $logger)
+    {
+        $this->kvmonilog = $logger;
+        if ($this->readConnection)
+        {
+            $this->readConnection->setKVMoniLog($logger);
+        }
+        if ($this->writeConnection)
+        {
+            $this->readConnection->setKVMoniLog($logger);
+        }
     }
 
 
@@ -295,10 +317,21 @@ class Repository
         $record->setId($recordId);
         $record->setName($name);
 
+        $userInfo = $this->getCurrentUserInfo();
+
+        $record->setCreationUserInfo($userInfo);
+        $record->setLastChangeUserInfo($userInfo);
+
         return $record;
     }
 
 
+    /**
+     * @param      $recordId
+     * @param null $dataDimensions
+     *
+     * @return Record
+     */
     public function getRecord($recordId, $dataDimensions = null)
     {
         if (!$dataDimensions)
@@ -372,7 +405,7 @@ class Repository
 
     } */
 
-    public function saveRecord($record, $dataDimensions = null)
+    public function saveRecord(Record $record, $dataDimensions = null)
     {
         if (!$this->writeConnection)
         {
@@ -382,6 +415,14 @@ class Repository
         {
             $dataDimensions = $this->getCurrentDataDimensions();
         }
+
+        $message = $this->getKVMoniLog()
+                        ->createLogMessage('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
+        $this->getKVMoniLog('anycontent-repository')->info($message);
+
+        $userInfo = $this->getCurrentUserInfo();
+
+        $record->setLastChangeUserInfo($userInfo);
 
         return $this->writeConnection->saveRecord($record, $dataDimensions);
     }
@@ -399,6 +440,10 @@ class Repository
                 $this->writeConnection->registerRecordClassForContentType($contentTypeName, $classname);
             }
 
+            $message = $this->getKVMoniLog()
+                            ->createLogMessage('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
+            $this->getKVMoniLog('anycontent-repository')->debug($message);
+
             return true;
         }
 
@@ -415,4 +460,25 @@ class Repository
 
         return 'AnyContent\Client\Record';
     }
+
+
+    /**
+     * @return UserInfo
+     */
+    public function getCurrentUserInfo()
+    {
+        $this->userInfo->setTimestampToNow();
+
+        return clone $this->userInfo;
+    }
+
+
+    /**
+     * @param UserInfo $userInfo
+     */
+    public function setUserInfo($userInfo)
+    {
+        $this->userInfo = $userInfo;
+    }
+
 }

@@ -42,12 +42,13 @@ class RecordFactory
         return $records;
     }
 
-    public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [], $viewName = "default", $workspace = "default", $language = "default")
+
+    public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
     {
         $classname = $this->getClassForContentType($contentTypeDefinition->getName());
 
         /** @var Record $record */
-        $record = new $classname($contentTypeDefinition, '' , $viewName, $workspace, $language);
+        $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
 
         $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 1;
         $record->setRevision($revision);
@@ -66,7 +67,6 @@ class RecordFactory
 
         return $record;
     }
-
 
 
     public function createRecordFromJSONObject(ContentTypeDefinition $contentTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
@@ -94,13 +94,21 @@ class RecordFactory
 
         if (isset($jsonRecord['info']))
         {
-            $record->setRevisionTimestamp($jsonRecord['info']['revision_timestamp']);
-            $record->setHash($jsonRecord['info']['hash']);
-            $record->setPosition($jsonRecord['info']['position']);
-            $record->setLevelWithinSortedTree($jsonRecord['info']['level']);
-            $record->setParentRecordId($jsonRecord['info']['parent_id']);
-            $record->setCreationUserInfo(new UserInfo($jsonRecord['info']['creation']['username'], $jsonRecord['info']['creation']['firstname'], $jsonRecord['info']['creation']['lastname'], $jsonRecord['info']['creation']['timestamp']));
-            $record->setLastChangeUserInfo(new UserInfo($jsonRecord['info']['lastchange']['username'], $jsonRecord['info']['lastchange']['firstname'], $jsonRecord['info']['lastchange']['lastname'], $jsonRecord['info']['lastchange']['timestamp']));
+
+//            $record->setRevisionTimestamp($jsonRecord['info']['revision_timestamp']);
+//            $record->setHash($jsonRecord['info']['hash']);
+//            $record->setPosition($jsonRecord['info']['position']);
+//            $record->setLevelWithinSortedTree($jsonRecord['info']['level']);
+//            $record->setParentRecordId($jsonRecord['info']['parent_id']);
+            if (isset($jsonRecord['info']['creation']))
+            {
+                $record->setCreationUserInfo(new UserInfo($jsonRecord['info']['creation']['username'], $jsonRecord['info']['creation']['firstname'], $jsonRecord['info']['creation']['lastname'], $jsonRecord['info']['creation']['timestamp']));
+            }
+            if (isset($jsonRecord['info']['lastchange']))
+            {
+
+                $record->setLastChangeUserInfo(new UserInfo($jsonRecord['info']['lastchange']['username'], $jsonRecord['info']['lastchange']['firstname'], $jsonRecord['info']['lastchange']['lastname'], $jsonRecord['info']['lastchange']['timestamp']));
+            }
         }
 
         return $record;

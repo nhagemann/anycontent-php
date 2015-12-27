@@ -21,13 +21,13 @@ class Record implements \JsonSerializable
     public $properties = array();
 
     public $revision = 1;
-    public $revisionTimestamp = null;
-
-    public $hash = null;
-
-    public $position = null;
-    public $parentRecordId = null;
-    public $level = null;
+//    public $revisionTimestamp = null;
+//
+//    public $hash = null;
+//
+//    public $position = null;
+//    public $parentRecordId = null;
+//    public $level = null;
 
     /** @var  UserInfo */
     public $creationUserInfo = null;
@@ -44,6 +44,8 @@ class Record implements \JsonSerializable
         $this->view      = $view;
         $this->workspace = $workspace;
         $this->language  = $language;
+        $this->setCreationUserInfo(new UserInfo());
+        $this->setLastChangeUserInfo(new UserInfo());
 
     }
 
@@ -153,17 +155,17 @@ class Record implements \JsonSerializable
     }
 
 
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
-    }
-
-
-    public function getHash()
-    {
-        return $this->hash;
-    }
-
+//    public function setHash($hash)
+//    {
+//        $this->hash = $hash;
+//    }
+//
+//
+//    public function getHash()
+//    {
+//        return $this->hash;
+//    }
+//
 
     /**
      * @deprecated
@@ -198,16 +200,16 @@ class Record implements \JsonSerializable
     }
 
 
-    public function setRevisionTimestamp($revisionTimestamp)
-    {
-        $this->revisionTimestamp = $revisionTimestamp;
-    }
-
-
-    public function getRevisionTimestamp()
-    {
-        return $this->revisionTimestamp;
-    }
+//    public function setRevisionTimestamp($revisionTimestamp)
+//    {
+//        $this->revisionTimestamp = $revisionTimestamp;
+//    }
+//
+//
+//    public function getRevisionTimestamp()
+//    {
+//        return $this->revisionTimestamp;
+//    }
 
 
     public function getStatus()
@@ -256,7 +258,7 @@ class Record implements \JsonSerializable
 
     public function setLastChangeUserInfo(UserInfo $lastChangeUserInfo)
     {
-        $this->lastChangeUserInfo = $lastChangeUserInfo;
+        $this->lastChangeUserInfo = clone $lastChangeUserInfo;
     }
 
 
@@ -273,11 +275,7 @@ class Record implements \JsonSerializable
 
     public function setCreationUserInfo(UserInfo $creationUserInfo)
     {
-        if ($this->creationUserInfo == null)
-        {
-            $this->creationUserInfo = new UserInfo();
-        }
-        $this->creationUserInfo = $creationUserInfo;
+        $this->creationUserInfo = clone $creationUserInfo;
     }
 
 
@@ -323,49 +321,49 @@ class Record implements \JsonSerializable
     }
 
 
-    public function setPosition($position)
-    {
-        $this->position = $position;
-    }
+//    public function setPosition($position)
+//    {
+//        $this->position = $position;
+//    }
+//
+//
+//    public function getPosition()
+//    {
+//        return $this->position;
+//    }
+//
+//
+//    public function setParentRecordId($parentRecordId)
+//    {
+//        $this->parentRecordId = $parentRecordId;
+//    }
+//
+//
+//    public function getParentRecordId()
+//    {
+//        return $this->parentRecordId;
+//    }
+//
+//
+//    public function setLevelWithinSortedTree($levelWithinSortedTree)
+//    {
+//        $this->level = $levelWithinSortedTree;
+//    }
 
 
-    public function getPosition()
-    {
-        return $this->position;
-    }
-
-
-    public function setParentRecordId($parentRecordId)
-    {
-        $this->parentRecordId = $parentRecordId;
-    }
-
-
-    public function getParentRecordId()
-    {
-        return $this->parentRecordId;
-    }
-
-
-    public function setLevelWithinSortedTree($levelWithinSortedTree)
-    {
-        $this->level = $levelWithinSortedTree;
-    }
-
-
-    /**
-     * @deprecated
-     */
-    public function getLevelWithinSortedTree()
-    {
-        return $this->level;
-    }
-
-
-    public function getLevel()
-    {
-        return $this->getLevelWithinSortedTree();
-    }
+//    /**
+//     * @deprecated
+//     */
+//    public function getLevelWithinSortedTree()
+//    {
+//        return $this->level;
+//    }
+//
+//
+//    public function getLevel()
+//    {
+//        return $this->getLevelWithinSortedTree();
+//    }
 
 
     public function setProperties($properties)
@@ -387,9 +385,13 @@ class Record implements \JsonSerializable
 
     function jsonSerialize()
     {
-        $record               = [ ];
-        $record['id']         = $this->getID();
-        $record['properties'] = $this->getProperties();
+        $record                       = [ ];
+        $record['id']                 = $this->getID();
+        $record['properties']         = $this->getProperties();
+        $record['info']               = [ ];
+        $record['info']['revision']   = $this->getRevision();
+        $record['info']['creation']   = $this->getCreationUserInfo();
+        $record['info']['lastchange'] = $this->getLastChangeUserInfo();
 
         return $record;
     }

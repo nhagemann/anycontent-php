@@ -32,7 +32,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
         }
 
         $record->setRevision($record->getRevision() + 1);
-        $record->setRevisionTimestamp(time());
+        //$record->setRevisionTimestamp(time());
 
         $filename = $this->getConfiguration()
                          ->getFolderNameRecords($record->getContentTypeName(), $dataDimensions);

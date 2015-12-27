@@ -2,7 +2,7 @@
 
 namespace AnyContent\Client;
 
-class UserInfo
+class UserInfo implements \JsonSerializable
 {
 
     protected $username;
@@ -84,6 +84,12 @@ class UserInfo
     }
 
 
+    public function setTimestampToNow()
+    {
+        $this->setTimestamp(time());
+    }
+
+
     public function setTimestamp($timestamp)
     {
         $this->timestamp = $timestamp;
@@ -94,5 +100,17 @@ class UserInfo
     {
 
         return $this->timestamp;
+    }
+
+
+    function jsonSerialize()
+    {
+        $userInfo              = [ ];
+        $userInfo['timestamp'] = $this->getTimestamp();
+        $userInfo['username']  = $this->getUsername();
+        $userInfo['firstname'] = $this->getFirstname();
+        $userInfo['lastname']  = $this->getLastname();
+
+        return $userInfo;
     }
 }

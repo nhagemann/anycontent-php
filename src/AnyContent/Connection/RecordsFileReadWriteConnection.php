@@ -56,7 +56,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
                 }
 
                 $record->setRevision($record->getRevision() + 1);
-                $record->setRevisionTimestamp(time());
+                //$record->setRevisionTimestamp(time());
                 $allRecords[$record->getID()] = $record;
                 $recordIds[]                  = $record->getID();
             }
