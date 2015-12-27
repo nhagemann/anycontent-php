@@ -248,8 +248,25 @@ abstract class AbstractConnection
     /**
      * @return ContentTypeDefinition
      * @throws AnyContentClientException
+     * @deprecated
      */
     public function getCurrentContentType()
+    {
+        if ($this->currentContentTypeDefinition == null)
+        {
+            throw new AnyContentClientException('No content type selected.');
+        }
+
+        return $this->currentContentTypeDefinition;
+
+    }
+
+
+    /**
+     * @return ContentTypeDefinition
+     * @throws AnyContentClientException
+     */
+    public function getCurrentContentTypeDefinition()
     {
         if ($this->currentContentTypeDefinition == null)
         {

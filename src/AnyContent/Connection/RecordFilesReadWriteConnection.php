@@ -30,6 +30,9 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
             $record->setID($nextId);
             $record->setRevision(0);
         }
+        else{
+
+        }
 
         $record->setRevision($record->getRevision() + 1);
         //$record->setRevisionTimestamp(time());

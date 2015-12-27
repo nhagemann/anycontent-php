@@ -16,26 +16,27 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
+        $target = __DIR__ . '/../../../tmp/RecordsFileExample';
+        $source = __DIR__ . '/../../resources/SimpleFileConnection';
+
         $fs = new Filesystem();
-        $fs->copy(__DIR__ . '/../../resources/SimpleFileConnection/profiles.json', __DIR__ . '/../../resources/SimpleFileConnection/temp.json', true);
-        $fs->copy(__DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', true);
+
+        if (file_exists($target))
+        {
+            $fs->remove($target);
+        }
+
+        $fs->mirror($source, $target);
+
     }
 
 
-    public static function tearDownAfterClass()
-    {
-        $fs = new Filesystem();
-        $fs->remove(__DIR__ . '/../../resources/SimpleFileConnection/temp.json');
-        $fs->remove(__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl');
-    }
-
-
-
-    public function setUp()
+        public function setUp()
     {
         $configuration = new RecordsFileConfiguration();
 
-        $configuration->addContentType('temp',__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.json');
+        $configuration->addContentType('profiles', __DIR__ . '/../../../tmp/RecordsFileExample/profiles.cmdl', __DIR__ . '/../../../tmp/RecordsFileExample/profiles.json');
+        $configuration->addContentType('test', __DIR__ . '/../../../tmp/RecordsFileExample/test.cmdl', __DIR__ . '/../../../tmp/RecordsFileExample/test.json');
 
         $connection = $configuration->createReadWriteConnection();
 
@@ -43,14 +44,11 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
-
-
-
     public function testSaveRecordSameConnection()
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $record = $connection->getRecord(1);
 
@@ -71,7 +69,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $record = $connection->getRecord(1);
 
@@ -84,7 +82,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $record = new Record($connection->getCurrentContentType(), 'test');
 
@@ -100,7 +98,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $this->assertEquals(609, $connection->countRecords());
 
@@ -123,7 +121,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $this->assertEquals(614, $connection->countRecords());
     }
@@ -133,7 +131,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $result = $connection->deleteRecord(1);
 
@@ -152,7 +150,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $this->assertEquals(613, $connection->countRecords());
     }
@@ -162,7 +160,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $result = $connection->deleteRecords([ 2, 5, 999 ]);
 
@@ -176,7 +174,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $this->assertEquals(611, $connection->countRecords());
     }
@@ -186,7 +184,7 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $result = $connection->deleteAllRecords();
 
@@ -200,8 +198,9 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $connection->selectContentType('temp');
+        $connection->selectContentType('profiles');
 
         $this->assertEquals(0, $connection->countRecords());
     }
+
 }

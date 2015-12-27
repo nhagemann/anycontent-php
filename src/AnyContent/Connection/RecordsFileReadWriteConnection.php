@@ -19,7 +19,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         $records = [ $record ];
 
-        $recordIds = $this->saveRecords($records,$dataDimensions);
+        $recordIds = $this->saveRecords($records, $dataDimensions);
 
         return array_pop($recordIds);
     }
@@ -33,9 +33,9 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
      */
     public function saveRecords(array $records, DataDimensions $dataDimensions = null)
     {
-        if (count($records)>0)
+        if (count($records) > 0)
         {
-            $record = reset($records);
+            $record          = reset($records);
             $contentTypeName = $record->getContentTypeName();
 
             if (!$dataDimensions)
@@ -50,15 +50,26 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
             {
                 if ($record->getID() == '')
                 {
-                    $nextId = max(array_keys($allRecords)) + 1;
+                    $nextId = 1;
+                    if (count($allRecords) > 0)
+                    {
+
+                        $nextId = max(array_keys($allRecords)) + 1;
+                    }
                     $record->setID($nextId);
                     $record->setRevision(0);
                 }
 
-                $record->setRevision($record->getRevision() + 1);
+
+
+                $mergedRecord = $this->mergeExistingRecord($record);
+
+                $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
+                $record->setRevision($mergedRecord->getRevision());
+
                 //$record->setRevisionTimestamp(time());
-                $allRecords[$record->getID()] = $record;
-                $recordIds[]                  = $record->getID();
+                $allRecords[$mergedRecord->getID()] = $mergedRecord;
+                $recordIds[]                  = $mergedRecord->getID();
             }
 
             $data = json_encode([ 'records' => $allRecords ], JSON_PRETTY_PRINT);
@@ -72,7 +83,34 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
             }
             throw new AnyContentClientException('Error when saving records of content type ' . $this->getCurrentContentTypeName());
         }
-        return [];
+
+        return [ ];
+    }
+
+
+    protected function mergeExistingRecord(Record $record)
+    {
+        if ($record->getID() != '')
+        {
+            $existingRecord = $this->getMultiViewRecord($record->getId());
+            if ($existingRecord)
+            {
+                $record->setRevision($existingRecord->getRevision());
+
+
+
+                $existingProperties = $existingRecord->getProperties();
+                $mergedProperties = array_merge($existingProperties,$record->getProperties());
+
+                $mergedRecord = clone $record;
+                $mergedRecord->setProperties($mergedProperties);
+
+                return $mergedRecord;
+            }
+        }
+
+        return $record;
+
     }
 
 
@@ -87,7 +125,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-        $recordIds = $this->deleteRecords([ $recordId ],$contentTypeName, $dataDimensions);
+        $recordIds = $this->deleteRecords([ $recordId ], $contentTypeName, $dataDimensions);
         if (count($recordIds) == 1)
         {
             return array_shift($recordIds);
@@ -97,7 +135,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
     }
 
 
-    public function deleteRecords(array $recordsIds,$contentTypeName = null, DataDimensions $dataDimensions = null)
+    public function deleteRecords(array $recordsIds, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
         if (!$dataDimensions)
         {
@@ -110,7 +148,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         $result = [ ];
 
-        $allRecords = $this->getAllRecords($contentTypeName,$dataDimensions);
+        $allRecords = $this->getAllRecords($contentTypeName, $dataDimensions);
 
         foreach ($recordsIds as $recordId)
         {
@@ -130,7 +168,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
             if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
             {
-                $this->stashAllRecords($allRecords,$dataDimensions);
+                $this->stashAllRecords($allRecords, $dataDimensions);
 
                 return $result;
 
@@ -142,7 +180,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
     }
 
 
-    public function deleteAllRecords( $contentTypeName = null, DataDimensions $dataDimensions = null)
+    public function deleteAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
         if (!$dataDimensions)
         {
@@ -153,13 +191,13 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-        $allRecords = $this->getAllRecords($contentTypeName,$dataDimensions);
+        $allRecords = $this->getAllRecords($contentTypeName, $dataDimensions);
 
         $data = json_encode([ 'records' => [ ] ]);
 
         if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
         {
-            $this->unstashAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($this->getCurrentContentTypeName()));
+            $this->unstashAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($this->getCurrentContentTypeName()));
 
             return array_keys($allRecords);
 

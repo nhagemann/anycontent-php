@@ -35,7 +35,7 @@ class RecordFactory
 
         foreach ($jsonRecords as $jsonRecord)
         {
-            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord);
+            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord, $viewName,$workspace,$language);
             $records[$record->getID()] = $record;
         }
 
@@ -73,11 +73,18 @@ class RecordFactory
     {
         $classname = $this->getClassForContentType($contentTypeDefinition->getName());
 
+        $name = '';
+
+        if (isset($jsonRecord['properties']['name']))
+        {
+            $name = $jsonRecord['properties']['name'];
+        }
+
         /** @var Record $record */
-        $record = new $classname($contentTypeDefinition, $jsonRecord['properties']['name'], $viewName, $workspace, $language);
+        $record = new $classname($contentTypeDefinition, $name, $viewName, $workspace, $language);
         $record->setID($jsonRecord['id']);
 
-        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 1;
+        $revision = isset($jsonRecord['info']['revision']) ? $jsonRecord['info']['revision'] : 1;
         $record->setRevision($revision);
 
         if ($this->getOption('validateProperties') == true)

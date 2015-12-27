@@ -5,6 +5,9 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 
+use Katzgrau\KLogger\Logger;
+use KVMoniLog\KVMoniLog;
+
 class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -21,6 +24,11 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
+
+        $moniLog = new KVMoniLog();
+        $klogger = new Logger(__DIR__.'/../../../tmp');
+        $moniLog->addLogger($klogger);
+        $this->connection->setKVMoniLog($moniLog);
     }
 
 
@@ -99,5 +107,6 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($id, $fetchRecord->getId());
         }
     }
+
 
 }

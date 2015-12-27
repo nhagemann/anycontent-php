@@ -8,7 +8,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-class RepositoryLanguagesTest extends \PHPUnit_Framework_TestCase
+class RepositoryLanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */
