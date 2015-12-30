@@ -6,11 +6,10 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 
-use Katzgrau\KLogger\Logger;
-use KVMoniLog\KVMoniLog;
+
 use Symfony\Component\Filesystem\Filesystem;
 
-class RepositoryLanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
+class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */
@@ -61,10 +60,7 @@ class RepositoryLanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
 
         $this->repository = new Repository($this->connection);
 
-        $moniLog = new KVMoniLog();
-        $klogger = new Logger(__DIR__.'/../../../tmp');
-        $moniLog->addLogger($klogger);
-        $this->repository->setKVMoniLog($moniLog);
+
 
     }
 

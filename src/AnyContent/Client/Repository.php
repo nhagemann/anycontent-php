@@ -6,13 +6,10 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
-use KVMoniLog\KVMoniLog;
-use KVMoniLog\KVMoniLogAwareTrait;
+use KVMLogger\KVMLoggerFactory;
 
 class Repository
 {
-
-    use KVMoniLogAwareTrait;
 
     /** @var  AbstractConnection */
     protected $readConnection;
@@ -57,20 +54,6 @@ class Repository
         }
         $this->userInfo = new UserInfo();
 
-    }
-
-
-    public function setKVMoniLog(KVMoniLog $logger)
-    {
-        $this->kvmonilog = $logger;
-        if ($this->readConnection)
-        {
-            $this->readConnection->setKVMoniLog($logger);
-        }
-        if ($this->writeConnection)
-        {
-            $this->readConnection->setKVMoniLog($logger);
-        }
     }
 
 
@@ -348,7 +331,7 @@ class Repository
      *
      * @return Record[]
      */
-    public function getRecords($dataDimensions = null)
+    public function getRecords($dataDimensions = null, $filter='')
     {
         if (!$dataDimensions)
         {
@@ -416,9 +399,7 @@ class Repository
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $message = $this->getKVMoniLog()
-                        ->createLogMessage('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
-        $this->getKVMoniLog('anycontent-repository')->info($message);
+        KVMLoggerFactory::instance('anycontent-repository')->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
 
         $userInfo = $this->getCurrentUserInfo();
 
@@ -440,9 +421,8 @@ class Repository
                 $this->writeConnection->registerRecordClassForContentType($contentTypeName, $classname);
             }
 
-            $message = $this->getKVMoniLog()
-                            ->createLogMessage('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
-            $this->getKVMoniLog('anycontent-repository')->debug($message);
+            KVMLoggerFactory::instance('anycontent-repository')->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
+
 
             return true;
         }
