@@ -20,37 +20,57 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
+
         if ($record->getID() == '')
         {
+            $allRecords = $this->getAllRecords($record->getContentTypeName(),$dataDimensions);
+
             $nextId = 1;
-            if (count($this->getAllRecords($record->getContentTypeName(), $dataDimensions)) > 0)
+            if (count($allRecords) > 0)
             {
-                $nextId = max(array_keys($this->getAllRecords())) + 1;
+                $nextId = max(array_keys($allRecords)) + 1;
             }
             $record->setID($nextId);
             $record->setRevision(0);
         }
-        else{
 
-        }
+        $mergedRecord = $this->mergeExistingRecord($record,$dataDimensions);
 
-        $record->setRevision($record->getRevision() + 1);
-        //$record->setRevisionTimestamp(time());
+        $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
+        $record->setRevision($mergedRecord->getRevision());
+
+
+//        if ($record->getID() == '')
+//        {
+//            $nextId = 1;
+//            if (count($this->getAllRecords($record->getContentTypeName(), $dataDimensions)) > 0)
+//            {
+//                $nextId = max(array_keys($this->getAllRecords())) + 1;
+//            }
+//            $record->setID($nextId);
+//            $record->setRevision(0);
+//        }
+//        else{
+//
+//        }
+//
+//        $record->setRevision($record->getRevision() + 1);
+//        //$record->setRevisionTimestamp(time());
 
         $filename = $this->getConfiguration()
                          ->getFolderNameRecords($record->getContentTypeName(), $dataDimensions);
-        $filename .= '/' . $record->getID() . '.json';
+        $filename .= '/' . $mergedRecord->getID() . '.json';
 
-        $data = json_encode($record, JSON_PRETTY_PRINT);
+        $data = json_encode($mergedRecord, JSON_PRETTY_PRINT);
 
-        $this->stashRecord($record, $dataDimensions);
+        $this->stashRecord($mergedRecord, $dataDimensions);
 
         if (!$this->writeData($filename, $data))
         {
             throw new AnyContentClientException('Error when saving record of content type ' . $record->getContentTypeName());
         }
 
-        return $record->getID();
+        return $mergedRecord->getID();
     }
 
 

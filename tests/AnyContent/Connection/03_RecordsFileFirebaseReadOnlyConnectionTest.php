@@ -127,7 +127,7 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
 
         $records = $connection->getAllRecords();
 
-        $this->assertCount(608, $records);
+        $this->assertCount(607, $records);
 
         foreach ($records as $record)
         {

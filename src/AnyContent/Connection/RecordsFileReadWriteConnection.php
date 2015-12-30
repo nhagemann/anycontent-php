@@ -60,9 +60,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
                     $record->setRevision(0);
                 }
 
-
-
-                $mergedRecord = $this->mergeExistingRecord($record);
+                $mergedRecord = $this->mergeExistingRecord($record,$dataDimensions);
 
                 $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
                 $record->setRevision($mergedRecord->getRevision());
@@ -88,30 +86,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
     }
 
 
-    protected function mergeExistingRecord(Record $record)
-    {
-        if ($record->getID() != '')
-        {
-            $existingRecord = $this->getMultiViewRecord($record->getId());
-            if ($existingRecord)
-            {
-                $record->setRevision($existingRecord->getRevision());
 
-
-
-                $existingProperties = $existingRecord->getProperties();
-                $mergedProperties = array_merge($existingProperties,$record->getProperties());
-
-                $mergedRecord = clone $record;
-                $mergedRecord->setProperties($mergedProperties);
-
-                return $mergedRecord;
-            }
-        }
-
-        return $record;
-
-    }
 
 
     public function deleteRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)

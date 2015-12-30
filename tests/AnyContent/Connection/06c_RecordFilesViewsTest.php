@@ -3,21 +3,23 @@
 namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
+use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RecordsFileReadWriteConnection */
+    /** @var  RecordFilesReadWriteConnection */
     public $connection;
 
 
     public static function setUpBeforeClass()
     {
-        $target = __DIR__ . '/../../../tmp/RecordsFileExample';
-        $source = __DIR__ . '/../../resources/SimpleFileConnection';
+        $source = __DIR__ . '/../../resources/RecordFilesReadOnlyConnection';
+        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
 
         $fs = new Filesystem();
 
@@ -28,15 +30,21 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
 
         $fs->mirror($source, $target);
 
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
+
     }
 
 
-        public function setUp()
+    public function setUp()
     {
-        $configuration = new RecordsFileConfiguration();
 
-        $configuration->addContentType('profiles', __DIR__ . '/../../../tmp/RecordsFileExample/profiles.cmdl', __DIR__ . '/../../../tmp/RecordsFileExample/profiles.json');
-        $configuration->addContentType('test', __DIR__ . '/../../../tmp/RecordsFileExample/test.cmdl', __DIR__ . '/../../../tmp/RecordsFileExample/test.json');
+        $target = __DIR__ . '/../../../tmp/RecordFilesReadWriteConnection';
+
+
+        $configuration = new RecordFilesConfiguration();
+
+        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records/profiles');
+        $configuration->addContentType('test', $target . '/test.cmdl', $target . '/records/test');
 
         $connection = $configuration->createReadWriteConnection();
 
@@ -82,6 +90,7 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
         $id = $connection->saveRecord($record);
 
         $this->assertEquals(1,$id);
+
     }
 
     public function testSaveRecordTestView()
@@ -96,7 +105,11 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
         $record->setProperty('c','valuec');
         $record->setProperty('d','valued');
         $record->setId(1);
-        $id = $connection->saveRecord($record);
+
+        $dataDimensions = $connection->getCurrentDataDimensions();
+        $dataDimensions->setViewName('test1');
+
+        $id = $connection->saveRecord($record, $dataDimensions);
         $this->assertEquals(1,$id);
         $this->assertEquals(2,$record->getRevision());
         $this->assertEquals('valuec',$record->getProperty('c'));
@@ -105,7 +118,6 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('c',$record->getProperties());
         $this->assertArrayHasKey('d',$record->getProperties());
         $this->assertArrayNotHasKey('a',$record->getProperties());
-
 
     }
 

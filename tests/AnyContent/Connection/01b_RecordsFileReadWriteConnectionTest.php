@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
@@ -28,10 +29,12 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $fs->mirror($source, $target);
 
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
+
     }
 
 
-        public function setUp()
+    public function setUp()
     {
         $configuration = new RecordsFileConfiguration();
 
@@ -46,6 +49,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSaveRecordSameConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -67,6 +72,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSaveRecordNewConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -80,6 +87,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testAddRecord()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -96,6 +105,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSaveRecordsSameConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -119,6 +130,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testSaveRecordsNewConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -129,6 +142,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteRecord()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -148,6 +163,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteRecordNewConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -158,6 +175,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteRecords()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -172,6 +191,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteRecordsNewConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -182,6 +203,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteAllRecords()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -196,6 +219,8 @@ class RecordsFileReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteAllRecordsNewConnection()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');

@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
@@ -24,21 +25,10 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
             $fs->remove($target);
         }
 
-        $fs->mkdir($target);
+        $fs->mirror($source, $target);
 
-        $directoryIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator          = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::SELF_FIRST);
-        foreach ($iterator as $item)
-        {
-            if ($item->isDir())
-            {
-                $fs->mkdir($target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-            else
-            {
-                $fs->copy($item, $target . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
-            }
-        }
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
+
     }
 
 
@@ -50,11 +40,14 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $configuration = new RecordFilesConfiguration();
 
-        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records');
+        $configuration->addContentType('profiles', $target . '/profiles.cmdl', $target . '/records/profiles');
+        $configuration->addContentType('test', $target . '/test.cmdl', $target . '/records/test');
 
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+
+
     }
 
 
@@ -75,6 +68,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $record = $connection->getRecord(5);
 
         $this->assertEquals('dmc', $record->getProperty('name'));
+
 
     }
 

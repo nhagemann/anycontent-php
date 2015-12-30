@@ -5,6 +5,7 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
 use AnyContent\Connection\RecordFilesReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesConfiguration extends AbstractConfiguration
@@ -25,7 +26,7 @@ class RecordFilesConfiguration extends AbstractConfiguration
 
         if (!$fs->exists($folderRecords))
         {
-            throw new AnyContentClientException('Folder ' . $folderRecords . ' not found.');
+            KVMLoggerFactory::instance('anycontent')->warning('Folder ' . $folderRecords . ' not found.');
         }
 
         $this->contentTypes[$contentTypeName] = [ 'records' => $folderRecords, 'cmdl' => $filenameCMDL, 'title' => $contentTypeTitle ];

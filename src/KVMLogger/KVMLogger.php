@@ -61,7 +61,7 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     public function getTiming()
     {
         $time = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
-        $time = number_format($time * 1000, 1, '.', '');
+        $time = number_format($time * 1000, 0, '.', '');
 
         return $time;
     }
@@ -93,13 +93,23 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     public function log($level, $message, array $context = array())
     {
 
-        if ($message instanceof LogMessage)
+        if (!$message instanceof LogMessage)
         {
-            if ($message->getRealm() == '')
-            {
-                $message->setRealm($this->getRealm());
-            }
+            $message = new LogMessage($message);
+            $message->setRealm($this->getRealm());
         }
+
+        if ($message->getRealm() == '')
+        {
+            $message->setRealm($this->getRealm());
+        }
+
+        if ($message->getTiming() == '')
+        {
+            $message->setTiming($this->getTiming());
+        }
+
+
         if (array_key_exists($level, $this->logLevels))
         {
 

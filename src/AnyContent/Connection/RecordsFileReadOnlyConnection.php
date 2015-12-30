@@ -7,6 +7,7 @@ use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOnlyConnection
 {
@@ -46,19 +47,6 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      */
     public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-        return $this->exportRecords($this->getAllMultiViewRecords($contentTypeName, $dataDimensions));
-    }
-
-    /**
-     * @param null $contentTypeName
-     *
-     * @return Record[]
-     * @throws AnyContentClientException
-     */
-    protected function getAllMultiViewRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
-    {
-
-
         if ($contentTypeName == null)
         {
             $contentTypeName = $this->getCurrentContentTypeName();
@@ -77,27 +65,44 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
             }
 
-            $data = $this->readRecords($this->getConfiguration()->getUriRecords($contentTypeName));
+            $records = $this->exportRecords($this->getAllMultiViewRecords($contentTypeName,$dataDimensions),$dataDimensions->getViewName());
 
-            if ($data)
-            {
-                $data = json_decode($data, true);
+            $this->stashAllRecords($records, $dataDimensions);
 
-                $definition = $this->getContentTypeDefinition($contentTypeName);
-
-                $records = $this->getRecordFactory()
-                                ->createRecordsFromJSONArray($definition, $data['records'],$dataDimensions->getViewName(),$dataDimensions->getWorkspace(),$dataDimensions->getLanguage());
-
-                $this->stashAllRecords($records, $dataDimensions);
-
-                return $records;
-            }
-
-            return [ ];
-
+            return $records;
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+
+    }
+
+
+    /**
+     * @param null $contentTypeName
+     *
+     * @return Record[]
+     * @throws AnyContentClientException
+     */
+    protected function getAllMultiViewRecords($contentTypeName = null, DataDimensions $dataDimensions)
+    {
+
+        $data = $this->readRecords($this->getConfiguration()->getUriRecords($contentTypeName));
+
+        if ($data)
+        {
+            $data = json_decode($data, true);
+
+            $data['records']=array_filter($data['records']);
+
+            $definition = $this->getContentTypeDefinition($contentTypeName);
+
+            $records = $this->getRecordFactory()
+                            ->createRecordsFromJSONArray($definition, $data['records']);
+
+            return $records;
+        }
+
+        return [ ];
 
     }
 
@@ -110,27 +115,86 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      */
     public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
-        return $this->exportRecord($this->getMultiViewRecord($recordId, $contentTypeName, $dataDimensions));
 
-    }
-
-
-    protected function getMultiViewRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
-    {
         if ($contentTypeName == null)
         {
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-        $records = $this->getAllRecords($contentTypeName,$dataDimensions);
+        $records = $this->getAllRecords($contentTypeName, $dataDimensions);
 
         if (array_key_exists($recordId, $records))
         {
             return $records[$recordId];
         }
 
+        KVMLoggerFactory::instance('anycontent')
+                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+
         return false;
-        throw new AnyContentClientException ('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+
+    }
+
+
+
+
+//    /**
+//     * @param $recordId
+//     *
+//     * @return Record
+//     * @throws AnyContentClientException
+//     */
+//    public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
+//    {
+//        return $this->exportRecord($this->getMultiViewRecord($recordId, $contentTypeName, $dataDimensions));
+//
+//    }
+//
+//
+    protected function getMultiViewRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions)
+    {
+        if ($contentTypeName == null)
+        {
+            $contentTypeName = $this->getCurrentContentTypeName();
+        }
+
+        $records = $this->getAllMultiViewRecords($contentTypeName,$dataDimensions);
+
+        if (array_key_exists($recordId, $records))
+        {
+            return $records[$recordId];
+        }
+
+        KVMLoggerFactory::instance('anycontent')
+                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+
+        return false;
+
+    }
+
+    protected function mergeExistingRecord(Record $record, DataDimensions $dataDimensions)
+    {
+        if ($record->getID() != '')
+        {
+            $existingRecord = $this->getMultiViewRecord($record->getId(),$record->getContentTypeName(),$dataDimensions);
+            if ($existingRecord)
+            {
+                $record->setRevision($existingRecord->getRevision());
+
+
+
+                $existingProperties = $existingRecord->getProperties();
+                $mergedProperties = array_merge($existingProperties,$record->getProperties());
+
+                $mergedRecord = clone $record;
+                $mergedRecord->setProperties($mergedProperties);
+
+                return $mergedRecord;
+            }
+        }
+
+        return $record;
+
     }
 
 
@@ -138,16 +202,16 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      * Make sure the returned record is not connected to stashed records an does only contain properties of it's
      * current view
      *
-     * @param Record $record
+     * @param Record $record - multi view record !
      */
-    protected function exportRecord(Record $record)
+    protected function exportRecord(Record $record,$viewName)
     {
         $definition        = $record->getContentTypeDefinition();
-        $allowedProperties = $definition->getProperties($record->getViewName());
+        $allowedProperties = $definition->getProperties($viewName);
 
         $allowedProperties = array_combine($allowedProperties, $allowedProperties);
 
-        $allowedProperties = array_intersect_key ( $record->getProperties(),$allowedProperties);
+        $allowedProperties = array_intersect_key($record->getProperties(), $allowedProperties);
 
         $record = clone $record;
         $record->setProperties($allowedProperties);
@@ -156,15 +220,17 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     }
 
 
-    protected function exportRecords($records)
+    protected function exportRecords($records,$viewName)
     {
-        $result = [];
+        $result = [ ];
         foreach ($records as $record)
         {
-            $result[$record->getId()]=$this->exportRecord($record);
+            $result[$record->getId()] = $this->exportRecord($record,$viewName);
         }
+
         return $result;
     }
+
 
     protected function fileExists($filename)
     {
@@ -178,7 +244,8 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         {
             return file_get_contents($fileName);
         }
-        $this->getKVMoniLog()->warning('Could not open file ' . $fileName);
+
+        KVMLoggerFactory::instance('anycontent')->warning('Could not open file ' . $fileName);
 
         return false;
     }
