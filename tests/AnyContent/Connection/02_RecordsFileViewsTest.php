@@ -106,6 +106,7 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('d',$record->getProperties());
         $this->assertArrayNotHasKey('a',$record->getProperties());
 
+
     }
 
     public function testGetRecordDifferentViews()
@@ -150,6 +151,7 @@ class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayNotHasKey('c',$record->getProperties());
 
         $dataDimensions->setViewName('test1');
+
 
         $records = $connection->getAllRecords(null,$dataDimensions);
 

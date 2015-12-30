@@ -46,6 +46,18 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      */
     public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+        return $this->exportRecords($this->getAllMultiViewRecords($contentTypeName, $dataDimensions));
+    }
+
+    /**
+     * @param null $contentTypeName
+     *
+     * @return Record[]
+     * @throws AnyContentClientException
+     */
+    protected function getAllMultiViewRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
+    {
+
 
         if ($contentTypeName == null)
         {
@@ -149,7 +161,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         $result = [];
         foreach ($records as $record)
         {
-            $result[]=$this->exportRecord($record);
+            $result[$record->getId()]=$this->exportRecord($record);
         }
         return $result;
     }
