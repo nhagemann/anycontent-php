@@ -50,7 +50,7 @@ class RecordFactory
         /** @var Record $record */
         $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
 
-        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 1;
+        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 0;
         $record->setRevision($revision);
 
         if ($this->getOption('validateProperties') == true)

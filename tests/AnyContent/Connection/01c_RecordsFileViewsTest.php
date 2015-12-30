@@ -8,7 +8,7 @@ use AnyContent\Connection\RecordsFileReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RecordsFileReadViewTest extends \PHPUnit_Framework_TestCase
+class RecordsFileViewsTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  RecordsFileReadWriteConnection */
