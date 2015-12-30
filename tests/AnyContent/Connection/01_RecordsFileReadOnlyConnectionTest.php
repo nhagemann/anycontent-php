@@ -4,9 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
-
-use Katzgrau\KLogger\Logger;
-use KVMoniLog\KVMoniLog;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,15 +23,15 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->connection = $connection;
 
-        $moniLog = new KVMoniLog();
-        $klogger = new Logger(__DIR__.'/../../../tmp');
-        $moniLog->addLogger($klogger);
-        $this->connection->setKVMoniLog($moniLog);
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
+
     }
 
 
     public function testContentTypeNotSelected()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $this->setExpectedException('AnyContent\AnyContentClientException');
@@ -43,6 +41,8 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNames()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $contentTypeNames = $connection->getContentTypeNames();
@@ -53,6 +53,8 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeDefinitions()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $contentTypes = $connection->getContentTypes();
@@ -66,6 +68,8 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCountRecords()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -77,6 +81,8 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecord()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -92,6 +98,8 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
+        KVMLoggerFactory::instance()->debug(__METHOD__);
+
         $connection = $this->connection;
 
         $connection->selectContentType('profiles');
@@ -102,7 +110,11 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         foreach ($records as $record)
         {
+
             $id          = $record->getId();
+            KVMLoggerFactory::instance()->debug($id);
+            KVMLoggerFactory::instance()->logMemoryUsage();
+
             $fetchRecord = $connection->getRecord($id);
             $this->assertEquals($id, $fetchRecord->getId());
         }

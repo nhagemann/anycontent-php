@@ -30,7 +30,7 @@
     "psr-0": {
       "AnyContent": "src/",
       "HahnAir": "src/",
-      "KVMoniLog": "src/"
+      "KVMLogger": "src/"
     }
   },
   "prefer-stable": true

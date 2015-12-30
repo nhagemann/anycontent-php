@@ -1,6 +1,6 @@
 <?php
 
-namespace KVMoniLog;
+namespace KVMLogger;
 
 class LogMessage
 {

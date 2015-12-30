@@ -12,12 +12,10 @@ use CMDL\ContentTypeDefinition;
 use CMDL\Parser;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
-use KVMoniLog\KVMoniLogAwareTrait;
+
 
 abstract class AbstractConnection
 {
-
-    use KVMoniLogAwareTrait;
 
     /**
      * @var AbstractConfiguration

@@ -1,12 +1,12 @@
 <?php
 
-namespace KVMoniLog;
+namespace KVMLogger;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-class KVMoniLog extends AbstractLogger implements LoggerInterface
+class KVMLogger extends AbstractLogger implements LoggerInterface
 {
 
     protected $realm = 'application';
@@ -19,6 +19,7 @@ class KVMoniLog extends AbstractLogger implements LoggerInterface
 
     /**
      * Log Levels
+     *
      * @var array
      */
     protected $logLevels = array(
@@ -31,6 +32,7 @@ class KVMoniLog extends AbstractLogger implements LoggerInterface
         LogLevel::INFO      => 6,
         LogLevel::DEBUG     => 7
     );
+
 
     public function __construct($realm = 'application')
     {
@@ -93,12 +95,12 @@ class KVMoniLog extends AbstractLogger implements LoggerInterface
 
         if ($message instanceof LogMessage)
         {
-            if ($message->getRealm()=='')
+            if ($message->getRealm() == '')
             {
                 $message->setRealm($this->getRealm());
             }
         }
-        if (array_key_exists($level,$this->logLevels))
+        if (array_key_exists($level, $this->logLevels))
         {
 
             foreach ($this->logger as $logger)
@@ -112,9 +114,17 @@ class KVMoniLog extends AbstractLogger implements LoggerInterface
     }
 
 
+    public function logMemoryUsage($message = '', $level = LogLevel::DEBUG, array $context = array())
+    {
+        $message = $this->createLogMessage($message);
+        $message->addLogValue('memory', number_format(memory_get_usage(true) / 1048576, 1, '.', ''));
+        $this->log($level, $message, $context);
+    }
+
+
     public function addLogger(LoggerInterface $logger, $logLevelThreshold = LogLevel::DEBUG, $logMonitoringEvents = true)
     {
-        if (array_key_exists($logLevelThreshold,$this->logLevels))
+        if (array_key_exists($logLevelThreshold, $this->logLevels))
         {
             $this->logger[] = [ 'logger' => $logger, 'threshold' => $logLevelThreshold, 'monitor' => $logMonitoringEvents ];
         }
