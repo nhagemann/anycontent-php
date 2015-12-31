@@ -3,6 +3,7 @@
 namespace AnyContent\Client;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\Util\RecordsFilter;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
@@ -198,9 +199,14 @@ class Repository
     }
 
 
-    public function selectContentType($contentTypeName)
+    public function selectContentType($contentTypeName, $resetDataDimensions = true)
     {
         $this->readConnection->selectContentType($contentTypeName);
+
+        if ($resetDataDimensions)
+        {
+            $this->reset();
+        }
 
         return $this;
     }
@@ -265,12 +271,17 @@ class Repository
     }
 
 
-    public function resetDataDimensions()
+    /**
+     * Reset data dimensions to default values (workspace: default, language: default, view: default, no timeshift)
+     *
+     * @return $this
+     */
+    public function reset()
     {
 
         $this->dataDimensions = new DataDimensions($this->getCurrentContentType());
 
-        return $this->dataDimensions;
+        return $this;
     }
 
 
@@ -278,7 +289,7 @@ class Repository
     {
         if (!$this->dataDimensions)
         {
-            return $this->resetDataDimensions();
+            return $this->reset();
         }
 
         return $this->dataDimensions;
@@ -311,82 +322,54 @@ class Repository
 
     /**
      * @param      $recordId
-     * @param null $dataDimensions
      *
      * @return Record
      */
-    public function getRecord($recordId, $dataDimensions = null)
+    public function getRecord($recordId)
     {
-        if (!$dataDimensions)
-        {
+
             $dataDimensions = $this->getCurrentDataDimensions();
-        }
+
 
         return $this->readConnection->getRecord($recordId, $this->getCurrentContentTypeName(), $dataDimensions);
     }
 
 
     /**
-     * @param null $dataDimensions
      *
      * @return Record[]
      */
-    public function getRecords($dataDimensions = null, $filter='')
+    public function getRecords($filter = '', $page = 1, $count = null, $order = 'name')
     {
-        if (!$dataDimensions)
+
+        $dataDimensions = $this->getCurrentDataDimensions();
+
+        $records = $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
+
+
+        if ($filter!='')
         {
-            $dataDimensions = $this->getCurrentDataDimensions();
+            $records = RecordsFilter::filterRecords($records,$filter);
         }
 
-        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
+        return $records;
     }
 
 
-    public function countRecords($dataDimensions = null)
+    public function countRecords()
     {
-        if (!$dataDimensions)
-        {
-            $dataDimensions = $this->getCurrentDataDimensions();
-        }
+
+        $dataDimensions = $this->getCurrentDataDimensions();
 
         return $this->readConnection->countRecords($this->getCurrentContentTypeName(), $dataDimensions);
     }
 
 
-    public function getPaginatedRecords($page = 1, $count = 100, $dataDimensions = null)
+    public function getSortedRecords($parentId, $includeParent = true, $depth = null)
     {
-        if (!$dataDimensions)
-        {
-            $dataDimensions = $this->getCurrentDataDimensions();
-        }
 
-        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName());
     }
 
-
-    public function getFilteredRecords($filter, $count, $page, $dataDimensions = null)
-    {
-        if (!$dataDimensions)
-        {
-            $dataDimensions = $this->getCurrentDataDimensions();
-        }
-    }
-
-
-    public function getSortedRecords($parentId, $includeParent = true, $depth = null, $dataDimensions = null)
-    {
-        if (!$dataDimensions)
-        {
-            $dataDimensions = $this->getCurrentDataDimensions();
-        }
-    }
-
-
-    /*
-    public function getRecordProperties($properties=[],$dataDimensions = null)
-    {
-
-    } */
 
     public function saveRecord(Record $record, $dataDimensions = null)
     {
@@ -399,7 +382,8 @@ class Repository
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        KVMLoggerFactory::instance('anycontent-repository')->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
+        KVMLoggerFactory::instance('anycontent-repository')
+                        ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
 
         $userInfo = $this->getCurrentUserInfo();
 
@@ -421,8 +405,8 @@ class Repository
                 $this->writeConnection->registerRecordClassForContentType($contentTypeName, $classname);
             }
 
-            KVMLoggerFactory::instance('anycontent-repository')->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
-
+            KVMLoggerFactory::instance('anycontent-repository')
+                            ->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
 
             return true;
         }

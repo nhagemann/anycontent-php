@@ -2,7 +2,6 @@
 
 namespace AnyContent\Client;
 
-use CMDL\DataTypeDefinition;
 
 class DataDimensions
 {

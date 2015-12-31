@@ -94,20 +94,21 @@ class RepositoryLanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(10 + $i, $id);
         }
 
-        $dataDimensions = new DataDimensions();
-        $c              = $this->repository->countRecords($dataDimensions);
+        $this->repository->reset();
+
+        $c              = $this->repository->countRecords();
         $this->assertEquals(5, $c);
 
-        $dataDimensions->setLanguage('es');
-        $c = $this->repository->countRecords($dataDimensions);
+        $this->repository->selectLanguage('es');
+        $c = $this->repository->countRecords();
         $this->assertEquals(5, $c);
 
-        $dataDimensions->setWorkspace('live');
-        $c = $this->repository->countRecords($dataDimensions);
+        $this->repository->selectWorkspace('live');
+        $c = $this->repository->countRecords();
         $this->assertEquals(5, $c);
 
-        $dataDimensions->setLanguage('default');
-        $c = $this->repository->countRecords($dataDimensions);
+        $this->repository->selectLanguage('default');
+        $c = $this->repository->countRecords();
         $this->assertEquals(0, $c);;
     }
 

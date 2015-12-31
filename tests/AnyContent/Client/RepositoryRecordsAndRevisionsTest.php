@@ -6,7 +6,6 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 
-
 use Symfony\Component\Filesystem\Filesystem;
 
 class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
@@ -60,9 +59,8 @@ class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
 
         $this->repository = new Repository($this->connection);
 
-
-
     }
+
 
     public function testSaveRecords()
     {
@@ -80,63 +78,80 @@ class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
         {
             $record = $this->repository->createRecord('New Record 1 - Revision ' . $i);
             $record->setId(1);
-            $record->setProperty('article', 'Test ' . $i);
             $id = $this->repository->saveRecord($record);
             $this->assertEquals(1, $id);
-            $this->assertEquals($i,$record->getRevision());
+            $this->assertEquals($i, $record->getRevision());
         }
 
+        $record = $this->repository->getRecord(1);
+        $this->assertEquals(5, $record->getRevision());
 
+        $records = $this->repository->getRecords();
+        $this->assertCount(5,$records);
+        $this->assertEquals(5,$this->repository->countRecords());
 
-
-
-
-
-//        $this->repository->selectContentType('example01');
-//
-//        for ($i = 1; $i <= 5; $i++)
-//        {
-//            $record = $this->repository->createRecord('New Record ' . $i);
-//            $record->setProperty('article', 'Test ' . $i);
-//            $id = $this->repository->saveRecord($record);
-//            $this->assertEquals($i, $id);
-//        }
-//
-//        $this->repository->selectLanguage('es');
-//
-//        for ($i = 1; $i <= 5; $i++)
-//        {
-//            $record = $this->repository->createRecord('New Record ' . (5 + $i));
-//            $record->setProperty('article', 'Test ' . (5 + $i));
-//            $id = $this->repository->saveRecord($record);
-//            $this->assertEquals(5 + $i, $id);
-//        }
-//
-//        $this->repository->selectWorkspace('live');
-//
-//        for ($i = 1; $i <= 5; $i++)
-//        {
-//            $record = $this->repository->createRecord('New Record ' . (10 + $i));
-//            $record->setProperty('article', 'Test ' . (10 + $i));
-//            $id = $this->repository->saveRecord($record);
-//            $this->assertEquals(10 + $i, $id);
-//        }
-//
-//        $dataDimensions = new DataDimensions();
-//        $c              = $this->repository->countRecords($dataDimensions);
-//        $this->assertEquals(5, $c);
-//
-//        $dataDimensions->setLanguage('es');
-//        $c = $this->repository->countRecords($dataDimensions);
-//        $this->assertEquals(5, $c);
-//
-//        $dataDimensions->setWorkspace('live');
-//        $c = $this->repository->countRecords($dataDimensions);
-//        $this->assertEquals(5, $c);
-//
-//        $dataDimensions->setLanguage('default');
-//        $c = $this->repository->countRecords($dataDimensions);
-//        $this->assertEquals(0, $c);;
+        $record = $this->repository->getRecord(99);
+        $this->assertFalse($record);
     }
 
+
+    public function testNewConnection()
+    {
+        $this->repository->selectContentType('example01');
+
+        $record = $this->repository->getRecord(1);
+        $this->assertEquals(5, $record->getRevision());
+
+        $this->assertEquals('example01', $record->getContentTypeName());
+        $this->assertEquals(1, $record->getID());
+        $this->assertEquals('New Record 1 - Revision 5', $record->getName());
+        $this->assertEquals('Test 1', $record->getProperty('article'));
+
+        $records = $this->repository->getRecords();
+        $this->assertCount(5,$records);
+        $this->assertEquals(5,$this->repository->countRecords());
+
+
+    }
+
+
+
+
+    public function testDeleteRecords()
+    {
+//        $cmdl = $this->client->getCMDL('example01');
+//
+//        $contentTypeDefinition = Parser::parseCMDLString($cmdl);
+//        $contentTypeDefinition->setName('example01');
+//
+//        /** @var $record Record * */
+//        $records = $this->client->getRecords($contentTypeDefinition);
+//
+//        $this->assertCount(5,$records);
+//
+//        $t1 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
+//
+//        $this->assertFalse($this->client->deleteRecord($contentTypeDefinition,99));
+//        $this->assertTrue($this->client->deleteRecord($contentTypeDefinition,5));
+//
+//        $t2 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
+//
+//        $this->assertNotEquals($t1,$t2);
+//
+//        /** @var $record Record * */
+//        $records = $this->client->getRecords($contentTypeDefinition);
+//
+//        $this->assertCount(4,$records);
+//
+//        $record = new Record($contentTypeDefinition, 'New Record 5');
+//        $record->setProperty('article', 'Test 5 ');
+//        $record->setId(5);
+//        $id = $this->client->saveRecord($record);
+//        $this->assertEquals(5, $id);
+//
+//        /** @var $record Record * */
+//        $records = $this->client->getRecords($contentTypeDefinition);
+//
+//        $this->assertCount(5,$records);
+    }
 }
