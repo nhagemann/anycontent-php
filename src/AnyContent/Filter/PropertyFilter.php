@@ -4,10 +4,11 @@ namespace AnyContent\Filter;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\Record;
+use AnyContent\Filter\Interfaces\Filter;
 use AnyContent\Filter\Util\ParensParser;
 use CMDL\Util;
 
-class PropertyFilter
+class PropertyFilter implements Filter
 {
 
     protected $term;
@@ -41,6 +42,28 @@ class PropertyFilter
             case '=':
                 return ($recordValue == $conditionValue);
                 break;
+            case '>':
+                return ($recordValue > $conditionValue);
+                break;
+            case '<':
+                return ($recordValue < $conditionValue);
+                break;
+            case '>=':
+                return ($recordValue >= $conditionValue);
+                break;
+            case '<=':
+                return ($recordValue <= $conditionValue);
+                break;
+            case '!=':
+                return ($recordValue != $conditionValue);
+                break;
+            case '*=':
+                $p = strpos($recordValue, $conditionValue);
+                if ($p !== false)
+                {
+                    return true;
+                }
+                break;
         }
 
         return false;
@@ -59,7 +82,7 @@ class PropertyFilter
     {
         $query = $this->escape($query);
 
-        $match = preg_match("/([^>=|<=|<>|><|>|<|=)]*)(>=|<=|<>|><|>|<|=)(.*)/", $query, $matches);
+        $match = preg_match("/([^>=|<=|!=|>|<|=|\*=)]*)(>=|<=|!=|>|<|=|\*=)(.*)/", $query, $matches);
 
         if ($match)
         {

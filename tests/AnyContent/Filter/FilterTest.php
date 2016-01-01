@@ -126,6 +126,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
 
     }
 
+
     public function testCombinedFilter()
     {
         $this->repository->selectContentType('example01');
@@ -149,90 +150,77 @@ class FilterTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    public function testDifferentFilters()
+    {
+        $this->repository->selectContentType('example01');
 
-    //        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(2, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(3, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'b');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'a');
-//        $filter->nextConditionsBlock();
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
+        $record1 = $this->repository->createRecord('New Record');
+        $record1->setProperty('source', 'a');
 
-//    public function testSaveRecords()
-//    {
-//        // Execute admin call to delete all existing data of the test content types
-//        $guzzle  = new \Guzzle\Http\Client('http://acrs.github.dev');
-//        $request = $guzzle->delete('1/example/content/example01/records', null, null, array('query'=>array('global' => 1 )));
-//        $result  = $request->send()->getBody();
-//
-//        $cmdl = $this->client->getCMDL('example01');
-//
-//        $contentTypeDefinition = Parser::parseCMDLString($cmdl);
-//        $contentTypeDefinition->setName('example01');
-//
-//        $record = new Record($contentTypeDefinition, 'New Record');
-//        $record->setProperty('source', 'a');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(1, $id);
-//
-//        $record = new Record($contentTypeDefinition, 'New Record');
-//        $record->setProperty('source', 'b');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(2, $id);
-//
-//        $t1 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
-//
-//        $record = new Record($contentTypeDefinition, 'Differing Name');
-//        $record->setProperty('source', 'c');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(3, $id);
-//
-//        $t2 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
-//
-//        $this->assertNotEquals($t1, $t2);
-//
-//        $repository = $this->client->getRepository();
-//        $repository->selectContentType('example01');
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(2, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(3, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'b');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'a');
-//        $filter->nextConditionsBlock();
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//    }
-//
+        $record2 = $this->repository->createRecord('Another Record');
+        $record2->setProperty('source', 'b');
+
+        $filter = new PropertyFilter('source > a');
+        $this->assertFalse($filter->match($record1));
+        $this->assertTrue($filter->match($record2));
+
+        $filter = new PropertyFilter('source < b');
+        $this->assertTrue($filter->match($record1));
+        $this->assertFalse($filter->match($record2));
+
+        $filter = new PropertyFilter('source >= a');
+        $this->assertTrue($filter->match($record1));
+        $this->assertTrue($filter->match($record2));
+
+        $filter = new PropertyFilter('source <= b');
+        $this->assertTrue($filter->match($record1));
+        $this->assertTrue($filter->match($record2));
+
+        $filter = new PropertyFilter('source != b');
+        $this->assertTrue($filter->match($record1));
+        $this->assertFalse($filter->match($record2));
+    }
+
+
+    public function testLikeFilter()
+    {
+        $this->repository->selectContentType('example01');
+
+        $record1 = $this->repository->createRecord('New Record');
+        $record1->setProperty('source', 'hans dieter');
+
+        $record2 = $this->repository->createRecord('Another Record');
+        $record2->setProperty('source', 'peter');
+
+        $record3 = $this->repository->createRecord('Another Record');
+        $record3->setProperty('source', 'Schmalhans');
+
+        $filter = new PropertyFilter('source *= hans');
+        $this->assertTrue($filter->match($record1));
+        $this->assertFalse($filter->match($record2));
+        $this->assertTrue($filter->match($record3));
+    }
+
+    public function testNumericalComparison()
+    {
+        $this->repository->selectContentType('example01');
+
+        $record1 = $this->repository->createRecord('New Record');
+        $record1->setProperty('source', '110');
+
+        $record2 = $this->repository->createRecord('Another Record');
+        $record2->setProperty('source', '10');
+
+        $record3 = $this->repository->createRecord('Another Record');
+        $record3->setProperty('source', '12');
+
+        $filter = new PropertyFilter('source < 111');
+
+        $this->assertTrue($filter->match($record1));
+        $this->assertTrue($filter->match($record2));
+        $this->assertTrue($filter->match($record3));
+    }
+
 //
 //    public function testSimpleFilter()
 //    {

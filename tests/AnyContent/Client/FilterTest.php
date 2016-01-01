@@ -6,6 +6,9 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 
+use AnyContent\Filter\ANDFilter;
+use AnyContent\Filter\ORFilter;
+use AnyContent\Filter\PropertyFilter;
 use Symfony\Component\Filesystem\Filesystem;
 
 class FilterTest extends \PHPUnit_Framework_TestCase
@@ -84,94 +87,29 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3, $id);
 
 
-        $records = $this->repository->getRecords('name = new Record AND (a=b OR c=d)');
+        $records = $this->repository->getRecords('name = New Record');
         $this->assertCount(2,$records);
 
-        //        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(2, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(3, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'b');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'a');
-//        $filter->nextConditionsBlock();
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
+        $filter1 = new PropertyFilter('name = New Record');
+        $filter2 = new PropertyFilter('name = Differing Name');
+        $orFilter = new ORFilter([$filter1,$filter2]);
+
+        $records = $this->repository->getRecords($orFilter);
+        $this->assertCount(3, $records);
+
+
+        $records = $this->repository->getRecords('source > b');
+        $this->assertCount(1,$records);
+
+
+        $filter1 = new PropertyFilter('source > a');
+        $filter2 = new PropertyFilter('name = Differing Name');
+        $andFilter = new ANDFilter([$filter1,$filter2]);
+        $records = $this->repository->getRecords($andFilter);
+        $this->assertCount(1,$records);
     }
 
 
-//    public function testSaveRecords()
-//    {
-//        // Execute admin call to delete all existing data of the test content types
-//        $guzzle  = new \Guzzle\Http\Client('http://acrs.github.dev');
-//        $request = $guzzle->delete('1/example/content/example01/records', null, null, array('query'=>array('global' => 1 )));
-//        $result  = $request->send()->getBody();
-//
-//        $cmdl = $this->client->getCMDL('example01');
-//
-//        $contentTypeDefinition = Parser::parseCMDLString($cmdl);
-//        $contentTypeDefinition->setName('example01');
-//
-//        $record = new Record($contentTypeDefinition, 'New Record');
-//        $record->setProperty('source', 'a');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(1, $id);
-//
-//        $record = new Record($contentTypeDefinition, 'New Record');
-//        $record->setProperty('source', 'b');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(2, $id);
-//
-//        $t1 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
-//
-//        $record = new Record($contentTypeDefinition, 'Differing Name');
-//        $record->setProperty('source', 'c');
-//        $id = $this->client->saveRecord($record);
-//        $this->assertEquals(3, $id);
-//
-//        $t2 = $this->client->getLastContentTypeChangeTimestamp($contentTypeDefinition->getName());
-//
-//        $this->assertNotEquals($t1, $t2);
-//
-//        $repository = $this->client->getRepository();
-//        $repository->selectContentType('example01');
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(2, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('name', '=', 'New Record');
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(3, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'b');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//
-//        $filter = new ContentFilter($contentTypeDefinition);
-//        $filter->addCondition('source', '>', 'a');
-//        $filter->nextConditionsBlock();
-//        $filter->addCondition('name', '=', 'Differing Name');
-//        $records = $repository->getRecords('default', 'default', 'default', 'id', array(), null, 1, $filter);
-//        $this->assertCount(1, $records);
-//    }
-//
 //
 //    public function testSimpleFilter()
 //    {

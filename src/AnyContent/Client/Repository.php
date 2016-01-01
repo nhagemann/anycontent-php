@@ -7,6 +7,7 @@ use AnyContent\Client\Util\RecordsFilter;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
+use AnyContent\Filter\Interfaces\Filter;
 use KVMLogger\KVMLoggerFactory;
 
 class Repository
@@ -336,6 +337,14 @@ class Repository
 
 
     /**
+     *
+     * @return Record[]
+     */
+    /**
+     * @param string|Filter $filter
+     * @param int    $page
+     * @param null   $count
+     * @param string $order
      *
      * @return Record[]
      */

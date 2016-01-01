@@ -8,3 +8,7 @@ filterung - nur auf repository ebene, nicht innerhalb der connection später imp
 
 sort inkl. anpassung super properties parent und position
 
+
+ggf. a >= "xx" für string ansonsten int
+
+(string)für Filter wandelt in SimpleQuery-Format oder gleich Parenthesis
