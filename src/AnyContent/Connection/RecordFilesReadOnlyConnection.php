@@ -90,7 +90,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                 $definition = $this->getContentTypeDefinition($contentTypeName);
 
                 $record = $this->getRecordFactory()
-                               ->createRecordFromJSONObject($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getTimeShift());
+                               ->createRecordFromJSONObject($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
 
                 return $this->exportRecord($record,$dataDimensions->getViewName());
             }

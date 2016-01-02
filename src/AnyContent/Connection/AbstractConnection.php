@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\RecordFactory;
@@ -12,7 +13,6 @@ use CMDL\ContentTypeDefinition;
 use CMDL\Parser;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
-
 
 abstract class AbstractConnection
 {
@@ -40,6 +40,8 @@ abstract class AbstractConnection
 
     protected $recordsStash = [ ];
 
+    protected $configStash = [ ];
+
     protected $hasStashedAllRecords = [ ];
 
     /** @var  CacheProvider */
@@ -63,8 +65,6 @@ abstract class AbstractConnection
     {
         return $this->configuration;
     }
-
-
 
 
     /**
@@ -101,9 +101,16 @@ abstract class AbstractConnection
     }
 
 
-    public function getCMDL($contentTypeName)
+    public function getCMDLForContentType($contentTypeName)
     {
-        throw new AnyContentClientException ('Method getCMDL must be implemented.');
+        throw new AnyContentClientException ('Method getCMDLForContentType must be implemented.');
+
+    }
+
+
+    public function getCMDLForConfigType($configTypeName)
+    {
+        throw new AnyContentClientException ('Method getCMDLForConfigType must be implemented.');
 
     }
 
@@ -163,7 +170,7 @@ abstract class AbstractConnection
                 return $this->getCMDLCache()->fetch($contentTypeName);
             }
 
-            $cmdl = $this->getCMDL($contentTypeName);
+            $cmdl = $this->getCMDLForContentType($contentTypeName);
 
             if ($cmdl)
             {
@@ -185,6 +192,48 @@ abstract class AbstractConnection
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+    }
+
+
+    /**
+     * @param $configTypeName
+     *
+     * @return \CMDL\ConfigTypeDefinition|ContentTypeDefinition|\CMDL\DataTypeDefinition|null
+     * @throws AnyContentClientException
+     * @throws \CMDL\CMDLParserException
+     */
+    public function getConfigTypeDefinition($configTypeName)
+    {
+        if ($this->getConfiguration()->hasConfigType($configTypeName))
+        {
+            $cacheToken = 'cmdl-configtype-' . $configTypeName;
+            if ($this->getCMDLCache()->contains($cacheToken))
+            {
+                return $this->getCMDLCache()->fetch($cacheToken);
+            }
+
+            $cmdl = $this->getCMDLForConfigType($configTypeName);
+
+            if ($cmdl)
+            {
+
+                $parser = $this->getParser();
+
+                $definition = $parser->parseCMDLString($cmdl, $configTypeName, $this->getConfiguration()
+                                                                                    ->getConfigTypeTitle($configTypeName), 'config');
+
+                if ($definition)
+                {
+                    //$this->contentTypeDefinitions[$configTypeName]['definition'] = $definition;
+                    $this->getCMDLCache()->save($cacheToken, $definition, $this->cacheDuration);
+
+                    return $definition;
+                }
+            }
+
+        }
+
+        throw new AnyContentClientException ('Unknown content type ' . $configTypeName);
     }
 
 
@@ -507,4 +556,36 @@ abstract class AbstractConnection
         }
     }
 
+
+    protected function stashConfig(Config $config, DataDimensions $dataDimensions)
+    {
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash                      = md5($config->getConfigTypeName() . $dataDimensions . get_class($config));
+            $this->recordsStash[$hash] = $config;
+        }
+    }
+
+
+    protected function hasStashedConfig($configTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Config')
+    {
+        return (boolean)$this->getStashedConfig($configTypeName, $dataDimensions, $recordClass);
+
+    }
+
+
+    protected function getStashedConfig($configTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
+    {
+        if (!$dataDimensions->hasRelativeTimeShift())
+        {
+            $hash = md5($configTypeName . $dataDimensions . $recordClass);
+            if (array_key_exists($hash, $this->configStash))
+            {
+                return $this->configStash[$hash];
+            }
+        }
+
+        return false;
+
+    }
 }

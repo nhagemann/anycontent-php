@@ -3,6 +3,9 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\AbstractData;
+use AnyContent\Client\AbstractRecord;
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
@@ -21,9 +24,17 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     }
 
 
-    public function getCMDL($contentTypeName)
+    public function getCMDLForContentType($contentTypeName)
     {
-        $fileName = $this->getConfiguration()->getUriCMDL($contentTypeName);
+        $fileName = $this->getConfiguration()->getUriCMDLForContentType($contentTypeName);
+
+        return $this->readCMDL($fileName);
+    }
+
+
+    public function getCMDLForConfigType($configTypeName)
+    {
+        $fileName = $this->getConfiguration()->getUriCMDLForConfigType($configTypeName);
 
         return $this->readCMDL($fileName);
     }
@@ -65,7 +76,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
             }
 
-            $records = $this->exportRecords($this->getAllMultiViewRecords($contentTypeName,$dataDimensions),$dataDimensions->getViewName());
+            $records = $this->exportRecords($this->getAllMultiViewRecords($contentTypeName, $dataDimensions), $dataDimensions->getViewName());
 
             $this->stashAllRecords($records, $dataDimensions);
 
@@ -92,7 +103,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         {
             $data = json_decode($data, true);
 
-            $data['records']=array_filter($data['records']);
+            $data['records'] = array_filter($data['records']);
 
             $definition = $this->getContentTypeDefinition($contentTypeName);
 
@@ -111,7 +122,6 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      * @param $recordId
      *
      * @return Record
-     * @throws AnyContentClientException
      */
     public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
     {
@@ -136,21 +146,6 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     }
 
 
-
-
-//    /**
-//     * @param $recordId
-//     *
-//     * @return Record
-//     * @throws AnyContentClientException
-//     */
-//    public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
-//    {
-//        return $this->exportRecord($this->getMultiViewRecord($recordId, $contentTypeName, $dataDimensions));
-//
-//    }
-//
-//
     protected function getMultiViewRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions)
     {
         if ($contentTypeName == null)
@@ -158,7 +153,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             $contentTypeName = $this->getCurrentContentTypeName();
         }
 
-        $records = $this->getAllMultiViewRecords($contentTypeName,$dataDimensions);
+        $records = $this->getAllMultiViewRecords($contentTypeName, $dataDimensions);
 
         if (array_key_exists($recordId, $records))
         {
@@ -172,19 +167,18 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
 
     }
 
+
     protected function mergeExistingRecord(Record $record, DataDimensions $dataDimensions)
     {
         if ($record->getID() != '')
         {
-            $existingRecord = $this->getMultiViewRecord($record->getId(),$record->getContentTypeName(),$dataDimensions);
+            $existingRecord = $this->getMultiViewRecord($record->getId(), $record->getContentTypeName(), $dataDimensions);
             if ($existingRecord)
             {
                 $record->setRevision($existingRecord->getRevision());
 
-
-
                 $existingProperties = $existingRecord->getProperties();
-                $mergedProperties = array_merge($existingProperties,$record->getProperties());
+                $mergedProperties   = array_merge($existingProperties, $record->getProperties());
 
                 $mergedRecord = clone $record;
                 $mergedRecord->setProperties($mergedProperties);
@@ -199,14 +193,58 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
 
 
     /**
+     *
+     * @return Config
+     */
+    public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->exportRecord($this->getMultiViewConfig($configTypeName, $dataDimensions),$dataDimensions->getViewName());
+
+    }
+
+
+    protected function getMultiViewConfig($configTypeName = null, DataDimensions $dataDimensions)
+    {
+        $definition = $this->getConfigTypeDefinition($configTypeName);
+
+        $data = $this->readConfig($this->getConfiguration()->getUriConfig($configTypeName));
+
+        if ($data)
+        {
+            $data = json_decode($data, true);
+
+            $config =$this->getRecordFactory()->createRecordFromJSONObject($definition,$data);
+
+        }
+        else
+        {
+            $config =$this->getRecordFactory()->createConfig($definition);
+
+
+
+            KVMLoggerFactory::instance('anycontent-connection')
+                            ->info('Config ' . $configTypeName . ' not found');
+        }
+        return $config;
+
+
+    }
+
+
+    /**
      * Make sure the returned record is not connected to stashed records an does only contain properties of it's
      * current view
      *
-     * @param Record $record - multi view record !
+     * @param AbstractRecord $record - multi view record !
      */
-    protected function exportRecord(Record $record,$viewName)
+    protected function exportRecord(AbstractRecord $record, $viewName)
     {
-        $definition        = $record->getContentTypeDefinition();
+        $definition        = $record->getDataTypeDefinition();
         $allowedProperties = $definition->getProperties($viewName);
 
         $allowedProperties = array_combine($allowedProperties, $allowedProperties);
@@ -220,12 +258,12 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     }
 
 
-    protected function exportRecords($records,$viewName)
+    protected function exportRecords($records, $viewName)
     {
         $result = [ ];
         foreach ($records as $record)
         {
-            $result[$record->getId()] = $this->exportRecord($record,$viewName);
+            $result[$record->getId()] = $this->exportRecord($record, $viewName);
         }
 
         return $result;
@@ -245,7 +283,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             return file_get_contents($fileName);
         }
 
-        KVMLoggerFactory::instance('anycontent')->warning('Could not open file ' . $fileName);
+        KVMLoggerFactory::instance('anycontent-connection')->warning('Could not open file ' . $fileName);
 
         return false;
     }
@@ -258,6 +296,12 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
 
 
     protected function readRecord($filename)
+    {
+        return $this->readData($filename);
+    }
+
+
+    protected function readConfig($filename)
     {
         return $this->readData($filename);
     }

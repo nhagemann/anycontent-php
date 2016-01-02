@@ -52,7 +52,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
     public function testSaveRecords()
     {
 
-        $cmdl = $this->connection->getCMDL('example01');
+        $cmdl = $this->connection->getCMDLForContentType('example01');
 
         $contentTypeDefinition = Parser::parseCMDLString($cmdl);
         $contentTypeDefinition->setName('example01');

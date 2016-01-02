@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Interfaces\WriteConnection;
@@ -60,14 +61,14 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
                     $record->setRevision(0);
                 }
 
-                $mergedRecord = $this->mergeExistingRecord($record,$dataDimensions);
+                $mergedRecord = $this->mergeExistingRecord($record, $dataDimensions);
 
                 $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
                 $record->setRevision($mergedRecord->getRevision());
 
                 //$record->setRevisionTimestamp(time());
                 $allRecords[$mergedRecord->getID()] = $mergedRecord;
-                $recordIds[]                  = $mergedRecord->getID();
+                $recordIds[]                        = $mergedRecord->getID();
             }
 
             $data = json_encode([ 'records' => $allRecords ], JSON_PRETTY_PRINT);
@@ -84,9 +85,6 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         return [ ];
     }
-
-
-
 
 
     public function deleteRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null)
@@ -178,6 +176,29 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         }
         throw new AnyContentClientException('Error when deleting records of content type ' . $contentTypeName);
+    }
+
+
+    public function saveConfig(Config $config, DataDimensions $dataDimensions = null)
+    {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        $configTypeName = $config->getConfigTypeName();
+        $data = json_encode($config, JSON_PRETTY_PRINT);
+
+
+        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName), $data))
+        {
+            // STASH
+
+            return true;
+
+        }
+        throw new AnyContentClientException('Error when saving record of config type ' . $configTypeName);
+
     }
 
 

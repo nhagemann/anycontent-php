@@ -6,12 +6,9 @@ use CMDL\CMDLParserException;
 use CMDL\Util;
 
 use CMDL\ConfigTypeDefinition;
-use AnyContent\Client\Sequence;
 
-class Config
+class Config extends AbstractRecord implements \JsonSerializable
 {
-
-    public $id = null;
 
     protected $configTypeDefinition = null;
 
@@ -28,7 +25,7 @@ class Config
     public $lastChangeUserInfo;
 
 
-    public function __construct(ConfigTypeDefinition $configTypeDefinition, $workspace = 'default', $language = 'default')
+    public function __construct(ConfigTypeDefinition $configTypeDefinition, $view = 'default', $workspace = 'default', $language = 'default')
     {
         $this->configTypeDefinition = $configTypeDefinition;
 
@@ -106,9 +103,15 @@ class Config
     }
 
 
-    public function getConfigType()
+    public function getConfigTypeName()
     {
         return $this->configTypeDefinition->getName();
+    }
+
+
+    public function getDataTypeDefinition()
+    {
+        return $this->configTypeDefinition;
     }
 
 
@@ -189,4 +192,16 @@ class Config
         return $this->properties;
     }
 
+
+    function jsonSerialize()
+    {
+        $record                     = [ ];
+        $record['properties']       = $this->getProperties();
+        $record['info']             = [ ];
+        $record['info']['revision'] = $this->getRevision();
+        //$record['info']['creation']   = $this->getCreationUserInfo();
+        //$record['info']['lastchange'] = $this->getLastChangeUserInfo();
+
+        return $record;
+    }
 }

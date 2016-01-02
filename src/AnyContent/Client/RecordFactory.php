@@ -3,7 +3,9 @@
 namespace AnyContent\Client;
 
 use AnyContent\AnyContentClientException;
+use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
+use CMDL\DataTypeDefinition;
 
 class RecordFactory
 {
@@ -11,6 +13,8 @@ class RecordFactory
     protected $options = [ 'validateProperties' => true ];
 
     protected $contentRecordClassMap = array();
+
+    protected $configRecordClassMap = array();
 
 
     public function __construct($options = [ ])
@@ -35,7 +39,7 @@ class RecordFactory
 
         foreach ($jsonRecords as $jsonRecord)
         {
-            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord, $viewName,$workspace,$language);
+            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord, $viewName, $workspace, $language);
             $records[$record->getID()] = $record;
         }
 
@@ -43,46 +47,30 @@ class RecordFactory
     }
 
 
-    public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
+    public function createRecordFromJSONObject(DataTypeDefinition $dataTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
     {
-        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
-
-        /** @var Record $record */
-        $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
-
-        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 0;
-        $record->setRevision($revision);
-
-        if ($this->getOption('validateProperties') == true)
+        if ($dataTypeDefinition instanceof ConfigTypeDefinition)
         {
-            foreach ($properties AS $property => $value)
-            {
-                $record->setProperty($property, $value);
-            }
+            $classname = $this->getClassForConfigType($dataTypeDefinition->getName());
+
+            /** @var Config $record */
+            $record = new $classname($dataTypeDefinition,  $viewName, $workspace, $language);
         }
         else
         {
-            $record->setProperties($properties);
+            $classname = $this->getClassForContentType($dataTypeDefinition->getName());
+
+            /** @var Record $record */
+            $record = new $classname($dataTypeDefinition, '', $viewName, $workspace, $language);
+            $record->setID($jsonRecord['id']);
+
+            $name = '';
+
+            if (isset($jsonRecord['properties']['name']))
+            {
+                $name = $jsonRecord['properties']['name'];
+            }
         }
-
-        return $record;
-    }
-
-
-    public function createRecordFromJSONObject(ContentTypeDefinition $contentTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
-    {
-        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
-
-        $name = '';
-
-        if (isset($jsonRecord['properties']['name']))
-        {
-            $name = $jsonRecord['properties']['name'];
-        }
-
-        /** @var Record $record */
-        $record = new $classname($contentTypeDefinition, $name, $viewName, $workspace, $language);
-        $record->setID($jsonRecord['id']);
 
         $revision = isset($jsonRecord['info']['revision']) ? $jsonRecord['info']['revision'] : 1;
         $record->setRevision($revision);
@@ -122,6 +110,57 @@ class RecordFactory
     }
 
 
+    public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
+    {
+        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+
+        /** @var Record $record */
+        $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
+
+        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 0;
+        $record->setRevision($revision);
+
+        if ($this->getOption('validateProperties') == true)
+        {
+            foreach ($properties AS $property => $value)
+            {
+                $record->setProperty($property, $value);
+            }
+        }
+        else
+        {
+            $record->setProperties($properties);
+        }
+
+        return $record;
+    }
+
+
+    public function createConfig(ConfigTypeDefinition $configTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
+    {
+        $classname = $this->getClassForConfigType($configTypeDefinition->getName());
+
+        /** @var Config $config */
+        $config = new $classname($configTypeDefinition, '', $viewName, $workspace, $language);
+
+        $config->setRevision(0);
+
+        if ($this->getOption('validateProperties') == true)
+        {
+            foreach ($properties AS $property => $value)
+            {
+                $config->setProperty($property, $value);
+            }
+        }
+        else
+        {
+            $config->setProperties($properties);
+        }
+
+        return $config;
+    }
+
+
     public function registerRecordClassForContentType($contentTypeName, $classname)
     {
 
@@ -140,6 +179,27 @@ class RecordFactory
         }
 
         return 'AnyContent\Client\Record';
+    }
+
+
+    public function registerRecordClassForConfigType($configTypeName, $classname)
+    {
+
+        $this->configRecordClassMap[$configTypeName] = $classname;
+
+    }
+
+
+    public function getClassForConfigType($configTypeName)
+    {
+
+        if (array_key_exists($configTypeName, $this->contentRecordClassMap))
+        {
+            return $this->contentRecordClassMap[$configTypeName];
+
+        }
+
+        return 'AnyContent\Client\Config';
     }
 }
 

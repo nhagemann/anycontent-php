@@ -45,7 +45,7 @@ class RecordFilesConfiguration extends AbstractConfiguration
         return new RecordFilesReadWriteConnection($this);
     }
 
-    public function getUriCMDL($contentTypeName)
+    public function getUriCMDLForContentType($contentTypeName)
     {
         if ($this->hasContentType($contentTypeName))
         {

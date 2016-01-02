@@ -115,7 +115,7 @@ class RecordsFileFirebaseConfiguration extends AbstractConfiguration
 
 
 
-    public function getUriCMDL($contentTypeName)
+    public function getUriCMDLForContentType($contentTypeName)
     {
         if ($this->hasContentType($contentTypeName))
         {

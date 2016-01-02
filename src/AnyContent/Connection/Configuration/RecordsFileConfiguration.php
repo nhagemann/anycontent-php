@@ -4,6 +4,7 @@ namespace AnyContent\Connection\Configuration;
 use AnyContent\AnyContentClientException;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileConfiguration extends AbstractConfiguration
@@ -38,7 +39,33 @@ class RecordsFileConfiguration extends AbstractConfiguration
     }
 
 
-    public function getUriCMDL($contentTypeName)
+    /**
+     *
+     * @return $this
+     * @throws AnyContentClientException
+     */
+    public function addConfigType($configTypeName, $filenameCMDL, $filenameRecord, $configTypeTitle = null)
+    {
+        $fs = new Filesystem();
+
+        if (!$fs->exists($filenameCMDL))
+        {
+            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameCMDL . ' not found.');
+
+        }
+
+        if (!$fs->exists($filenameRecord))
+        {
+            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameRecord . ' not found.');
+        }
+
+        $this->configTypes[$configTypeName] = [ 'record' => $filenameRecord, 'cmdl' => $filenameCMDL, 'title' => $configTypeTitle ];
+
+        return $this;
+    }
+
+
+    public function getUriCMDLForContentType($contentTypeName)
     {
         if ($this->hasContentType($contentTypeName))
         {
@@ -46,6 +73,17 @@ class RecordsFileConfiguration extends AbstractConfiguration
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+    }
+
+
+    public function getUriCMDLForConfigType($configTypeName)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->configTypes[$configTypeName]['cmdl'];
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
     }
 
 
@@ -59,6 +97,16 @@ class RecordsFileConfiguration extends AbstractConfiguration
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
     }
 
+
+    public function getUriConfig($configTypeName)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->configTypes[$configTypeName]['record'];
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
+    }
 
     public function createReadOnlyConnection()
     {

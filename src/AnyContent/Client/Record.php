@@ -7,7 +7,7 @@ use CMDL\Util;
 
 use CMDL\ContentTypeDefinition;
 
-class Record implements \JsonSerializable
+class Record extends AbstractRecord implements \JsonSerializable
 {
 
     public $id = null;
@@ -181,6 +181,10 @@ class Record implements \JsonSerializable
         return $this->contentTypeDefinition->getName();
     }
 
+    public function getDataTypeDefinition()
+    {
+        return $this->contentTypeDefinition;
+    }
 
     public function getContentTypeDefinition()
     {
