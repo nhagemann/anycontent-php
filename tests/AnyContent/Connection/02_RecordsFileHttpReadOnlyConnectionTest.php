@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
 use AnyContent\Connection\RecordsFileHttpReadOnlyConnection;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordsFileHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,6 +22,8 @@ class RecordsFileHttpReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
+
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
     }
 
 

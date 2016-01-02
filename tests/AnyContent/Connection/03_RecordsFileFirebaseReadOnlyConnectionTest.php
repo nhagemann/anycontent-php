@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
 use AnyContent\Connection\RecordsFileFirebaseReadOnlyConnection;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,6 +26,8 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
 
             $this->connection = $connection;
         }
+
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
 
     }
 

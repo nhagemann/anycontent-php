@@ -9,6 +9,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use AnyContent\Filter\ANDFilter;
 use AnyContent\Filter\ORFilter;
 use AnyContent\Filter\PropertyFilter;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class FilterTest extends \PHPUnit_Framework_TestCase
@@ -35,6 +36,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
 
         $fs->mirror($source, $target);
 
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
     }
 
 

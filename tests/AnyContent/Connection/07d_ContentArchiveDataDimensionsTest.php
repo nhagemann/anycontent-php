@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ContentArchiveDataDimensionsTest extends \PHPUnit_Framework_TestCase
@@ -36,6 +37,8 @@ class ContentArchiveDataDimensionsTest extends \PHPUnit_Framework_TestCase
 
         $fs = new Filesystem();
         $fs->remove($target);
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
 
     }
 

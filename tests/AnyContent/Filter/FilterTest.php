@@ -4,6 +4,7 @@ namespace AnyContent\Filter;
 
 use AnyContent\Client\Repository;
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class FilterTest extends \PHPUnit_Framework_TestCase
@@ -46,6 +47,9 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->connection = $connection;
 
         $this->repository = new Repository($this->connection);
+
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
 
     }
 

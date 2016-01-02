@@ -6,12 +6,20 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use CMDL\Parser;
 
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
 
+    public function setUp()
+    {
 
+
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
+
+
+    }
 
 
 

@@ -47,6 +47,9 @@ class ContentArchiveViewsTest extends \PHPUnit_Framework_TestCase
 
         $this->connection = $connection;
 
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
+
     }
 
 

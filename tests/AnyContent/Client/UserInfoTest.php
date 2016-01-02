@@ -4,6 +4,7 @@ namespace AnyContent\Client;
 
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class UserInfoTest extends \PHPUnit_Framework_TestCase
@@ -46,6 +47,8 @@ class UserInfoTest extends \PHPUnit_Framework_TestCase
         $this->connection = $connection;
 
         $this->repository = new Repository($this->connection);
+
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
 
 
     }

@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
+use KVMLogger\KVMLoggerFactory;
 
 class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,6 +22,8 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadOnlyConnection();
 
         $this->connection = $connection;
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
     }
 
 

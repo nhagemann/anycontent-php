@@ -30,7 +30,6 @@ class RecordFilesViewsTest extends \PHPUnit_Framework_TestCase
 
         $fs->mirror($source, $target);
 
-        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
 
     }
 
@@ -49,6 +48,9 @@ class RecordFilesViewsTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
     }
 
 

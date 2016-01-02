@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordsFileGitConfiguration;
 use AnyContent\Connection\RecordsFileGitReadWriteConnection;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,6 +31,8 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $configuration->addContentType('profiles', 'profiles.cmdl', 'profiles.json');
 
         $this->connection = $configuration->createReadWriteConnection();
+
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
 
     }
 

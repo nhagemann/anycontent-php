@@ -7,6 +7,7 @@ use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use AnyContent\Connection\RecordFilesReadWriteConnection;
 use CMDL\Parser;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
@@ -23,14 +24,6 @@ class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public static function tearDownAfterClass()
-    {
-        $fs = new Filesystem();
-        $fs->remove(__DIR__ . '/../../resources/RecordsFileExample/temp.json');
-        $fs->remove(__DIR__ . '/../../resources/RecordsFileExample/temp.cmdl');
-    }
-
-
 
     public function setUp()
     {
@@ -41,6 +34,7 @@ class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
     }
 
 

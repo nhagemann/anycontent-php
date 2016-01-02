@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
@@ -30,16 +31,6 @@ class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public static function tearDownAfterClass()
-    {
-        $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
-
-        $fs = new Filesystem();
-        $fs->remove($target);
-
-    }
-
-
     public function setUp()
     {
         $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
@@ -51,6 +42,8 @@ class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
 
     }
 
@@ -72,7 +65,6 @@ class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $record = $connection->getRecord(5);
 
         $this->assertEquals('dmc', $record->getProperty('name'));
-
 
     }
 
@@ -147,7 +139,7 @@ class ContentArchiveReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $result = $connection->deleteRecord(5);
 
-        $this->assertEquals(5,$result);
+        $this->assertEquals(5, $result);
         $this->assertEquals(8, $connection->countRecords());
 
         $result = $connection->deleteRecord(999);

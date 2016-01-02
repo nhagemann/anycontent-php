@@ -6,6 +6,7 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
@@ -32,17 +33,10 @@ class RepositoryRecordsAndRevisionsTest extends \PHPUnit_Framework_TestCase
 
         $fs->mirror($source, $target);
 
-    }
-
-
-    public static function tearDownAfterClass()
-    {
-        $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
-
-        $fs = new Filesystem();
-        $fs->remove($target);
+        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
 
     }
+
 
 
     public function setUp()

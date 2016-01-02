@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
+use KVMLogger\KVMLoggerFactory;
 
 class RecordStashTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,6 +24,9 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
         $connection->selectContentType('profiles');
 
         $this->connection = $connection;
+
+
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
     }
 
 
