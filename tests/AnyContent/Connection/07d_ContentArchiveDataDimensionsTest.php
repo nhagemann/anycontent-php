@@ -16,7 +16,7 @@ class ContentArchiveDataDimensionsTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         $target = __DIR__ . '/../../../tmp/TestContentArchive';
-        $source = __DIR__ . '/../../resources/ContentArchiveReadOnlyConnection';
+        $source = __DIR__ . '/../../resources/ContentArchiveExample1';
 
         $fs = new Filesystem();
 

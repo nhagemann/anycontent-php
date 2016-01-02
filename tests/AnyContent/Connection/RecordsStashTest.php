@@ -16,7 +16,7 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
     {
         $configuration = new RecordsFileConfiguration();
 
-        $configuration->addContentType('profiles', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/profiles.json');
+        $configuration->addContentType('profiles', __DIR__ . '/../../resources/RecordsFileExample/profiles.cmdl', __DIR__ . '/../../resources/RecordsFileExample/profiles.json');
 
         $connection = $configuration->createReadOnlyConnection();
 

@@ -16,7 +16,7 @@ class RecordFilesReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $configuration = new RecordFilesConfiguration();
 
-        $configuration->addContentType('profiles', __DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/RecordFilesReadOnlyConnection/records/profiles');
+        $configuration->addContentType('profiles', __DIR__ . '/../../resources/RecordsFileExample/profiles.cmdl', __DIR__ . '/../..//resources/RecordFilesExample/records/profiles');
 
         $connection = $configuration->createReadOnlyConnection();
 

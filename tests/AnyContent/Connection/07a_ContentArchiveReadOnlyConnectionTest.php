@@ -16,7 +16,7 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $configuration = new ContentArchiveConfiguration();
 
-        $configuration->setContentArchiveFolder(__DIR__ . '/../../resources/ContentArchiveReadOnlyConnection');
+        $configuration->setContentArchiveFolder(__DIR__ . '/../../resources/ContentArchiveExample1');
 
         $connection = $configuration->createReadOnlyConnection();
 

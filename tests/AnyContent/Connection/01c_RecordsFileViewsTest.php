@@ -18,7 +18,7 @@ class RecordsFileViewsTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         $target = __DIR__ . '/../../../tmp/RecordsFileExample';
-        $source = __DIR__ . '/../../resources/SimpleFileConnection';
+        $source = __DIR__ . '/../../resources/RecordsFileExample';
 
         $fs = new Filesystem();
 

@@ -18,16 +18,16 @@ class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         $fs = new Filesystem();
-        $fs->copy(__DIR__ . '/../../resources/SimpleFileConnection/profiles.json', __DIR__ . '/../../resources/SimpleFileConnection/temp.json', true);
-        $fs->copy(__DIR__ . '/../../resources/SimpleFileConnection/profiles.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', true);
+        $fs->copy(__DIR__ . '/../../resources/RecordsFileExample/profiles.json', __DIR__ . '/../../resources/RecordsFileExample/temp.json', true);
+        $fs->copy(__DIR__ . '/../../resources/RecordsFileExample/profiles.cmdl', __DIR__ . '/../../resources/RecordsFileExample/temp.cmdl', true);
     }
 
 
     public static function tearDownAfterClass()
     {
         $fs = new Filesystem();
-        $fs->remove(__DIR__ . '/../../resources/SimpleFileConnection/temp.json');
-        $fs->remove(__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl');
+        $fs->remove(__DIR__ . '/../../resources/RecordsFileExample/temp.json');
+        $fs->remove(__DIR__ . '/../../resources/RecordsFileExample/temp.cmdl');
     }
 
 
@@ -36,7 +36,7 @@ class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
     {
         $configuration = new RecordsFileConfiguration();
 
-        $configuration->addContentType('temp',__DIR__ . '/../../resources/SimpleFileConnection/temp.cmdl', __DIR__ . '/../../resources/SimpleFileConnection/temp.json');
+        $configuration->addContentType('temp',__DIR__ . '/../../resources/RecordsFileExample/temp.cmdl', __DIR__ . '/../../resources/RecordsFileExample/temp.json');
 
         $connection = $configuration->createReadWriteConnection();
 

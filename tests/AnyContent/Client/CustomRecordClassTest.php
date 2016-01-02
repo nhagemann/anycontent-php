@@ -18,7 +18,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         $target = __DIR__ . '/../../../tmp/ExampleContentArchive';
-        $source = __DIR__ . '/../../resources/ExampleContentArchive';
+        $source = __DIR__ . '/../../resources/ContentArchiveExample2';
 
         $fs = new Filesystem();
 
