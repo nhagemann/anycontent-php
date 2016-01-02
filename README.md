@@ -1,5 +1,9 @@
 # anycontent-php
 
+property id
+
+properties parent / position
+
 config records stashen noch nicht test für views und mergen existing
 
 test views auf repository ebene

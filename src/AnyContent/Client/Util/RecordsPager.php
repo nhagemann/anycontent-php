@@ -2,11 +2,18 @@
 
 namespace AnyContent\Client\Util;
 
-use AnyContent\Filter\PropertyFilter;
-
 class RecordsPager
 {
 
+    public static function sliceRecords(array $records, $page, $count)
+    {
+
+        $offset = $count * ($page - 1);
+
+        $result = array_slice($records, $offset, $count, true);
+
+        return $result;
+    }
 
 }
 

@@ -20,57 +20,51 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-
         if ($record->getID() == '')
         {
-            $allRecords = $this->getAllRecords($record->getContentTypeName(),$dataDimensions);
+            $record->setId($this->getNextId($record->getContentTypeName(), $dataDimensions));
+            $record->setRevision(1);
 
-            $nextId = 1;
-            if (count($allRecords) > 0)
-            {
-                $nextId = max(array_keys($allRecords)) + 1;
-            }
-            $record->setID($nextId);
-            $record->setRevision(0);
+            $toBeSavedRecord = $record;
+        }
+        else{
+            $mergedRecord = $this->mergeExistingRecord($record, $dataDimensions);
+
+            $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
+            $record->setRevision($mergedRecord->getRevision());
+
+            $toBeSavedRecord = $mergedRecord;
         }
 
-        $mergedRecord = $this->mergeExistingRecord($record,$dataDimensions);
-
-        $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
-        $record->setRevision($mergedRecord->getRevision());
-
-
-//        if ($record->getID() == '')
-//        {
-//            $nextId = 1;
-//            if (count($this->getAllRecords($record->getContentTypeName(), $dataDimensions)) > 0)
-//            {
-//                $nextId = max(array_keys($this->getAllRecords())) + 1;
-//            }
-//            $record->setID($nextId);
-//            $record->setRevision(0);
-//        }
-//        else{
-//
-//        }
-//
-//        $record->setRevision($record->getRevision() + 1);
-//        //$record->setRevisionTimestamp(time());
-
         $filename = $this->getConfiguration()
-                         ->getFolderNameRecords($record->getContentTypeName(), $dataDimensions);
-        $filename .= '/' . $mergedRecord->getID() . '.json';
+                         ->getFolderNameRecords($toBeSavedRecord->getContentTypeName(), $dataDimensions);
+        $filename .= '/' . $toBeSavedRecord->getID() . '.json';
 
-        $data = json_encode($mergedRecord, JSON_PRETTY_PRINT);
+        $data = json_encode($toBeSavedRecord, JSON_PRETTY_PRINT);
 
-        $this->stashRecord($mergedRecord, $dataDimensions);
+        $this->stashRecord($toBeSavedRecord, $dataDimensions);
 
         if (!$this->writeData($filename, $data))
         {
             throw new AnyContentClientException('Error when saving record of content type ' . $record->getContentTypeName());
         }
 
-        return $mergedRecord->getID();
+        return $toBeSavedRecord->getID();
+    }
+
+
+    protected function getNextId($contentTypeName, $dataDimensions)
+    {
+
+        $allRecords = $this->getAllRecords($contentTypeName, $dataDimensions);
+
+        $nextId = 1;
+        if (count($allRecords) > 0)
+        {
+            $nextId = max(array_keys($allRecords)) + 1;
+        }
+
+        return $nextId;
     }
 
 

@@ -4,6 +4,8 @@ namespace AnyContent\Client;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Client\Util\RecordsFilter;
+use AnyContent\Client\Util\RecordsPager;
+use AnyContent\Client\Util\RecordsSorter;
 use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
@@ -329,8 +331,7 @@ class Repository
     public function getRecord($recordId)
     {
 
-            $dataDimensions = $this->getCurrentDataDimensions();
-
+        $dataDimensions = $this->getCurrentDataDimensions();
 
         return $this->readConnection->getRecord($recordId, $this->getCurrentContentTypeName(), $dataDimensions);
     }
@@ -342,23 +343,29 @@ class Repository
      */
     /**
      * @param string|Filter $filter
-     * @param int    $page
-     * @param null   $count
-     * @param string $order
+     * @param int           $page
+     * @param null          $count
+     * @param string|Array  $order
      *
      * @return Record[]
      */
-    public function getRecords($filter = '', $page = 1, $count = null, $order = 'name')
+    public function getRecords($filter = '', $page = 1, $count = null, $order = [ 'name' ])
     {
 
         $dataDimensions = $this->getCurrentDataDimensions();
 
         $records = $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
 
-
-        if ($filter!='')
+        if ($filter != '')
         {
-            $records = RecordsFilter::filterRecords($records,$filter);
+            $records = RecordsFilter::filterRecords($records, $filter);
+        }
+
+        $records = RecordsSorter::orderRecords($records, $order);
+
+        if ($count != null)
+        {
+            $records = RecordsPager::sliceRecords($records, $page, $count);
         }
 
         return $records;
@@ -391,14 +398,17 @@ class Repository
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        KVMLoggerFactory::instance('anycontent-repository')
-                        ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
-
         $userInfo = $this->getCurrentUserInfo();
 
         $record->setLastChangeUserInfo($userInfo);
 
-        return $this->writeConnection->saveRecord($record, $dataDimensions);
+        $result = $this->writeConnection->saveRecord($record, $dataDimensions);
+
+        KVMLoggerFactory::instance('anycontent-repository')
+                        ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
+
+        return $result;
+
     }
 
 

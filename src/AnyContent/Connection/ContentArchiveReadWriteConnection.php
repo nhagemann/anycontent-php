@@ -18,36 +18,33 @@ class ContentArchiveReadWriteConnection extends RecordFilesReadWriteConnection i
     protected $configuration;
 
 
-    public function saveRecord(Record $record, DataDimensions $dataDimensions = null)
+
+    protected function getNextId($contentTypeName, $dataDimensions)
     {
-        if ($record->getId() == '')  // get next id over all  workspaces and languages
+        $finder = new Finder();
+        $path   = $this->configuration->getContentArchiveFolder() . '/data/content/' . $contentTypeName;
+        $path   = realpath($path);
+        if ($path)
         {
-            $finder = new Finder();
-            $path   = $this->configuration->getContentArchiveFolder().'/data/content/'.$record->getContentTypeName();
-            $path = realpath($path);
-            if ($path)
+
+            $finder->in($path);
+            $finder->files()->name('*.json');
+
+            $next = 0;
+            /** @var SplFileInfo $file */
+            foreach ($finder as $file)
             {
+                // Sorting by name won't help here
+                $next = max($next, (int)($file->getBasename('.json')));
 
-                $finder->in($path);
-                $finder->files()->name('*.json');
-
-                $next = 0;
-                /** @var SplFileInfo $file */
-                foreach ($finder as $file)
-                {
-                    // Sorting by name won't help here
-                    $next = max($next, (int)($file->getBasename('.json')));
-
-                }
-                $record->setId(++$next);
-            }
-            else
-            {
-                $record->setId(1);
             }
 
+            return ++$next;
         }
-
-        return parent::saveRecord($record, $dataDimensions);
+        else
+        {
+            return 1;
+        }
     }
+
 }
