@@ -100,5 +100,5 @@ class PagerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([ 9, 10 ], array_keys($records));
     }
-orter
+
 }
