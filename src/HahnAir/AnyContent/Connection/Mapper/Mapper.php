@@ -18,6 +18,7 @@ abstract class Mapper
         $this->record = $record;
         $this->record->setId($this->data['nid']);
         $this->record->setProperty('name', $this->data['title']);
+        $this->record->setRevision(1);
 
         return $this->record;
 

@@ -28,9 +28,9 @@ class Repository
     protected $userInfo;
 
     /**
-     * @var string unique identifier extracted from the connection
+     * @var string identifier
      */
-    protected $id;
+    protected $name;
 
     /**
      * @var string human readable title
@@ -38,11 +38,13 @@ class Repository
     protected $title;
 
     /**
-     * @var string custom identifier
+     * @var string url of repository
      */
-    protected $shortcut;
+    protected $publicUrl = null;
 
     protected $contentRecordClassMap = [ ];
+
+    protected $configRecordClassMap = [ ];
 
 
     public function __construct($readConnection, $writeConnection = null)
@@ -100,40 +102,18 @@ class Repository
     /**
      * @return mixed
      */
-    public function getId()
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
 
     /**
-     * @param mixed $id
+     * @param mixed $name
      */
-    public function setId($id)
+    public function setName($name)
     {
-        $this->id = $id;
-
-        return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getShortcut()
-    {
-        return $this->shortcut;
-    }
-
-
-    /**
-     * @param string $shortcut
-     */
-    public function setShortcut($shortcut)
-    {
-        $this->shortcut = $shortcut;
-
-        return $this;
+        $this->name = $name;
     }
 
 
@@ -157,6 +137,33 @@ class Repository
     }
 
 
+    /**
+     * @return bool
+     */
+    public function hasPublicUrl()
+    {
+        return (boolean)$this->getPublicUrl();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getPublicUrl()
+    {
+        return $this->publicUrl;
+    }
+
+
+    /**
+     * @param string $publicUrl
+     */
+    public function setPublicUrl($publicUrl)
+    {
+        $this->publicUrl = $publicUrl;
+    }
+
+
     public function getContentTypeNames()
     {
         return $this->readConnection->getContentTypeNames();
@@ -172,12 +179,23 @@ class Repository
     }
 
 
+    /**
+     * @param $contentTypeName
+     *
+     * @return bool
+     */
     public function hasContentType($contentTypeName)
     {
         return $this->readConnection->hasContentType($contentTypeName);
     }
 
 
+    /**
+     * @param null $contentTypeName
+     *
+     * @return \CMDL\ConfigTypeDefinition|\CMDL\ContentTypeDefinition|\CMDL\DataTypeDefinition|null
+     * @throws AnyContentClientException
+     */
     public function getContentTypeDefinition($contentTypeName = null)
     {
 
@@ -190,6 +208,12 @@ class Repository
     }
 
 
+    /**
+     * @deprecated
+     *
+     * @return \CMDL\ContentTypeDefinition
+     * @throws AnyContentClientException
+     */
     public function getCurrentContentType()
     {
         return $this->readConnection->getCurrentContentType();
@@ -202,7 +226,7 @@ class Repository
     }
 
 
-    public function selectContentType($contentTypeName, $resetDataDimensions = true)
+    public function selectContentType($contentTypeName, $resetDataDimensions = false)
     {
         $this->readConnection->selectContentType($contentTypeName);
 
@@ -292,7 +316,7 @@ class Repository
     {
         if (!$this->dataDimensions)
         {
-            return $this->reset();
+            $this->reset();
         }
 
         return $this->dataDimensions;
@@ -374,6 +398,7 @@ class Repository
 
     public function countRecords($filter = '')
     {
+
         if ($filter == '')
         {
             $dataDimensions = $this->getCurrentDataDimensions();
@@ -391,16 +416,14 @@ class Repository
     }
 
 
-    public function saveRecord(Record $record, $dataDimensions = null)
+    public function saveRecord(Record $record)
     {
         if (!$this->writeConnection)
         {
             throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
         }
-        if (!$dataDimensions)
-        {
-            $dataDimensions = $this->getCurrentDataDimensions();
-        }
+
+        $dataDimensions = $this->getCurrentDataDimensions();
 
         $userInfo = $this->getCurrentUserInfo();
 
@@ -410,6 +433,31 @@ class Repository
 
         KVMLoggerFactory::instance('anycontent-repository')
                         ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
+
+        return $result;
+
+    }
+
+
+    public function saveRecords($records)
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $dataDimensions = $this->getCurrentDataDimensions();
+
+        $userInfo = $this->getCurrentUserInfo();
+
+        $result = $this->writeConnection->saveRecords($records, $dataDimensions);
+
+        if (count($records) > 0)
+        {
+            $record = reset($records);
+            KVMLoggerFactory::instance('anycontent-repository')
+                            ->info('Saving ' . count($records) . ' records of content type ' . $record->getContentTypeName());
+        }
 
         return $result;
 

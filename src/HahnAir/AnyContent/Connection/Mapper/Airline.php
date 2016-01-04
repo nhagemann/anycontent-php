@@ -10,7 +10,11 @@ class Airline extends Mapper
     {
         $record = parent::mapEntity($record, $data);
 
-        $record->setProperty('status', (int)$data['status']);
+
+        $properties = $record->getProperties();
+
+        $properties['status'] = (int)$data['status'];
+        //$record->setProperty('status', (int)$data['status']);
 
         $mapping = [ 'field_code'                   => 'code',
                      'field_airline_history'        => 'history',
@@ -19,18 +23,22 @@ class Airline extends Mapper
                      'field_airline_ffp'            => 'ffp',
                      'field_airline_online_checkin' => 'onlinecheckin',
                      'field_airline_lounges'        => 'lounges',
-                      'field_foundation_year'        => 'year'
+                     'field_foundation_year'        => 'year'
         ];
-
 
         foreach ($mapping as $fieldName => $property)
         {
-            $record->setProperty($property, $this->getFieldValue($fieldName));
+            $properties[$property] = $this->getFieldValue($fieldName);
+            //$record->setProperty($property, $this->getFieldValue($fieldName));
         }
 
-        $sequence = [];
-        $sequence[]=['richtext'=>['richtext'=>$this->getFieldValue('field_airline_profile')]];
-        $record->setProperty('content',json_encode($sequence));
+        $sequence   = [ ];
+        $sequence[] = [ 'richtext' => [ 'richtext' => $this->getFieldValue('field_airline_profile') ] ];
+
+        $properties['content'] = json_encode($sequence);
+        //$record->setProperty('content',json_encode($sequence));
+
+        $record->setProperties($properties);
 
         return $record;
     }

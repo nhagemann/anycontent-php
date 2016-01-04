@@ -2,11 +2,8 @@
 
 namespace AnyContent\Client;
 
-
 class DataDimensions
 {
-
-
 
     protected $viewName = 'default';
 
@@ -17,8 +14,6 @@ class DataDimensions
     protected $timeShift = 0;
 
     const MAX_TIMESHIFT = 315532800; // roundabout 10 years, equals to 1.1.1980
-
-
 
 
     /**
@@ -54,8 +49,7 @@ class DataDimensions
     public function setWorkspace($workspace)
     {
 
-
-            $this->workspace = $workspace;
+        $this->workspace = $workspace;
 
     }
 
@@ -75,7 +69,7 @@ class DataDimensions
     public function setLanguage($language)
     {
 
-            $this->language = $language;
+        $this->language = $language;
 
     }
 

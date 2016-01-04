@@ -5,7 +5,7 @@ namespace KVMLogger;
 class LogMessage
 {
 
-    protected $method = 'message';
+    protected $mode = 'msg';
 
     protected $realm = '';
 
@@ -32,18 +32,18 @@ class LogMessage
     /**
      * @return string
      */
-    public function getMethod()
+    public function getMode()
     {
-        return $this->method;
+        return $this->mode;
     }
 
 
     /**
      * @param string $method
      */
-    public function setMethod($method)
+    public function setMode($method)
     {
-        $this->method = $method;
+        $this->mode = $method;
     }
 
 
@@ -164,14 +164,16 @@ class LogMessage
     public function __tostring()
     {
         $logValues            = [ ];
-        $logValues['method']  = $this->getMethod();
-        $logValues['timing']  = $this->getTiming();
+        $logValues['mode']  = $this->getMode();
+        $logValues['ms']  = $this->getTiming();
         $logValues['message'] = $this->getMessage();
-        $logValues['realm']   = $this->getRealm();
+
         $logValues['type']    = $this->getType();
         $logValues['subtype'] = $this->getSubtype();
 
         $logValues = array_merge($logValues, $this->additionalLogValues);
+
+        $logValues['realm']   = $this->getRealm();
 
         $message = [ ];
         foreach ($logValues as $k => $v)
@@ -181,6 +183,8 @@ class LogMessage
                 $message[] = $k . '="' . str_replace('"', '\"', $v) . '"';
             }
         }
+
+
 
         return join(', ', $message);
 

@@ -11,9 +11,9 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
 
     protected $realm = 'application';
 
-    protected $requestMonitor = false;
-
-    protected $cliMonitor = false;
+//    protected $requestMonitor = false;
+//
+//    protected $cliMonitor = false;
 
     protected $logger = [ ];
 
@@ -109,7 +109,6 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
             $message->setTiming($this->getTiming());
         }
 
-
         if (array_key_exists($level, $this->logLevels))
         {
 
@@ -124,11 +123,51 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     }
 
 
-    public function logMemoryUsage($message = '', $level = LogLevel::DEBUG, array $context = array())
+    public function logRequest($logLevel = LogLevel::DEBUG)
     {
-        $message = $this->createLogMessage($message);
+        $message = $this->createLogMessage();
+        $message->setMode('req');
+        if (isset($_SERVER['REQUEST_METHOD']))
+        {
+            $message->addLogValue('method', $_SERVER['REQUEST_METHOD']);
+        }
+        if (isset($_SERVER['REQUEST_URI']))
+        {
+            $message->addLogValue('uri', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        }
+        if (isset($_SERVER['QUERY_STRING']))
+        {
+            $message->addLogValue('query', $_SERVER['QUERY_STRING']);
+        }
+        $this->log($logLevel, $message);
+
+    }
+
+
+    public function logResources($level = LogLevel::DEBUG)
+    {
+        $message = $this->createLogMessage();
+        $message->setMode('res');
         $message->addLogValue('memory', number_format(memory_get_usage(true) / 1048576, 1, '.', ''));
-        $this->log($level, $message, $context);
+        if (php_sapi_name() == "cli")
+        {
+            if (isset($_SERVER['SCRIPT_FILENAME']))
+            {
+                $message->addLogValue('script', $_SERVER['SCRIPT_FILENAME']);
+            }
+            if (isset($_SERVER['argv']))
+            {
+                $message->addLogValue('argv', join(' ', $_SERVER['argv']));
+            }
+        }
+        else
+        {
+            if (isset($_SERVER['REQUEST_URI']))
+            {
+                $message->addLogValue('uri', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+            }
+        }
+        $this->log($level, $message);
     }
 
 
@@ -147,43 +186,98 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     }
 
 
-    public function enableRequestMonitor($logLevel = LogLevel::DEBUG)
+    public function enablePHPExceptionLogging($level = LogLevel::DEBUG, $addContext = false)
     {
-        $this->requestMonitor = $logLevel;
-    }
+        $kvmLogger = $this;
 
-
-    public function enableCLIMonitor($logLevel = LogLevel::DEBUG)
-    {
-        $this->cliMonitor = $logLevel;
-    }
-
-
-    public function __destruct()
-    {
-        if (php_sapi_name() == "cli" && $this->cliMonitor == true)
+        set_exception_handler(function ($exception) use ($kvmLogger, $level, $addContext)
         {
-            $message = $this->createLogMessage();
-            $message->setMethod('cli');
 
-            $message->addLogValue('memory', number_format(memory_get_usage(true) / 1048576, 1, '.', ''));
-            $message->addLogValue('duration', $message->getTiming());
-            if (isset($_SERVER['LOGNAME']))
+            $message = $kvmLogger->createLogMessage($exception->getMessage());
+            $message->setMode('php');
+            $message->addLogValue('type', 'exception');
+            $trace = $exception->getTrace();
+            $message->addLogValue('exception', get_class($exception));
+            $message->addLogValue('code', $exception->getCode());
+            if (isset($trace[0]['class']))
             {
-                $message->addLogValue('user', $_SERVER['LOGNAME']);
+                $message->addLogValue('class', $trace[0]['class']);
             }
-            if (isset($_SERVER['SCRIPT_FILENAME']))
+            if (isset($trace[0]['function']))
             {
-                $message->addLogValue('script', $_SERVER['SCRIPT_FILENAME']);
+                $message->addLogValue('function', $trace[0]['function']);
             }
-            if (isset($_SERVER['argv']))
-            {
-                $message->addLogValue('argv', join(' ', $_SERVER['argv']));
-            }
+            $message->addLogValue('file', $trace[0]['file']);
+            $message->addLogValue('line', $trace[0]['line']);
 
-            $this->log($this->cliMonitor, $message);
+            $context = [ ];
+            if ($addContext)
+            {
+                $context = [ 'exception' => $exception ];
+            }
+            $kvmLogger->log($level, $message, $context);
+        });
+    }
+
+
+    public function enablePHPErrorLogging($level = LogLevel::DEBUG, $errorTypes = null, $addContext = false)
+    {
+        $kvmLogger = $this;
+
+        if ($errorTypes == null)
+        {
+            $errorTypes = E_ALL | E_STRICT;
         }
 
+        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) use ($kvmLogger, $level, $addContext)
+        {
+            $message = $kvmLogger->createLogMessage($errstr);
+            $message->setMode('php');
+            $message->addLogValue('type', 'error');
+            $message->addLogValue('code', $errno);
+
+            $message->addLogValue('file', $errfile);
+            $message->addLogValue('line', $errline);
+
+            $context = [ ];
+            if ($addContext)
+            {
+                $context = [ 'context' => $errcontext ];
+            }
+            $kvmLogger->log($level, $message, $context);
+        }, $errorTypes);
     }
+
+//
+//    public function __destruct()
+//    {
+//        if (php_sapi_name() == "cli" && $this->cliMonitor !== false)
+//        {
+//            $message = $this->createLogMessage();
+//            $message->setMethod('cli');
+//
+//            $message->addLogValue('memory', number_format(memory_get_usage(true) / 1048576, 1, '.', ''));
+//            $message->addLogValue('duration', $message->getTiming());
+//            if (isset($_SERVER['LOGNAME']))
+//            {
+//                $message->addLogValue('user', $_SERVER['LOGNAME']);
+//            }
+//            if (isset($_SERVER['SCRIPT_FILENAME']))
+//            {
+//                $message->addLogValue('script', $_SERVER['SCRIPT_FILENAME']);
+//            }
+//            if (isset($_SERVER['argv']))
+//            {
+//                $message->addLogValue('argv', join(' ', $_SERVER['argv']));
+//            }
+//
+//            $this->log($this->cliMonitor, $message);
+//        }
+//        elseif ($this->requestMonitor !== false)
+//        {
+//            //$this->logRequest();
+//        }
+//
+//    }
 
 }
