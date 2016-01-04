@@ -155,6 +155,17 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
+    public function getPosition()
+    {
+        return $this->getProperty('status');
+    }
+
+
+    public function setPosition($value)
+    {
+        return $this->setProperty('position', $value);
+    }
+
 //    public function setHash($hash)
 //    {
 //        $this->hash = $hash;
@@ -181,10 +192,12 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->contentTypeDefinition->getName();
     }
 
+
     public function getDataTypeDefinition()
     {
         return $this->contentTypeDefinition;
     }
+
 
     public function getContentTypeDefinition()
     {
@@ -214,7 +227,6 @@ class Record extends AbstractRecord implements \JsonSerializable
 //    {
 //        return $this->revisionTimestamp;
 //    }
-
 
     public function getStatus()
     {
@@ -325,17 +337,10 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-//    public function setPosition($position)
-//    {
-//        $this->position = $position;
-//    }
-//
-//
-//    public function getPosition()
-//    {
-//        return $this->position;
-//    }
-//
+
+
+
+
 //
 //    public function setParentRecordId($parentRecordId)
 //    {
@@ -354,7 +359,6 @@ class Record extends AbstractRecord implements \JsonSerializable
 //        $this->level = $levelWithinSortedTree;
 //    }
 
-
 //    /**
 //     * @deprecated
 //     */
@@ -368,7 +372,6 @@ class Record extends AbstractRecord implements \JsonSerializable
 //    {
 //        return $this->getLevelWithinSortedTree();
 //    }
-
 
     public function setProperties($properties)
     {
