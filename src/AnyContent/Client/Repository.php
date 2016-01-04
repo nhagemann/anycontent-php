@@ -462,6 +462,47 @@ class Repository
     }
 
 
+    public function deleteRecord($recordId)
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $contentTypeName = $this->getCurrentContentTypeName();
+        $dataDimensions  = $this->getCurrentDataDimensions();
+
+        return $this->writeConnection->deleteRecord($recordId, $contentTypeName, $dataDimensions);
+    }
+
+
+    public function deleteRecords($recordIds)
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $contentTypeName = $this->getCurrentContentTypeName();
+        $dataDimensions  = $this->getCurrentDataDimensions();
+
+        return $this->writeConnection->deleteRecords($recordIds, $contentTypeName, $dataDimensions);
+    }
+
+
+    public function deleteAllRecords()
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $contentTypeName = $this->getCurrentContentTypeName();
+        $dataDimensions  = $this->getCurrentDataDimensions();
+
+        return $this->writeConnection->deleteAllRecords($contentTypeName, $dataDimensions);
+    }
+
     public function registerRecordClassForContentType($contentTypeName, $classname)
     {
 

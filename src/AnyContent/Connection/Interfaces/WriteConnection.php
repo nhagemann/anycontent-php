@@ -30,9 +30,9 @@ interface WriteConnection
     public function deleteAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
-    public function registerRecordClassForContentType($contentTypeName, $classname);
-
-
-    public function getClassForContentType($contentTypeName);
+//    public function registerRecordClassForContentType($contentTypeName, $classname);
+//
+//
+//    public function getClassForContentType($contentTypeName);
 
 }
