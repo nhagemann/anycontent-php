@@ -372,12 +372,16 @@ class Repository
     }
 
 
-    public function countRecords()
+    public function countRecords($filter = '')
     {
+        if ($filter == '')
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
 
-        $dataDimensions = $this->getCurrentDataDimensions();
+            return $this->readConnection->countRecords($this->getCurrentContentTypeName(), $dataDimensions);
+        }
 
-        return $this->readConnection->countRecords($this->getCurrentContentTypeName(), $dataDimensions);
+        return count($this->getRecords($filter));
     }
 
 
@@ -471,7 +475,7 @@ class Repository
      * @param null $contentTypeName
      * @param null $configTypeName
      */
-    public function getLastModifiedDate($contentTypeName=null,$configTypeName=null)
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null)
     {
 
     }
