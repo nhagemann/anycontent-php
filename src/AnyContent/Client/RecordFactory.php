@@ -54,7 +54,7 @@ class RecordFactory
             $classname = $this->getClassForConfigType($dataTypeDefinition->getName());
 
             /** @var Config $record */
-            $record = new $classname($dataTypeDefinition,  $viewName, $workspace, $language);
+            $record = new $classname($dataTypeDefinition, $viewName, $workspace, $language);
         }
         else
         {
@@ -89,12 +89,6 @@ class RecordFactory
 
         if (isset($jsonRecord['info']))
         {
-
-//            $record->setRevisionTimestamp($jsonRecord['info']['revision_timestamp']);
-//            $record->setHash($jsonRecord['info']['hash']);
-//            $record->setPosition($jsonRecord['info']['position']);
-//            $record->setLevelWithinSortedTree($jsonRecord['info']['level']);
-//            $record->setParentRecordId($jsonRecord['info']['parent_id']);
             if (isset($jsonRecord['info']['creation']))
             {
                 $record->setCreationUserInfo(new UserInfo($jsonRecord['info']['creation']['username'], $jsonRecord['info']['creation']['firstname'], $jsonRecord['info']['creation']['lastname'], $jsonRecord['info']['creation']['timestamp']));
@@ -193,9 +187,9 @@ class RecordFactory
     public function getClassForConfigType($configTypeName)
     {
 
-        if (array_key_exists($configTypeName, $this->contentRecordClassMap))
+        if (array_key_exists($configTypeName, $this->configRecordClassMap))
         {
-            return $this->contentRecordClassMap[$configTypeName];
+            return $this->configRecordClassMap[$configTypeName];
 
         }
 

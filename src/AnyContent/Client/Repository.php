@@ -464,4 +464,15 @@ class Repository
         $this->userInfo = $userInfo;
     }
 
+
+    /**
+     * Check for last content/config or cmdl change within repository or for a distinct content/config type
+     *
+     * @param null $contentTypeName
+     * @param null $configTypeName
+     */
+    public function getLastModifiedDate($contentTypeName=null,$configTypeName=null)
+    {
+
+    }
 }

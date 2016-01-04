@@ -58,4 +58,10 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($repository->hasContentType('example01'));
     }
+
+    public function testLastModified()
+    {
+
+    }
+
 }
