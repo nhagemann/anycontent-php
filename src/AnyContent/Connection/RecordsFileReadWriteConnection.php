@@ -66,7 +66,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
                 $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
                 $record->setRevision($mergedRecord->getRevision());
 
-                //$record->setRevisionTimestamp(time());
+                $mergedRecord->setLastChangeUserInfo($this->userInfo);
                 $allRecords[$mergedRecord->getID()] = $mergedRecord;
                 $recordIds[]                        = $mergedRecord->getID();
             }

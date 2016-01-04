@@ -110,11 +110,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
         foreach ($records as $record)
         {
-
             $id          = $record->getId();
-            KVMLoggerFactory::instance()->debug($id);
-            KVMLoggerFactory::instance()->logMemoryUsage();
-
             $fetchRecord = $connection->getRecord($id);
             $this->assertEquals($id, $fetchRecord->getId());
         }

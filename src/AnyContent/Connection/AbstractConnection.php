@@ -38,6 +38,9 @@ abstract class AbstractConnection
 
     protected $contentRecordClassMap = [ ];
 
+    /** @var  UserInfo */
+    protected $userInfo;
+
     protected $recordsStash = [ ];
 
     protected $configStash = [ ];
@@ -588,4 +591,13 @@ abstract class AbstractConnection
         return false;
 
     }
+
+    /**
+     * @param UserInfo $userInfo
+     */
+    public function setUserInfo($userInfo)
+    {
+        $this->userInfo = $userInfo;
+    }
+
 }

@@ -425,9 +425,7 @@ class Repository
 
         $dataDimensions = $this->getCurrentDataDimensions();
 
-        $userInfo = $this->getCurrentUserInfo();
-
-        $record->setLastChangeUserInfo($userInfo);
+        $this->writeConnection->setUserInfo($this->getCurrentUserInfo());
 
         $result = $this->writeConnection->saveRecord($record, $dataDimensions);
 
@@ -448,7 +446,7 @@ class Repository
 
         $dataDimensions = $this->getCurrentDataDimensions();
 
-        $userInfo = $this->getCurrentUserInfo();
+        $this->writeConnection->setUserInfo($this->getCurrentUserInfo());
 
         $result = $this->writeConnection->saveRecords($records, $dataDimensions);
 

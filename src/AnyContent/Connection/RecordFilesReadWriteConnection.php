@@ -36,6 +36,8 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
             $toBeSavedRecord = $mergedRecord;
         }
 
+        $toBeSavedRecord->setLastChangeUserInfo($this->userInfo);
+
         $filename = $this->getConfiguration()
                          ->getFolderNameRecords($toBeSavedRecord->getContentTypeName(), $dataDimensions);
         $filename .= '/' . $toBeSavedRecord->getID() . '.json';
