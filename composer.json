@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=5.4",
-    "nhagemann/cmdl-parser-php": "0.13.*",
+    "nhagemann/cmdl-parser-php": "2.0.x-dev",
     "psr/log": "1.*",
     "symfony/filesystem": "2.*",
     "symfony/finder": "2.*",
@@ -33,5 +33,6 @@
       "KVMLogger": "src/"
     }
   },
+  "minimum-stability": "dev",
   "prefer-stable": true
 }

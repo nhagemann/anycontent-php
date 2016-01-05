@@ -50,24 +50,68 @@ class RecordsSorter
                 $property = $instruction['property'];
                 $order    = $instruction['order'];
 
+                switch ($property)
+                {
+                    case '.id':
+                        $valueA = $a->getId();
+                        $valueB = $b->getId();
+                        break;
+                    case '.info.creation.username':
+                        $valueA = $a->getCreationUserInfo()->getUsername();
+                        $valueB = $b->getCreationUserInfo()->getUsername();
+                        break;
+                    case '.info.creation.firstname':
+                        $valueA = $a->getCreationUserInfo()->getFirstname();
+                        $valueB = $b->getCreationUserInfo()->getFirstname();
+                        break;
+                    case '.info.creation.lastname':
+                        $valueA = $a->getCreationUserInfo()->getLastname();
+                        $valueB = $b->getCreationUserInfo()->getLastname();
+                        break;
+                    case '.info.creation.timestamp':
+                        $valueA = $a->getCreationUserInfo()->getTimestamp();
+                        $valueB = $b->getCreationUserInfo()->getTimestamp();
+                        break;
+                    case '.info.lastchange.username':
+                        $valueA = $a->getLastChangeUserInfo()->getUsername();
+                        $valueB = $b->getLastChangeUserInfo()->getUsername();
+                        break;
+                    case '.info.lastchange.firstname':
+                        $valueA = $a->getLastChangeUserInfo()->getFirstname();
+                        $valueB = $b->getLastChangeUserInfo()->getFirstname();
+                        break;
+                    case '.info.lastchange.lastname':
+                        $valueA = $a->getLastChangeUserInfo()->getLastname();
+                        $valueB = $b->getLastChangeUserInfo()->getLastname();
+                        break;
+                    case '.info.lastchange.timestamp':
+                        $valueA = $a->getLastChangeUserInfo()->getTimestamp();
+                        $valueB = $b->getLastChangeUserInfo()->getTimestamp();
+                        break;
+                    default:
+                        $valueA = $a->getProperty($property);
+                        $valueB = $b->getProperty($property);
+                        break;
+                }
+
                 if ($order == '+')
                 {
-                    if ($a->getProperty($property) < $b->getProperty($property))
+                    if ($valueA < $valueB)
                     {
                         return -1;
                     }
-                    if ($a->getProperty($property) > $b->getProperty($property))
+                    if ($valueA > $valueB)
                     {
                         return 1;
                     }
                 }
                 else
                 {
-                    if ($a->getProperty($property) > $b->getProperty($property))
+                    if ($valueA > $valueB)
                     {
                         return -1;
                     }
-                    if ($a->getProperty($property) < $b->getProperty($property))
+                    if ($valueA < $valueB)
                     {
                         return 1;
                     }
@@ -109,8 +153,8 @@ class RecordsSorter
 
         if ($parentId != 0)
         {
-            $root  = $nestedSet[$parentId];
-            if ($depth!=null)
+            $root = $nestedSet[$parentId];
+            if ($depth != null)
             {
                 $depth = $depth + $root['level'];
             }
