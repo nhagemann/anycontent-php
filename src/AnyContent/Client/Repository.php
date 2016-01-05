@@ -410,9 +410,11 @@ class Repository
     }
 
 
-    public function getSortedRecords($parentId, $includeParent = true, $depth = null)
+    public function getSortedRecords($parentId, $includeParent = false, $depth = null)
     {
+        $records = $this->getRecords();
 
+        return RecordsSorter::sortRecords($records, $parentId, $includeParent, $depth);
     }
 
 
@@ -490,6 +492,41 @@ class Repository
     }
 
 
+    /**
+     * Updates parent and positiong properties of all records of current content type
+     *
+     * @param array $sorting array [recordId=>parentId]
+     */
+    public function sortRecords(array $sorting)
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $records = $records = $this->getRecords();
+        foreach ($records as $record)
+        {
+            $record->setPosition(null);
+            $record->setParent(null);
+        }
+
+        $positions = [ ];
+        foreach ($sorting as $recordId => $parentId)
+        {
+            if (!array_key_exists($parentId, $positions))
+            {
+                $positions[$parentId] = 1;
+            }
+
+            $records[$recordId]->setPosition($positions[$parentId]++);
+            $records[$recordId]->setParent($parentId);
+        }
+
+        return $this->saveRecords($records);
+    }
+
+
     public function deleteAllRecords()
     {
         if (!$this->writeConnection)
@@ -502,6 +539,7 @@ class Repository
 
         return $this->writeConnection->deleteAllRecords($contentTypeName, $dataDimensions);
     }
+
 
     public function registerRecordClassForContentType($contentTypeName, $classname)
     {

@@ -21,13 +21,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public $properties = array();
 
     public $revision = 1;
-//    public $revisionTimestamp = null;
-//
-//    public $hash = null;
-//
-//    public $position = null;
-//    public $parentRecordId = null;
-//    public $level = null;
+
+    protected $level = null;
 
     /** @var  UserInfo */
     public $creationUserInfo = null;
@@ -160,12 +155,17 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function getPosition()
     {
-        return $this->getProperty('status');
+        return $this->getProperty('position');
     }
 
 
     public function setPosition($value)
     {
+        if (!($this->getParent() === 0 || $this->getParent() > 0)) // include 0 and numbers, exclude null and ''
+        {
+            $this->setParent(0);
+        }
+
         return $this->setProperty('position', $value);
     }
 
@@ -181,17 +181,24 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->setProperty('parent', $value);
     }
 
-//    public function setHash($hash)
-//    {
-//        $this->hash = $hash;
-//    }
-//
-//
-//    public function getHash()
-//    {
-//        return $this->hash;
-//    }
-//
+
+    /**
+     * @return null
+     */
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+
+    /**
+     * @param null $level
+     */
+    public function setLevel($level)
+    {
+        $this->level = $level;
+    }
+
 
     /**
      * @deprecated
@@ -231,17 +238,6 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->revision;
     }
 
-
-//    public function setRevisionTimestamp($revisionTimestamp)
-//    {
-//        $this->revisionTimestamp = $revisionTimestamp;
-//    }
-//
-//
-//    public function getRevisionTimestamp()
-//    {
-//        return $this->revisionTimestamp;
-//    }
 
     public function getStatus()
     {
@@ -361,42 +357,6 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->view;
     }
 
-
-
-
-
-
-//
-//    public function setParentRecordId($parentRecordId)
-//    {
-//        $this->parentRecordId = $parentRecordId;
-//    }
-//
-//
-//    public function getParentRecordId()
-//    {
-//        return $this->parentRecordId;
-//    }
-//
-//
-//    public function setLevelWithinSortedTree($levelWithinSortedTree)
-//    {
-//        $this->level = $levelWithinSortedTree;
-//    }
-
-//    /**
-//     * @deprecated
-//     */
-//    public function getLevelWithinSortedTree()
-//    {
-//        return $this->level;
-//    }
-//
-//
-//    public function getLevel()
-//    {
-//        return $this->getLevelWithinSortedTree();
-//    }
 
     public function setProperties($properties)
     {

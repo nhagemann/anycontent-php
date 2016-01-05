@@ -11,5 +11,7 @@ Source
 
 @languages (default,en,es:Spanish)
 
+@sortable
+
 @title "Example 01"
 @description  "Example Content Type"

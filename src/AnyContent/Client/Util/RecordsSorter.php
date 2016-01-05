@@ -86,7 +86,7 @@ class RecordsSorter
      *
      * @return array
      */
-    public static function sortRecords(array $records, $parentId = 0, $includeParent = true, $depth = null)
+    public static function sortRecords(array $records, $parentId = 0, $includeParent = false, $depth = null)
     {
         $list = [ ];
         $map  = [ ];
@@ -110,11 +110,15 @@ class RecordsSorter
         if ($parentId != 0)
         {
             $root  = $nestedSet[$parentId];
-            $depth = $depth + $root['level'];
+            if ($depth!=null)
+            {
+                $depth = $depth + $root['level'];
+            }
 
             if ($includeParent)
             {
                 $result[$parentId] = $map[$parentId];
+                $result[$parentId]->setLevel($root['level']);
             }
         }
 
@@ -126,6 +130,7 @@ class RecordsSorter
                 if ($parentId == 0 || ($positioning['left'] > $root['left'] && $positioning['right'] < $root['right']))
                 {
                     $result[$id] = $map[$id];
+                    $result[$id]->setLevel($positioning['level']);
                 }
             }
         }
