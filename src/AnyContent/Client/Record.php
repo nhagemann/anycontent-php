@@ -161,7 +161,7 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function setPosition($value)
     {
-        if (!($this->getParent() === 0 || $this->getParent() > 0)) // include 0 and numbers, exclude null and ''
+        if ($this->getParent() === null)
         {
             $this->setParent(0);
         }
@@ -172,7 +172,11 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function getParent()
     {
-        return $this->getProperty('parent');
+        $parent = $this->getProperty('parent');
+        if ($parent !== null)
+        {
+            return (int)$parent;
+        }
     }
 
 
