@@ -12,7 +12,7 @@ use AnyContent\Filter\PropertyFilter;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class PagerTest extends \PHPUnit_Framework_TestCase
+class PagingTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */

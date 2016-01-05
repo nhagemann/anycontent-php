@@ -9,7 +9,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class OrderText extends \PHPUnit_Framework_TestCase
+class RecordsSorterUtilTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */

@@ -9,7 +9,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RepositoryLanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
+class LanguagesAndWorkspacesTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */

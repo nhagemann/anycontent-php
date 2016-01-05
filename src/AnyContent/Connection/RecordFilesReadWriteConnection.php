@@ -37,6 +37,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
         }
 
         $toBeSavedRecord->setLastChangeUserInfo($this->userInfo);
+        $record->setLastChangeUserInfo($this->userInfo);
 
         $filename = $this->getConfiguration()
                          ->getFolderNameRecords($toBeSavedRecord->getContentTypeName(), $dataDimensions);

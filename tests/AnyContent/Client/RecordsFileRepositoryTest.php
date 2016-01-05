@@ -10,7 +10,7 @@ use CMDL\Parser;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RepositoryRecordsFileTest extends \PHPUnit_Framework_TestCase
+class RecordsFileRepositoryTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  RecordFilesReadWriteConnection */

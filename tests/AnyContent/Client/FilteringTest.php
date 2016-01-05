@@ -12,7 +12,7 @@ use AnyContent\Filter\PropertyFilter;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class FilterTest extends \PHPUnit_Framework_TestCase
+class FilteringTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */

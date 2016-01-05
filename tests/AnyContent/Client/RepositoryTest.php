@@ -8,7 +8,7 @@ use CMDL\Parser;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class RepositoryTest extends \PHPUnit_Framework_TestCase
+class LanguagesAndWorkspacesText extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  ContentArchiveReadWriteConnection */
