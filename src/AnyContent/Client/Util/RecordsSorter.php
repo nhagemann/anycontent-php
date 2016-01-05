@@ -42,7 +42,6 @@ class RecordsSorter
 
         }
 
-
         uasort($records, function (Record $a, Record $b) use ($instructions)
         {
 
@@ -81,6 +80,59 @@ class RecordsSorter
         return $records;
     }
 
+
+    /**
+     * @param Record[] $records
+     *
+     * @return array
+     */
+    public static function sortRecords(array $records, $parentId = 0, $includeParent = true, $depth = null)
+    {
+        $list = [ ];
+        $map  = [ ];
+
+        $records = self::orderRecords($records, 'position');
+
+        foreach ($records as $record)
+        {
+            if ($record->getParent() === 0 || $record->getParent() > 0) // include 0 and numbers, exclude null and ''
+            {
+                $map[$record->getId()] = $record;
+                $list[]                = [ 'id' => $record->getId(), 'parentId' => $record->getParent() ];
+            }
+        }
+
+        $util      = new AdjacentList2NestedSet($list);
+        $nestedSet = $util->getNestedSet();
+
+        $result = [ ];
+
+        if ($parentId != 0)
+        {
+            $root  = $nestedSet[$parentId];
+            $depth = $depth + $root['level'];
+
+            if ($includeParent)
+            {
+                $result[$parentId] = $map[$parentId];
+            }
+        }
+
+        foreach ($nestedSet as $id => $positioning)
+        {
+
+            if ($depth === null || $positioning['level'] <= $depth)
+            {
+                if ($parentId == 0 || ($positioning['left'] > $root['left'] && $positioning['right'] < $root['right']))
+                {
+                    $result[$id] = $map[$id];
+                }
+            }
+        }
+
+        return $result;
+
+    }
 }
 
 

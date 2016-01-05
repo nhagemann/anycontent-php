@@ -106,4 +106,104 @@ class OrderText extends \PHPUnit_Framework_TestCase
         $this->assertEquals([ 6, 7, 8, 9, 10, 1, 2, 3, 4, 5 ], array_keys($records));
     }
 
+
+
+    public function testOrderPositionProperty()
+    {
+        $cmdl = 'name
+        @sortable';
+
+        $records = [];
+        $records[1] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'F','position'=>1])->setId(1);
+        $records[2] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'E','position'=>2])->setId(2);
+        $records[3] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'D','position'=>3])->setId(3);
+        $records[4] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'C','position'=>4])->setId(4);
+        $records[5] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'B','position'=>5])->setId(5);
+        $records[6] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'A'])->setId(6);
+
+        $records = RecordsSorter::orderRecords($records, [ 'name' ]);
+        $this->assertEquals([6,5,4,3,2,1], array_keys($records));
+
+        $records = RecordsSorter::orderRecords($records, [ 'name-' ]);
+        $this->assertEquals([1,2,3,4,5,6], array_keys($records));
+
+        $records = RecordsSorter::orderRecords($records, [ 'position' ]);
+        $this->assertEquals([6,1,2,3,4,5], array_keys($records));
+    }
+
+    public function testSortingList()
+    {
+        $cmdl = 'name
+        @sortable';
+
+        $records = [];
+        $records[1] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'F','position'=>1,'parent'=>0])->setId(1);
+        $records[2] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'E','position'=>2,'parent'=>0])->setId(2);
+        $records[3] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'D','position'=>3,'parent'=>0])->setId(3);
+        $records[4] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'C','position'=>4,'parent'=>0])->setId(4);
+        $records[5] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'B','position'=>5,'parent'=>0])->setId(5);
+        $records[6] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'A'])->setId(6);
+
+        $records = RecordsSorter::orderRecords($records, [ 'name' ]);
+        $this->assertEquals([6,5,4,3,2,1], array_keys($records));
+
+        $records = RecordsSorter::orderRecords($records, [ 'name-' ]);
+        $this->assertEquals([1,2,3,4,5,6], array_keys($records));
+
+        $records = RecordsSorter::orderRecords($records, [ 'position' ]);
+        $this->assertEquals([6,1,2,3,4,5], array_keys($records));
+
+        $records = RecordsSorter::sortRecords($records);
+        $this->assertEquals([1,2,3,4,5], array_keys($records));
+
+        $records[1]->setPosition(6);
+
+        $records = RecordsSorter::sortRecords($records);
+        $this->assertEquals([2,3,4,5,1], array_keys($records));
+    }
+
+    public function testSortingTree()
+    {
+        //        A
+        //     B    C
+        //   D  E     F
+        //          G   H
+        //
+        $cmdl = 'name
+        @sortable';
+
+        $records = [];
+        $records[1] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'A','position'=>1,'parent'=>0])->setId(1);
+        $records[2] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'B','position'=>1,'parent'=>1])->setId(2);
+        $records[3] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'C','position'=>1,'parent'=>1])->setId(3);
+        $records[4] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'D','position'=>1,'parent'=>2])->setId(4);
+        $records[5] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'E','position'=>2,'parent'=>2])->setId(5);
+        $records[6] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'F','position'=>1,'parent'=>3])->setId(6);
+        $records[7] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'G','position'=>1,'parent'=>6])->setId(7);
+        $records[8] = RecordFactory::instance()->createRecordFromCMDL($cmdl,['name'=>'H','position'=>2,'parent'=>6])->setId(8);
+
+        $subset = RecordsSorter::sortRecords($records);
+        $this->assertEquals([1,2,4,5,3,6,7,8], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,0,false,1);
+        $this->assertEquals([1], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,0,false,2);
+        $this->assertEquals([1,2,3], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,2,false,1); // B
+        $this->assertEquals([4,5], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,3,false,1); // C
+        $this->assertEquals([6], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,3,false,2); // C
+        $this->assertEquals([6,7,8], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,0,true,1);
+        $this->assertEquals([1], array_keys($subset));
+
+        $subset = RecordsSorter::sortRecords($records,2,true,1); // B
+        $this->assertEquals([2,4,5], array_keys($subset));
+    }
 }

@@ -65,6 +65,7 @@ class Record extends AbstractRecord implements \JsonSerializable
             throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
         }
 
+        return $this;
     }
 
 
@@ -140,6 +141,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setId($id)
     {
         $this->id = $id;
+
+        return $this;
     }
 
 
@@ -164,6 +167,18 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setPosition($value)
     {
         return $this->setProperty('position', $value);
+    }
+
+
+    public function getParent()
+    {
+        return $this->getProperty('parent');
+    }
+
+
+    public function setParent($value)
+    {
+        return $this->setProperty('parent', $value);
     }
 
 //    public function setHash($hash)
@@ -275,6 +290,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setLastChangeUserInfo(UserInfo $lastChangeUserInfo)
     {
         $this->lastChangeUserInfo = clone $lastChangeUserInfo;
+
+        return $this;
     }
 
 
@@ -292,6 +309,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setCreationUserInfo(UserInfo $creationUserInfo)
     {
         $this->creationUserInfo = clone $creationUserInfo;
+
+        return $this;
     }
 
 
@@ -304,6 +323,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setLanguage($language)
     {
         $this->language = $language;
+
+        return $this;
     }
 
 
@@ -316,6 +337,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setWorkspace($workspace)
     {
         $this->workspace = $workspace;
+
+        return $this;
     }
 
 
@@ -328,6 +351,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setViewName($view)
     {
         $this->view = $view;
+
+        return $this;
     }
 
 
@@ -376,6 +401,8 @@ class Record extends AbstractRecord implements \JsonSerializable
     public function setProperties($properties)
     {
         $this->properties = $properties;
+
+        return $this;
     }
 
 

@@ -6,15 +6,38 @@ use AnyContent\AnyContentClientException;
 use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
 use CMDL\DataTypeDefinition;
+use CMDL\Parser;
 
 class RecordFactory
 {
+
+    /**
+     * @var RecordFactory
+     */
+    private static $instance = null;
 
     protected $options = [ 'validateProperties' => true ];
 
     protected $contentRecordClassMap = array();
 
     protected $configRecordClassMap = array();
+
+
+    /**
+     * @param string $realm
+     *
+     * @return RecordFactory
+     */
+    public static function instance($options = [ ])
+    {
+        if (!self::$instance)
+        {
+            self::$instance = new RecordFactory();
+        }
+        self::$instance->options = array_merge(self::$instance->options, $options);
+
+        return self::$instance;
+    }
 
 
     public function __construct($options = [ ])
@@ -110,6 +133,32 @@ class RecordFactory
 
         /** @var Record $record */
         $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
+
+        $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 0;
+        $record->setRevision($revision);
+
+        if ($this->getOption('validateProperties') == true)
+        {
+            foreach ($properties AS $property => $value)
+            {
+                $record->setProperty($property, $value);
+            }
+        }
+        else
+        {
+            $record->setProperties($properties);
+        }
+
+        return $record;
+    }
+
+
+    public function createRecordFromCMDL($cmdl, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
+    {
+        $contentTypeDefinition = Parser::parseCMDLString($cmdl);
+
+        /** @var Record $record */
+        $record = new Record($contentTypeDefinition, '', $viewName, $workspace, $language);
 
         $revision = isset($jsonRecord['revision']) ? $jsonRecord['revision'] : 0;
         $record->setRevision($revision);
