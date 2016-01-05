@@ -373,7 +373,7 @@ class Repository
      *
      * @return Record[]
      */
-    public function getRecords($filter = '', $page = 1, $count = null, $order = [ 'name' ])
+    public function getRecords($filter = '', $page = 1, $count = null, $order = [ '.id' ])
     {
 
         $dataDimensions = $this->getCurrentDataDimensions();
