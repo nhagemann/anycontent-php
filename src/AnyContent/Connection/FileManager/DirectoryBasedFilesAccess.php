@@ -38,12 +38,16 @@ class DirectoryBasedFilesAccess implements FileManager
     public function enableImageSizeCalculation()
     {
         $this->imagesize = true;
+
+        return $this;
     }
 
 
     public function disableImageSizeCalculation()
     {
         $this->imagesize = true;
+
+        return $this;
     }
 
 
@@ -62,6 +66,8 @@ class DirectoryBasedFilesAccess implements FileManager
     public function setPublicUrl($publicUrl)
     {
         $this->publicUrl = $publicUrl;
+
+        return $this;
     }
 
 
@@ -104,30 +110,112 @@ class DirectoryBasedFilesAccess implements FileManager
 
     public function getBinary(File $file)
     {
+        $id = trim($file->getId(), '/');
 
+        $fileName = pathinfo($id, PATHINFO_FILENAME);
+
+        if ($fileName != '') // No access to .xxx-files
+        {
+
+            return @file_get_contents($this->baseFolder . '/' . $id);
+
+        }
+
+        return false;
     }
 
 
     public function saveFile($id, $binary)
     {
 
+        $id       = trim($id, '/');
+        $fileName = pathinfo($id, PATHINFO_FILENAME);
+
+        if ($fileName != '') // No writing of .xxx-files
+        {
+            $this->filesystem->dumpFile($this->baseFolder . '/' . $id, $binary);
+
+            return true;
+        }
+
+        return false;
     }
 
 
     public function deleteFile($id, $deleteEmptyFolder = true)
     {
+        try
+        {
+            if ($this->filesystem->exists($this->baseFolder . '/' . $id))
+            {
+                $this->filesystem->remove($this->baseFolder . '/' . $id);
+            }
 
+            if ($deleteEmptyFolder)
+            {
+                $this->deleteFolder(pathinfo($id, PATHINFO_DIRNAME));
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+
+        }
+
+        return false;
     }
 
 
     public function createFolder($path)
     {
+        try
+        {
+            $path = trim($path, '/');
 
+            $this->filesystem->mkdir($this->baseFolder . '/' . $path . '/');
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+
+        }
+
+        return false;
     }
 
 
     public function deleteFolder($path, $deleteIfNotEmpty = false)
     {
+
+        $folder = $this->getFolder($path);
+        if ($folder)
+        {
+            if ($folder->isEmpty() || $deleteIfNotEmpty)
+            {
+                $path = trim($path, '/');
+
+                $folder = $this->baseFolder . '/' . $path;
+
+                try
+                {
+                    if ($this->filesystem->exists($folder))
+                    {
+                        $this->filesystem->remove($folder);
+
+                    }
+
+                    return true;
+                }
+                catch (\Exception $e)
+                {
+
+                }
+            }
+        }
+
+        return false;
 
     }
 
@@ -212,6 +300,11 @@ class DirectoryBasedFilesAccess implements FileManager
 
                     }
 
+                    if ($this->publicUrl != false)
+                    {
+                        $item['url'] = $this->publicUrl . '/' . $item['id'];
+                    }
+
                     $files[$file->getFilename()] = $item;
                 }
 
@@ -224,93 +317,5 @@ class DirectoryBasedFilesAccess implements FileManager
 
         return $files;
     }
-//
-//
-//    public function getFile($id)
-//    {
-//
-//        $id = trim($id, '/');
-//
-//        $fileName = pathinfo($id, PATHINFO_FILENAME);
-//
-//        if ($fileName != '') // No access to .xxx-files
-//        {
-//
-//            return @file_get_contents($this->directory . '/' . $id);
-//
-//        }
-//
-//        return false;
-//
-//    }
-//
-//
-//    public function saveFile($id, $binary)
-//    {
-//        $id       = trim($id, '/');
-//        $fileName = pathinfo($id, PATHINFO_FILENAME);
-//
-//        if ($fileName != '') // No writing of .xxx-files
-//        {
-//            $this->filesystem->dumpFile($this->directory . '/' . $id, $binary);
-//
-//            return true;
-//        }
-//
-//        return false;
-//    }
-//
-//
-//    public function deleteFile($id)
-//    {
-//        try
-//        {
-//            if ($this->filesystem->exists($this->directory . '/' . $id))
-//            {
-//                $this->filesystem->remove($this->directory . '/' . $id);
-//
-//                return true;
-//            }
-//        }
-//        catch (\Exception $e)
-//        {
-//
-//        }
-//
-//        return false;
-//    }
-//
-//
-//    public function createFolder($path)
-//    {
-//        $path = trim($path, '/');
-//
-//        return $this->filesystem->mkdir($this->directory . '/' . $path . '/');
-//    }
-//
-//
-//    public function deleteFolder($path)
-//    {
-//
-//        $path = trim($path, '/');
-//
-//        $folder = $this->directory . '/' . $path;
-//
-//        try
-//        {
-//            if ($this->filesystem->exists($folder))
-//            {
-//                $this->filesystem->remove($folder);
-//
-//                return true;
-//            }
-//
-//        }
-//        catch (\Exception $e)
-//        {
-//            echo $e->getMessage();
-//        }
-//
-//        return false;
-//    }
+
 }

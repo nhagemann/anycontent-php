@@ -14,7 +14,9 @@ userinfo soll nur im repository gesetzt werden und zugriff auf repository aus de
 
 Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
-Files
+Repository FileManager
+S3 Files
+
 
 Client-Klasse mit einfachem Zugriff auf Repositories und Setzen einer Cache-Strategie
 
