@@ -93,6 +93,11 @@ abstract class AbstractConnection
      */
     public function getRepository()
     {
+        if (!$this->repository)
+        {
+            throw new AnyContentClientException('Repository object not set within connection of type ' . get_class($this));
+        }
+
         return $this->repository;
     }
 
@@ -651,12 +656,11 @@ abstract class AbstractConnection
     protected function finalizeRecord(Record $record, DataDimensions $dataDimensions)
     {
 
-
         // Apply @name annotation
         if ($record->getDataTypeDefinition()->hasNamingPattern())
         {
             $record->setName(Util::applyNamingPattern($record->getProperties(), $record->getDataTypeDefinition()
-                                                                                         ->getNamingPattern()));
+                                                                                       ->getNamingPattern()));
         }
 
         // remove protected properties

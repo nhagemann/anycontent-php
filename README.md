@@ -1,19 +1,44 @@
 # anycontent-php
 
 config testen
-
 config records stashen noch nicht test für views und mergen existing
 
-pdo connection
+finalizeRecord bei allen Save Operations
+ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
 
-pdo_schemaless_mysql repository 
+check mandatory
 
-filterung - später implements filter
+content-type title überall entfernen
 
-(string)für Filter wandelt in SimpleQuery-Format oder gleich Parenthesis
+userinfo soll nur im repository gesetzt werden und zugriff auf repository aus der connection??  (überdenken)
+
+cmdl folder bei MySQLSchemaLess als Alternative
+
+Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
 Files
 
+Client-Klasse mit einfachem Zugriff auf Repositories und Setzen einer Cache-Strategie
+
+Caching auf Repository-Ebene / repositoryInfo
+
+anycontent-server-php
+
 AdminConnection
+FilteringConnection -> Repository prüft Interface und überlässt Filterung der Connection
+SortingConnection -> Repository prüft Interface und überlässt Sorting der Connection
+NestedSortingConnection -> Repository prüft Interface und überlässt NestedSorting der Connection
+
+
+Erweiterung Filter
+- (string)für Filter wandelt in SimpleQuery-Format oder gleich Parenthesis
 
 Parser reduzieren
+remove synchronize properties
+
+Repository Constructor sollte repository name aufnehmen
+
+
+
+
+

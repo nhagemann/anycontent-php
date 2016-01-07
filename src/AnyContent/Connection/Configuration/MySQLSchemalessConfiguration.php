@@ -10,14 +10,17 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use AnyContent\Connection\MySQLSchemalessReadOnlyConnection;
 use AnyContent\Connection\MySQLSchemalessReadWriteConnection;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class MySQLSchemalessConfiguration extends AbstractConfiguration
 {
 
-    protected $path;
-
     /** @var  Database */
     protected $database;
+
+    protected $pathCMDLFolderForContentTypes = null;
+
+    protected $pathCMDLFolderForConfigTypes = null;
 
 
     public function initDatabase($host, $dbName, $username, $password, $port = 3306)
@@ -33,6 +36,21 @@ class MySQLSchemalessConfiguration extends AbstractConfiguration
         $this->database = new Database($pdo);
 
         $this->ensureInfoTablesArePresent();
+    }
+
+
+    public function setCMDLFolder($pathContentTypes, $pathConfigTypes = null)
+    {
+        $this->pathCMDLFolderForContentTypes = $pathContentTypes;
+
+        if ($pathConfigTypes)
+        {
+            $this->pathCMDLFolderForConfigTypes = $pathConfigTypes;
+        }
+        else
+        {
+            $this->pathCMDLFolderForConfigTypes = $pathContentTypes . '\config';
+        }
     }
 
 
@@ -107,16 +125,38 @@ TEMPLATE_COUNTERTABLE;
             throw new AnyContentClientException('Database must be initalized first.');
         }
 
-        $sql = 'SELECT name, data_type FROM _cmdl_ WHERE repository = ?';
-
-        $rows = $this->getDatabase()->fetchAllSQL($sql, [ $repositoryName ]);
-
-        foreach ($rows as $row)
+        if ($this->pathCMDLFolderForContentTypes != null) // file based content/config types definition
         {
-            if ($row['data_type'] == 'content')
+
+            $finder = new Finder();
+
+            $uri = 'file://' . $this->pathCMDLFolderForContentTypes;
+
+            $finder->in($uri)->depth(0);
+
+            /** @var SplFileInfo $file */
+            foreach ($finder->files('*.cmdl') as $file)
             {
-                $contentTypeName                      = $row['name'];
+                $contentTypeName = $file->getBasename('.cmdl');
+
                 $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+
+            }
+
+        }
+        else // database based content/config types definition
+        {
+            $sql = 'SELECT name, data_type FROM _cmdl_ WHERE repository = ?';
+
+            $rows = $this->getDatabase()->fetchAllSQL($sql, [ $repositoryName ]);
+
+            foreach ($rows as $row)
+            {
+                if ($row['data_type'] == 'content')
+                {
+                    $contentTypeName                      = $row['name'];
+                    $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+                }
             }
         }
     }
@@ -140,9 +180,27 @@ TEMPLATE_COUNTERTABLE;
     }
 
 
-    public function getContentArchiveFolder()
+    public function hasCMDLFolder()
     {
-        return $this->path;
+        return (boolean)($this->pathCMDLFolderForContentTypes || $this->pathCMDLFolderForConfigTypes);
+    }
+
+
+    /**
+     * @return null
+     */
+    public function getPathCMDLFolderForContentTypes()
+    {
+        return $this->pathCMDLFolderForContentTypes;
+    }
+
+
+    /**
+     * @return null
+     */
+    public function getPathCMDLFolderForConfigTypes()
+    {
+        return $this->pathCMDLFolderForConfigTypes;
     }
 
 

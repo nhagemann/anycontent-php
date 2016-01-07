@@ -20,6 +20,8 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     /** @var  Database */
     protected $database;
 
+    protected $checksContentTypeTableIsUpToDate = [ ];
+
 
     /**
      * @return Database
@@ -48,11 +50,25 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     {
         if ($this->hasContentType($contentTypeName))
         {
-            $sql = 'SELECT cmdl FROM _cmdl_ WHERE repository = ? AND name = ? AND data_type="content"';
+            if ($this->getConfiguration()->hasCMDLFolder())
+            {
+                $path = $this->getConfiguration()
+                             ->getPathCMDLFolderForContentTypes() . '/' . $contentTypeName . '.cmdl';
+                if (file_exists($path))
+                {
+                    return file_get_contents($path);
+                }
 
-            $row = $this->getDatabase()->fetchOneSQL($sql, [ $this->getRepository()->getName(), $contentTypeName ]);
+                throw new AnyContentClientException ('Could not fetch cmdl for content type ' . $contentTypeName . ' from ' . $path);
+            }
+            else
+            {
+                $sql = 'SELECT cmdl FROM _cmdl_ WHERE repository = ? AND name = ? AND data_type="content"';
 
-            return $row['cmdl'];
+                $row = $this->getDatabase()->fetchOneSQL($sql, [ $this->getRepository()->getName(), $contentTypeName ]);
+
+                return $row['cmdl'];
+            }
 
         }
 
@@ -70,11 +86,25 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     {
         if ($this->hasConfigType($configTypeName))
         {
-            $sql = 'SELECT cmdl FROM _cmdl_ WHERE repository = ? AND name = ? AND data_type="config"';
+            if ($this->getConfiguration()->hasCMDLFolder())
+            {
+                $path = $this->getConfiguration()
+                             ->getPathCMDLFolderForConfigTypes() . '/' . $configTypeName . '.cmdl';
+                if (file_exists($path))
+                {
+                    return file_get_contents($path);
+                }
 
-            $row = $this->getDatabase()->fetchOneSQL($sql, [ $this->getRepository()->getName(), $configTypeName ]);
+                throw new AnyContentClientException ('Could not fetch cmdl for config type ' . $configTypeName . ' from ' . $path);
+            }
+            else
+            {
+                $sql = 'SELECT cmdl FROM _cmdl_ WHERE repository = ? AND name = ? AND data_type="config"';
 
-            return $row['cmdl'];
+                $row = $this->getDatabase()->fetchOneSQL($sql, [ $this->getRepository()->getName(), $configTypeName ]);
+
+                return $row['cmdl'];
+            }
 
         }
 
@@ -83,7 +113,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     }
 
 
-    protected function getTableName($contentTypeName)
+    protected function getTableName($contentTypeName, $ensureContentTypeTableIsUpToDate = true)
     {
         $repository = $this->getRepository();
 
@@ -94,15 +124,138 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
             throw new \Exception ('Invalid repository and/or content type name(s).');
         }
 
+        if ($ensureContentTypeTableIsUpToDate == true)
+        {
+            $this->ensureContentTypeTableIsUpToDate($contentTypeName, false);
+        }
+
         return $tableName;
+    }
+
+
+    public function ensureContentTypeTableIsUpToDate($contentTypeName)
+    {
+        if (in_array($contentTypeName, $this->checksContentTypeTableIsUpToDate))
+        {
+            return true;
+        }
+
+        $tableName = $this->getTableName($contentTypeName, false);
+
+        $contentTypeDefinition = $this->getContentTypeDefinition($contentTypeName);
+
+        $sql = 'Show Tables Like ?';
+
+        $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+        $stmt->execute(array( $tableName ));
+
+        if ($stmt->rowCount() == 0)
+        {
+
+            $sql = <<< TEMPLATE_CONTENTTABLE
+
+        CREATE TABLE %s (
+          `id` int(11) unsigned NOT NULL,
+          `hash` varchar(32) NOT NULL,
+          `property_name` varchar(255) DEFAULT NULL,
+          `workspace` varchar(255) NOT NULL DEFAULT 'default',
+          `language` varchar(255) NOT NULL DEFAULT 'default',
+          `property_subtype` varchar(255) DEFAULT NULL,
+          `property_status` varchar(255) DEFAULT '1',
+          `property_parent` int(11) DEFAULT NULL,
+          `property_position` int(11) DEFAULT NULL,
+          `parent_id` int(11) DEFAULT NULL,
+          `position` int(11) DEFAULT NULL,
+          `position_left` int(11) DEFAULT NULL,
+          `position_right` int(11) DEFAULT NULL,
+          `position_level` int(11) DEFAULT NULL,
+          `revision` int(11) DEFAULT NULL,
+          `deleted` tinyint(1) DEFAULT '0',
+          `creation_timestamp` int(11) DEFAULT NULL,
+          `creation_apiuser` varchar(255) DEFAULT NULL,
+          `creation_clientip` varchar(255) DEFAULT NULL,
+          `creation_username` varchar(255) DEFAULT NULL,
+          `creation_firstname` varchar(255) DEFAULT NULL,
+          `creation_lastname` varchar(255) DEFAULT NULL,
+          `lastchange_timestamp` int(11) DEFAULT NULL,
+          `lastchange_apiuser` varchar(255) DEFAULT NULL,
+          `lastchange_clientip` varchar(255) DEFAULT NULL,
+          `lastchange_username` varchar(255) DEFAULT NULL,
+          `lastchange_firstname` varchar(255) DEFAULT NULL,
+          `lastchange_lastname` varchar(255) DEFAULT NULL,
+          `validfrom_timestamp` varchar(16) DEFAULT NULL,
+          `validuntil_timestamp` varchar(16) DEFAULT NULL,
+          KEY `id` (`id`),
+          KEY `workspace` (`workspace`,`language`),
+          KEY `validfrom_timestamp` (`validfrom_timestamp`,`validuntil_timestamp`,`id`,`deleted`)
+
+         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+TEMPLATE_CONTENTTABLE;
+
+            $sql  = sprintf($sql, $tableName);
+            $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+
+            try
+            {
+                $stmt->execute();
+            }
+            catch (\PDOException $e)
+            {
+
+                throw new AnyContentClientException('Could not create table schema for content type ' . $contentTypeName);
+            }
+
+        }
+
+        $sql = sprintf('DESCRIBE %s', $tableName);
+
+        $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $fields = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+
+        $properties = array();
+
+        foreach ($contentTypeDefinition->getProperties() as $property)
+        {
+            $properties[] = 'property_' . $property;
+        }
+
+        $newfields = array();
+        foreach (array_diff($properties, $fields) as $field)
+        {
+            $newfields[] = 'ADD COLUMN `' . $field . '` LONGTEXT';
+        }
+
+        if (count($newfields) != 0)
+        {
+            $sql = sprintf('ALTER TABLE %s', $tableName);
+            $sql .= ' ' . join($newfields, ',');
+            $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+            try
+            {
+                $stmt->execute();
+            }
+            catch (\PDOException $e)
+            {
+
+                throw new AnyContentClientException('Could not update table schema for content type ' . $contentTypeName);
+            }
+        }
+
+        $this->checksContentTypeTableIsUpToDate[] = $contentTypeName;
+
+        return true;
     }
 
 
     protected function createRecordFromRow($row, $contentTypeName, DataDimensions $dataDimensions)
     {
-        $definition = $this->getCurrentContentTypeDefinition();
+        $definition = $this->getContentTypeDefinition($contentTypeName);
 
-        $record = $this->getRecordFactory()->createRecord($definition);
+        $record = $this->getRecordFactory()
+                       ->createRecord($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
 
         $record->setId($row['id']);
 

@@ -3,6 +3,7 @@
 namespace KVMLogger;
 
 use Katzgrau\KLogger\Logger;
+use Psr\Log\LogLevel;
 
 class KVMLoggerFactory
 {
@@ -33,14 +34,14 @@ class KVMLoggerFactory
      *
      * @return KVMLogger
      */
-    public static function createWithKLogger($path, $realm = 'application')
+    public static function createWithKLogger($path, $logLevelThreshold = LogLevel::DEBUG, $realm = 'application', $options = [ 'filename' => 'kvm.log' ])
     {
 
-        $kLogger = new Logger($path);
+        $kLogger = new Logger($path, LogLevel::DEBUG, $options);
 
         $kvmLogger = new KVMLogger($realm);;
 
-        $kvmLogger->addLogger($kLogger);
+        $kvmLogger->addLogger($kLogger, $logLevelThreshold);
 
         self::$instance = $kvmLogger;
 
