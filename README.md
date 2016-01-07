@@ -1,10 +1,8 @@
 # anycontent-php
 
-config testen
-config records stashen noch nicht test für views und mergen existing
 
-finalizeRecord bei allen Save Operations
-ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
+
+finalizeRecord ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
 
 check mandatory
 
@@ -42,3 +40,7 @@ Repository Constructor sollte repository name aufnehmen
 
 
 
+
+- STASH
+  Slow connections do stash records, configs or even all records during request
+  

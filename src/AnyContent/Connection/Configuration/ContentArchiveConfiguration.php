@@ -7,6 +7,7 @@ use AnyContent\Connection\AbstractConnection;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class ContentArchiveConfiguration extends AbstractConfiguration
 {
@@ -33,7 +34,7 @@ class ContentArchiveConfiguration extends AbstractConfiguration
 
         $finder = new Finder();
 
-        $uri = 'file://'.$this->getContentArchiveFolder().'/cmdl';
+        $uri = 'file://' . $this->getContentArchiveFolder() . '/cmdl';
 
         $finder->in($uri)->depth(0);
 
@@ -45,6 +46,24 @@ class ContentArchiveConfiguration extends AbstractConfiguration
             $this->contentTypes[$contentTypeName] = [ 'title' => null ];
 
         }
+
+        $finder = new Finder();
+
+        $uri = 'file://' . $this->getContentArchiveFolder() . '/cmdl/config';
+
+        if (file_exists($uri))
+        {
+            $finder->in($uri)->depth(0);
+
+            /** @var SplFileInfo $file */
+            foreach ($finder->files('*.cmdl') as $file)
+            {
+                $configTypeName = $file->getBasename('.cmdl');
+
+                $this->configTypes[$configTypeName] = [ 'title' => null ];
+
+            }
+        }
     }
 
 
@@ -53,11 +72,11 @@ class ContentArchiveConfiguration extends AbstractConfiguration
         return new ContentArchiveReadOnlyConnection($this);
     }
 
+
     public function createReadWriteConnection()
     {
         return new ContentArchiveReadWriteConnection($this);
     }
-
 
 
     public function getUriCMDLForContentType($contentTypeName)
@@ -71,6 +90,17 @@ class ContentArchiveConfiguration extends AbstractConfiguration
     }
 
 
+    public function getUriCMDLForConfigType($configTypeName)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->getContentArchiveFolder() . '/cmdl/config/' . $configTypeName . '.cmdl';
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
+    }
+
+
     public function getFolderNameRecords($contentTypeName, DataDimensions $dataDimensions)
     {
         if ($this->hasContentType($contentTypeName))
@@ -79,5 +109,16 @@ class ContentArchiveConfiguration extends AbstractConfiguration
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+    }
+
+
+    public function getUriConfig($configTypeName, DataDimensions $dataDimensions)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->getContentArchiveFolder() . '/data/config/' . $configTypeName . '/' . $dataDimensions->getWorkspace() . '/' . $dataDimensions->getLanguage();
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
     }
 }

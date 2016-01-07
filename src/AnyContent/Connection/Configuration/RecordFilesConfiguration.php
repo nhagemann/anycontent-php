@@ -35,15 +35,31 @@ class RecordFilesConfiguration extends AbstractConfiguration
     }
 
 
-    public function createReadOnlyConnection()
+    /**
+     *
+     * @return $this
+     * @throws AnyContentClientException
+     */
+    public function addConfigType($configTypeName, $filenameCMDL, $filenameRecord, $configTypeTitle = null)
     {
-        return new RecordFilesReadOnlyConnection($this);
+        $fs = new Filesystem();
+
+        if (!$fs->exists($filenameCMDL))
+        {
+            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameCMDL . ' not found.');
+
+        }
+
+        if (!$fs->exists($filenameRecord))
+        {
+            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameRecord . ' not found.');
+        }
+
+        $this->configTypes[$configTypeName] = [ 'record' => $filenameRecord, 'cmdl' => $filenameCMDL, 'title' => $configTypeTitle ];
+
+        return $this;
     }
 
-    public function createReadWriteConnection()
-    {
-        return new RecordFilesReadWriteConnection($this);
-    }
 
     public function getUriCMDLForContentType($contentTypeName)
     {
@@ -56,6 +72,17 @@ class RecordFilesConfiguration extends AbstractConfiguration
     }
 
 
+    public function getUriCMDLForConfigType($configTypeName)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->configTypes[$configTypeName]['cmdl'];
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
+    }
+
+
     public function getFolderNameRecords($contentTypeName, DataDimensions $dataDimensions)
     {
         if ($this->hasContentType($contentTypeName))
@@ -64,6 +91,29 @@ class RecordFilesConfiguration extends AbstractConfiguration
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
+    }
+
+
+    public function getUriConfig($configTypeName, DataDimensions $dataDimensions)
+    {
+        if ($this->hasConfigType($configTypeName))
+        {
+            return $this->configTypes[$configTypeName]['record'];
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
+    }
+
+
+    public function createReadOnlyConnection()
+    {
+        return new RecordFilesReadOnlyConnection($this);
+    }
+
+
+    public function createReadWriteConnection()
+    {
+        return new RecordFilesReadWriteConnection($this);
     }
 
 }

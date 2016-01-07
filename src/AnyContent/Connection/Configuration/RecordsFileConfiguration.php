@@ -2,6 +2,7 @@
 namespace AnyContent\Connection\Configuration;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
@@ -98,7 +99,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
     }
 
 
-    public function getUriConfig($configTypeName)
+    public function getUriConfig($configTypeName, DataDimensions $dataDimensions)
     {
         if ($this->hasConfigType($configTypeName))
         {

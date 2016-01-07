@@ -9,6 +9,7 @@ use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
+use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -96,9 +97,11 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             }
         }
 
-        // upgrade decide Exception vs false
+        KVMLoggerFactory::instance('anycontent-connection')
+                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+
         return false;
-        throw new AnyContentClientException ('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+
     }
 
 
@@ -142,58 +145,5 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
         return [ ];
 
     }
-
-//
-//    /**
-//     * @param null $contentTypeName
-//     *
-//     * @return Record[]
-//     * @throws AnyContentClientException
-//     */
-//    public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
-//    {
-//        $records = [ ];
-//
-//        if ($contentTypeName == null)
-//        {
-//            $contentTypeName = $this->getCurrentContentTypeName();
-//        }
-//        if ($dataDimensions == null)
-//        {
-//            $dataDimensions = $this->getCurrentDataDimensions();
-//        }
-//
-//        if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
-//        {
-//            return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
-//        }
-//
-//        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
-//
-//        if (file_exists($folder))
-//        {
-//            $finder = new Finder();
-//            $finder->in($folder)->depth(0);
-//
-//            $data = [ ];
-//
-//            /** @var SplFileInfo $file */
-//            foreach ($finder->files()->name('*.json') as $file)
-//            {
-//                $data[] = json_decode($file->getContents(), true);
-//
-//            }
-//
-//            $definition = $this->getContentTypeDefinition($contentTypeName);
-//
-//            $records = $this->getRecordFactory()
-//                            ->createRecordsFromJSONArray($definition, $data);
-//
-//        }
-//        $this->stashAllRecords($records, $dataDimensions);
-//
-//        return $records;
-//
-//    }
 
 }

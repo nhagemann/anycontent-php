@@ -282,7 +282,7 @@ abstract class AbstractConnection
 
         }
 
-        throw new AnyContentClientException ('Unknown content type ' . $configTypeName);
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
     }
 
 
@@ -610,9 +610,16 @@ abstract class AbstractConnection
     {
         if (!$dataDimensions->hasRelativeTimeShift())
         {
-            $hash                      = md5($config->getConfigTypeName() . $dataDimensions . get_class($config));
-            $this->recordsStash[$hash] = $config;
+            $hash                     = md5($config->getConfigTypeName() . $dataDimensions . get_class($config));
+            $this->configStash[$hash] = $config;
         }
+    }
+
+
+    protected function unstashConfig($configTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Config')
+    {
+        $hash = md5($configTypeName . $dataDimensions . $recordClass);
+        unset($this->configStash[$hash]);
     }
 
 

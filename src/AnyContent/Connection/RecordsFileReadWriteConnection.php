@@ -49,6 +49,8 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
             foreach ($records as $record)
             {
+                $record = $this->finalizeRecord($record, $dataDimensions);
+
                 if ($record->getID() == '')
                 {
                     $nextId = 1;
@@ -188,15 +190,19 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
         }
 
         $configTypeName = $config->getConfigTypeName();
-        $data = json_encode($config, JSON_PRETTY_PRINT);
 
+        $mergedConfig = $this->mergeExistingConfig($config, $dataDimensions);
 
-        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName), $data))
+        $mergedConfig->setRevision($mergedConfig->getRevision() + 1);
+        $config->setRevision($mergedConfig->getRevision());
+        $mergedConfig->setLastChangeUserInfo($this->userInfo);
+        $config->setLastChangeUserInfo($this->userInfo);
+
+        $data = json_encode($mergedConfig, JSON_PRETTY_PRINT);
+
+        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName, $dataDimensions), $data))
         {
-            // STASH
-
             return true;
-
         }
         throw new AnyContentClientException('Error when saving record of config type ' . $configTypeName);
 

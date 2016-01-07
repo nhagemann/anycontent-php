@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 
@@ -172,6 +173,34 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
         return $recordIds;
     }
 
+    public function saveConfig(Config $config, DataDimensions $dataDimensions = null)
+    {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        $configTypeName = $config->getConfigTypeName();
+
+        $mergedConfig = $this->mergeExistingConfig($config, $dataDimensions);
+
+        $mergedConfig->setRevision($mergedConfig->getRevision() + 1);
+        $config->setRevision($mergedConfig->getRevision());
+        $mergedConfig->setLastChangeUserInfo($this->userInfo);
+        $config->setLastChangeUserInfo($this->userInfo);
+
+        $data = json_encode($mergedConfig, JSON_PRETTY_PRINT);
+
+        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName,$dataDimensions), $data))
+        {
+            // STASH
+
+            return true;
+
+        }
+        throw new AnyContentClientException('Error when saving record of config type ' . $configTypeName);
+
+    }
 
     protected function writeData($fileName, $data)
     {

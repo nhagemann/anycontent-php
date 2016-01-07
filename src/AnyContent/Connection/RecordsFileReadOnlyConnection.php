@@ -138,7 +138,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             return $records[$recordId];
         }
 
-        KVMLoggerFactory::instance('anycontent')
+        KVMLoggerFactory::instance('anycontent-connection')
                         ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
 
         return false;
@@ -203,7 +203,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        return $this->exportRecord($this->getMultiViewConfig($configTypeName, $dataDimensions),$dataDimensions->getViewName());
+        return $this->exportRecord($this->getMultiViewConfig($configTypeName, $dataDimensions), $dataDimensions->getViewName());
 
     }
 
@@ -212,26 +212,47 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     {
         $definition = $this->getConfigTypeDefinition($configTypeName);
 
-        $data = $this->readConfig($this->getConfiguration()->getUriConfig($configTypeName));
+        $data = $this->readConfig($this->getConfiguration()->getUriConfig($configTypeName,$dataDimensions));
 
         if ($data)
         {
             $data = json_decode($data, true);
 
-            $config =$this->getRecordFactory()->createRecordFromJSONObject($definition,$data);
+            $config = $this->getRecordFactory()->createRecordFromJSONObject($definition, $data);
 
         }
         else
         {
-            $config =$this->getRecordFactory()->createConfig($definition);
-
-
+            $config = $this->getRecordFactory()->createConfig($definition);
 
             KVMLoggerFactory::instance('anycontent-connection')
                             ->info('Config ' . $configTypeName . ' not found');
         }
+
         return $config;
 
+    }
+
+
+    protected function mergeExistingConfig(Config $config, DataDimensions $dataDimensions)
+    {
+        $configTypeName = $config->getConfigTypeName();
+
+        $existingConfig = $this->getMultiViewConfig($configTypeName, $dataDimensions);
+        if ($existingConfig)
+        {
+            $config->setRevision($existingConfig->getRevision());
+
+            $existingProperties = $existingConfig->getProperties();
+            $mergedProperties   = array_merge($existingProperties, $config->getProperties());
+
+            $mergedRecord = clone $config;
+            $mergedRecord->setProperties($mergedProperties);
+
+            return $mergedRecord;
+        }
+
+        return $config;
 
     }
 
