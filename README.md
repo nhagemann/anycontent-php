@@ -1,16 +1,19 @@
 # anycontent-php
 
-property id - nein
-
-properties parent / position - ja / testen mit sortierung
-
-sortierung auch userinfo/change!
+config testen
 
 config records stashen noch nicht test für views und mergen existing
 
-filterung - nur auf repository ebene, nicht innerhalb der connection später implements filter
+pdo connection
 
-sort inkl. anpassung super properties parent und position
+pdo_schemaless_mysql repository 
 
+filterung - später implements filter
 
 (string)für Filter wandelt in SimpleQuery-Format oder gleich Parenthesis
+
+Files
+
+AdminConnection
+
+Parser reduzieren
