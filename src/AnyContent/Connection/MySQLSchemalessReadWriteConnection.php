@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
 
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 
@@ -21,7 +22,7 @@ class MySQLSchemalessReadWriteConnection extends MySQLSchemalessReadOnlyConnecti
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $tableName = $this->getTableName($record->getContentTypeName());
+        $tableName = $this->getContentTypeTableName($record->getContentTypeName());
 
         $repositoryName = $this->getRepository()->getName();
 
@@ -54,7 +55,7 @@ class MySQLSchemalessReadWriteConnection extends MySQLSchemalessReadOnlyConnecti
                 $values             = reset($rows);
                 $values['revision'] = $values['revision'] + 1;
                 $record->setRevision($values['revision']);
-                $mode               = 'update';
+                $mode = 'update';
             }
 
         }
@@ -189,7 +190,7 @@ class MySQLSchemalessReadWriteConnection extends MySQLSchemalessReadOnlyConnecti
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $tableName = $this->getTableName($contentTypeName);
+        $tableName = $this->getContentTypeTableName($contentTypeName);
 
         $values = [ ];
 
@@ -284,5 +285,68 @@ class MySQLSchemalessReadWriteConnection extends MySQLSchemalessReadOnlyConnecti
         }
 
         return $recordIds;
+    }
+
+
+    public function saveConfig(Config $config, DataDimensions $dataDimensions = null)
+    {
+        if (!$dataDimensions)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        $definition = $config->getConfigTypeDefinition();
+
+        $configTypeName = $config->getConfigTypeName();
+
+        $tableName = $this->getConfigTypeTableName();
+
+        $values = [ ];
+
+        $values['id']        = $configTypeName;
+        $values['revision']  = 1;
+        $values['workspace'] = $dataDimensions->getWorkspace();
+        $values['language']  = $dataDimensions->getLanguage();
+
+        // get row of current revision
+
+        $sql = 'SELECT * FROM ' . $tableName . ' WHERE id = ? AND workspace = ? AND language = ? AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
+
+        $timeshiftTimestamp = TimeShifter::getTimeshiftTimestamp();
+
+        $rows = $this->getDatabase()
+                     ->fetchAllSQL($sql, [ $configTypeName, $dataDimensions->getWorkspace(), $dataDimensions->getLanguage(), $timeshiftTimestamp, $timeshiftTimestamp ]);
+
+        if (count($rows) == 1)
+        {
+            $values             = reset($rows);
+            $values['revision'] = $values['revision'] + 1;
+
+            $properties = array_merge(json_decode($values['properties'], true), $config->getProperties());
+
+        }
+        else
+        {
+            $properties = $config->getProperties();
+        }
+
+        // invalidate current revision
+
+        $sql = 'UPDATE ' . $tableName . ' SET validuntil_timestamp = ? WHERE id = ? AND workspace = ? AND language = ? AND validfrom_timestamp <=? AND validuntil_timestamp >?';
+        $this->getDatabase()
+             ->execute($sql, [ $timeshiftTimestamp, $configTypeName, $dataDimensions->getWorkspace(), $dataDimensions->getLanguage(), $timeshiftTimestamp, $timeshiftTimestamp ]);
+
+
+        $values['properties'] = json_encode($properties);
+
+        $values['lastchange_timestamp'] = $timeshiftTimestamp;
+        $values['lastchange_username']  = $this->userInfo->getUsername();
+        $values['lastchange_firstname'] = $this->userInfo->getFirstname();
+        $values['lastchange_lastname']  = $this->userInfo->getLastname();
+
+        $values['validfrom_timestamp']  = $timeshiftTimestamp;
+        $values['validuntil_timestamp'] = TimeShifter::getMaxTimestamp();
+
+        $this->getDatabase()->insert($tableName, $values);
     }
 }

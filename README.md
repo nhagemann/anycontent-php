@@ -1,16 +1,17 @@
 # anycontent-php
 
-
+cmdl folder bei MySQLSchemaLess als Alternative
 
 finalizeRecord ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
+finalizeConfig mit selbem Prinzip und hidden properties
+
+reference fields
 
 check mandatory
 
 content-type title überall entfernen
 
 userinfo soll nur im repository gesetzt werden und zugriff auf repository aus der connection??  (überdenken)
-
-cmdl folder bei MySQLSchemaLess als Alternative
 
 Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
@@ -21,6 +22,9 @@ Client-Klasse mit einfachem Zugriff auf Repositories und Setzen einer Cache-Stra
 Caching auf Repository-Ebene / repositoryInfo
 
 anycontent-server-php
+
+ancontent http client
+
 
 AdminConnection
 FilteringConnection -> Repository prüft Interface und überlässt Filterung der Connection
@@ -44,3 +48,4 @@ Repository Constructor sollte repository name aufnehmen
 - STASH
   Slow connections do stash records, configs or even all records during request
   
+- VALIDATION - NOT PART OF THE STORAGE ENGINGE  

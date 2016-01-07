@@ -28,7 +28,8 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
 
             $toBeSavedRecord = $record;
         }
-        else{
+        else
+        {
             $mergedRecord = $this->mergeExistingRecord($record, $dataDimensions);
 
             $mergedRecord->setRevision($mergedRecord->getRevision() + 1);
@@ -173,6 +174,7 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
         return $recordIds;
     }
 
+
     public function saveConfig(Config $config, DataDimensions $dataDimensions = null)
     {
         if (!$dataDimensions)
@@ -191,16 +193,14 @@ class RecordFilesReadWriteConnection extends RecordFilesReadOnlyConnection imple
 
         $data = json_encode($mergedConfig, JSON_PRETTY_PRINT);
 
-        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName,$dataDimensions), $data))
+        if ($this->writeData($this->getConfiguration()->getUriConfig($configTypeName, $dataDimensions), $data))
         {
-            // STASH
-
             return true;
 
         }
         throw new AnyContentClientException('Error when saving record of config type ' . $configTypeName);
-
     }
+
 
     protected function writeData($fileName, $data)
     {

@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Client\AbstractRecord;
 use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
@@ -652,6 +653,40 @@ abstract class AbstractConnection
     public function setUserInfo($userInfo)
     {
         $this->userInfo = $userInfo;
+    }
+
+
+    /**
+     * Make sure the returned record is a new instance an does only contain properties of it's
+     * current view
+     *
+     * @param AbstractRecord $record - multi view record !
+     */
+    protected function exportRecord(AbstractRecord $record, $viewName)
+    {
+        $definition        = $record->getDataTypeDefinition();
+        $allowedProperties = $definition->getProperties($viewName);
+
+        $allowedProperties = array_combine($allowedProperties, $allowedProperties);
+
+        $allowedProperties = array_intersect_key($record->getProperties(), $allowedProperties);
+
+        $record = clone $record;
+        $record->setProperties($allowedProperties);
+
+        return $record;
+    }
+
+
+    protected function exportRecords($records, $viewName)
+    {
+        $result = [ ];
+        foreach ($records as $record)
+        {
+            $result[$record->getId()] = $this->exportRecord($record, $viewName);
+        }
+
+        return $result;
     }
 
 

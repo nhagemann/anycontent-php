@@ -49,7 +49,7 @@ class MySQLSchemalessConfiguration extends AbstractConfiguration
         }
         else
         {
-            $this->pathCMDLFolderForConfigTypes = $pathContentTypes . '\config';
+            $this->pathCMDLFolderForConfigTypes = $pathContentTypes . '/config';
         }
     }
 
@@ -156,6 +156,50 @@ TEMPLATE_COUNTERTABLE;
                 {
                     $contentTypeName                      = $row['name'];
                     $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+                }
+            }
+        }
+    }
+
+
+    public function addConfigTypes($repositoryName)
+    {
+        if (!$this->getDatabase())
+        {
+            throw new AnyContentClientException('Database must be initalized first.');
+        }
+
+        if ($this->pathCMDLFolderForConfigTypes != null) // file based content/config types definition
+        {
+
+            $finder = new Finder();
+
+            $uri = 'file://' . $this->pathCMDLFolderForConfigTypes;
+
+            $finder->in($uri)->depth(0);
+
+            /** @var SplFileInfo $file */
+            foreach ($finder->files('*.cmdl') as $file)
+            {
+                $configTypeName = $file->getBasename('.cmdl');
+
+                $this->configTypes[$configTypeName] = [ 'title' => null ];
+
+            }
+
+        }
+        else // database based content/config types definition
+        {
+            $sql = 'SELECT name, data_type FROM _cmdl_ WHERE repository = ?';
+
+            $rows = $this->getDatabase()->fetchAllSQL($sql, [ $repositoryName ]);
+
+            foreach ($rows as $row)
+            {
+                if ($row['data_type'] == 'config')
+                {
+                    $configTypeName                     = $row['name'];
+                    $this->configTypes[$configTypeName] = [ 'title' => null ];
                 }
             }
         }

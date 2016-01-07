@@ -3,7 +3,6 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
-use AnyContent\Client\AbstractData;
 use AnyContent\Client\AbstractRecord;
 use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
@@ -212,7 +211,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     {
         $definition = $this->getConfigTypeDefinition($configTypeName);
 
-        $data = $this->readConfig($this->getConfiguration()->getUriConfig($configTypeName,$dataDimensions));
+        $data = $this->readConfig($this->getConfiguration()->getUriConfig($configTypeName, $dataDimensions));
 
         if ($data)
         {
@@ -254,40 +253,6 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
 
         return $config;
 
-    }
-
-
-    /**
-     * Make sure the returned record is not connected to stashed records an does only contain properties of it's
-     * current view
-     *
-     * @param AbstractRecord $record - multi view record !
-     */
-    protected function exportRecord(AbstractRecord $record, $viewName)
-    {
-        $definition        = $record->getDataTypeDefinition();
-        $allowedProperties = $definition->getProperties($viewName);
-
-        $allowedProperties = array_combine($allowedProperties, $allowedProperties);
-
-        $allowedProperties = array_intersect_key($record->getProperties(), $allowedProperties);
-
-        $record = clone $record;
-        $record->setProperties($allowedProperties);
-
-        return $record;
-    }
-
-
-    protected function exportRecords($records, $viewName)
-    {
-        $result = [ ];
-        foreach ($records as $record)
-        {
-            $result[$record->getId()] = $this->exportRecord($record, $viewName);
-        }
-
-        return $result;
     }
 
 

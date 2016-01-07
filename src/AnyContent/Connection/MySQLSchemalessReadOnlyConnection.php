@@ -13,6 +13,7 @@ use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Util\Database;
 
 use CMDL\Util;
+use KVMLogger\KVMLoggerFactory;
 
 class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements ReadOnlyConnection
 {
@@ -21,6 +22,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     protected $database;
 
     protected $checksContentTypeTableIsUpToDate = [ ];
+    protected $checkConfigTypeTableIsPresent = false;
 
 
     /**
@@ -84,7 +86,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
      */
     public function getCMDLForConfigType($configTypeName)
     {
-        if ($this->hasConfigType($configTypeName))
+        if ($this->getConfiguration()->hasConfigType($configTypeName))
         {
             if ($this->getConfiguration()->hasCMDLFolder())
             {
@@ -113,7 +115,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     }
 
 
-    protected function getTableName($contentTypeName, $ensureContentTypeTableIsUpToDate = true)
+    protected function getContentTypeTableName($contentTypeName, $ensureContentTypeTableIsUpToDate = true)
     {
         $repository = $this->getRepository();
 
@@ -140,7 +142,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
             return true;
         }
 
-        $tableName = $this->getTableName($contentTypeName, false);
+        $tableName = $this->getContentTypeTableName($contentTypeName, false);
 
         $contentTypeDefinition = $this->getContentTypeDefinition($contentTypeName);
 
@@ -250,6 +252,92 @@ TEMPLATE_CONTENTTABLE;
     }
 
 
+    protected function getConfigTypeTableName($ensureConfigTypeTableIsPresent = true)
+    {
+        $repository = $this->getRepository();
+
+        $repositoryName = $repository->getName();
+
+        $tableName = $repositoryName . '$$config';
+
+        if ($tableName != Util::generateValidIdentifier($repositoryName) . '$$config')
+        {
+            throw new AnyContentClientException ('Invalid repository name ' . $repositoryName);
+        }
+
+        if ($ensureConfigTypeTableIsPresent == true)
+        {
+            $this->ensureConfigTypeTableIsPresent();
+        }
+
+        return $tableName;
+    }
+
+
+    public function ensureConfigTypeTableIsPresent()
+    {
+        if ($this->checkConfigTypeTableIsPresent == true)
+        {
+            return true;
+        }
+
+        $tableName = $this->getConfigTypeTableName(false);
+
+        $sql = 'Show Tables Like ?';
+
+        $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+        $stmt->execute(array( $tableName ));
+
+        if ($stmt->rowCount() == 0)
+        {
+
+            $sql = <<< TEMPLATE_CONFIGTABLE
+
+        CREATE TABLE %s (
+          `id` varchar(255) NOT NULL,
+          `hash` varchar(32) NOT NULL,
+          `workspace` varchar(255) NOT NULL DEFAULT 'default',
+          `language` varchar(255) NOT NULL DEFAULT 'default',
+          `revision` int(11) DEFAULT NULL,
+          `properties` LONGTEXT,
+          `lastchange_timestamp` int(11) DEFAULT NULL,
+          `lastchange_apiuser` varchar(255) DEFAULT NULL,
+          `lastchange_clientip` varchar(255) DEFAULT NULL,
+          `lastchange_username` varchar(255) DEFAULT NULL,
+          `lastchange_firstname` varchar(255) DEFAULT NULL,
+          `lastchange_lastname` varchar(255) DEFAULT NULL,
+          `validfrom_timestamp` varchar(16) DEFAULT NULL,
+          `validuntil_timestamp` varchar(16) DEFAULT NULL,
+          KEY `id` (`id`),
+          KEY `workspace` (`workspace`,`language`),
+          KEY `validfrom_timestamp` (`validfrom_timestamp`,`validuntil_timestamp`,`id`)
+         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+TEMPLATE_CONFIGTABLE;
+
+            $sql  = sprintf($sql, $tableName);
+            $stmt = $this->getDatabase()->getConnection()->prepare($sql);
+
+            try
+            {
+
+                $stmt->execute();
+
+            }
+            catch (\PDOException $e)
+            {
+
+                throw new AnyContentClientException('Could not create table  for config types of repository ' . $this->getRepository()
+                                                                                                                     ->getName());
+            }
+
+        }
+        $this->checkConfigTypeTableIsPresent = true;
+
+        return true;
+    }
+
+
     protected function createRecordFromRow($row, $contentTypeName, DataDimensions $dataDimensions)
     {
         $definition = $this->getContentTypeDefinition($contentTypeName);
@@ -303,7 +391,7 @@ TEMPLATE_CONTENTTABLE;
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $tableName = $this->getTableName($contentTypeName);
+        $tableName = $this->getContentTypeTableName($contentTypeName);
 
         $sql = 'SELECT COUNT(*) AS C FROM ' . $tableName . ' WHERE workspace = ? AND language = ? AND deleted = 0 AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
 
@@ -334,7 +422,7 @@ TEMPLATE_CONTENTTABLE;
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $tableName = $this->getTableName($contentTypeName);
+        $tableName = $this->getContentTypeTableName($contentTypeName);
 
         $sql = 'SELECT * FROM ' . $tableName . ' WHERE workspace = ? AND language = ? AND deleted = 0 AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
 
@@ -370,7 +458,7 @@ TEMPLATE_CONTENTTABLE;
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        $tableName = $this->getTableName($contentTypeName);
+        $tableName = $this->getContentTypeTableName($contentTypeName);
 
         $sql = 'SELECT * FROM ' . $tableName . ' WHERE id = ? AND workspace = ? AND language = ? AND deleted = 0 AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
 
@@ -386,6 +474,82 @@ TEMPLATE_CONTENTTABLE;
 
         return false;
 
+    }
+
+
+    /**
+     *
+     * @return Config
+     */
+    public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        return $this->exportRecord($this->getMultiViewConfig($configTypeName, $dataDimensions), $dataDimensions->getViewName());
+
+    }
+
+
+    protected function getMultiViewConfig($configTypeName, DataDimensions $dataDimensions)
+    {
+
+        $tableName = $this->getConfigTypeTableName();
+
+        $database = $this->getDatabase();
+
+        $timestamp = TimeShifter::getTimeshiftTimestamp($dataDimensions->getTimeShift());
+
+        $sql = 'SELECT * FROM ' . $tableName . ' WHERE id = ? AND workspace = ? AND language = ? AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
+
+        $rows = $database->fetchAllSQL($sql, [ $configTypeName, $dataDimensions->getWorkspace(), $dataDimensions->getLanguage(), $timestamp, $timestamp ]);
+
+        if (count($rows) == 1)
+        {
+            $row = reset($rows);
+            $config = $this->createConfigFromRow($row, $configTypeName, $dataDimensions);
+        }
+        else
+        {
+            $definition = $this->getConfigTypeDefinition($configTypeName);
+            $config     = $this->getRecordFactory()->createConfig($definition);
+
+            KVMLoggerFactory::instance('anycontent-connection')
+                            ->info('Config ' . $configTypeName . ' not found');
+        }
+
+        return $config;
+    }
+
+
+    protected function createConfigFromRow($row, $configTypeName, DataDimensions $dataDimensions)
+    {
+        $definition = $this->getConfigTypeDefinition($configTypeName);
+
+        $config = $this->getRecordFactory()
+                       ->createConfig($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+
+        $multiViewProperties = json_decode($row['properties'], true);
+        $properties          = [ ];
+
+        foreach ($definition->getProperties($dataDimensions->getViewName()) as $property)
+        {
+            if (array_key_exists($property, $multiViewProperties))
+            {
+                $properties[$property] = $multiViewProperties[$property];
+            }
+        }
+
+        $config->setProperties($properties);
+
+        $config->setRevision($row['revision']);
+
+        $userInfo = new UserInfo($row['lastchange_username'], $row['lastchange_firstname'], $row['lastchange_lastname'], $row['lastchange_timestamp']);
+        $config->setLastChangeUserInfo($userInfo);
+
+        return $config;
     }
 
 }
