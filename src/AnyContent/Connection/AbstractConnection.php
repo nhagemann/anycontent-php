@@ -7,10 +7,12 @@ use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\RecordFactory;
+use AnyContent\Client\Repository;
 use AnyContent\Client\UserInfo;
 use AnyContent\Connection\Configuration\AbstractConfiguration;
 use CMDL\ContentTypeDefinition;
 use CMDL\Parser;
+use CMDL\Util;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 
@@ -47,6 +49,9 @@ abstract class AbstractConnection
 
     protected $hasStashedAllRecords = [ ];
 
+    /** @var  Repository */
+    protected $repository;
+
     /** @var  CacheProvider */
     protected $cache;
 
@@ -62,11 +67,42 @@ abstract class AbstractConnection
 
 
     /**
+     * gets called, when this connection is added to a repository
+     *
+     * @param Repository $repository
+     */
+
+    public function apply(Repository $repository)
+    {
+        $this->repository = $repository;
+
+    }
+
+
+    /**
      * @return AbstractConfiguration
      */
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+
+    /**
+     * @return Repository
+     */
+    public function getRepository()
+    {
+        return $this->repository;
+    }
+
+
+    /**
+     * @param Repository $repository
+     */
+    public function setRepository($repository)
+    {
+        $this->repository = $repository;
     }
 
 
@@ -104,6 +140,11 @@ abstract class AbstractConnection
     }
 
 
+    /**
+     * @param $contentTypeName
+     *
+     * @return string
+     */
     public function getCMDLForContentType($contentTypeName)
     {
         throw new AnyContentClientException ('Method getCMDLForContentType must be implemented.');
@@ -592,12 +633,41 @@ abstract class AbstractConnection
 
     }
 
+
     /**
      * @param UserInfo $userInfo
      */
     public function setUserInfo($userInfo)
     {
         $this->userInfo = $userInfo;
+    }
+
+
+    /**
+     * remove protected properties and execute @name annotation
+     *
+     * @param Record $record
+     */
+    protected function finalizeRecord(Record $record, DataDimensions $dataDimensions)
+    {
+
+
+        // Apply @name annotation
+        if ($record->getDataTypeDefinition()->hasNamingPattern())
+        {
+            $record->setName(Util::applyNamingPattern($record->getProperties(), $record->getDataTypeDefinition()
+                                                                                         ->getNamingPattern()));
+        }
+
+        // remove protected properties
+        $properties = $record->getProperties();
+        foreach ($record->getDataTypeDefinition()->getProtectedProperties($dataDimensions->getViewName()) as $property)
+        {
+            unset ($properties[$property]);
+        }
+        $record->setProperties($properties);
+
+        return $record;
     }
 
 }

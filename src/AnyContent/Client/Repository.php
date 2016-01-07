@@ -50,9 +50,14 @@ class Repository
     public function __construct($readConnection, $writeConnection = null)
     {
         $this->readConnection = $readConnection;
+
+        $this->readConnection->apply($this);
+
         if ($writeConnection != null)
         {
             $this->writeConnection = $writeConnection;
+
+            $this->writeConnection->apply($this);
         }
         elseif ($readConnection instanceof WriteConnection)
         {
