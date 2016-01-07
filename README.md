@@ -1,6 +1,5 @@
 # anycontent-php
 
-cmdl folder bei MySQLSchemaLess als Alternative
 
 finalizeRecord ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
 finalizeConfig mit selbem Prinzip und hidden properties

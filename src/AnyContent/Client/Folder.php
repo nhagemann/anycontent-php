@@ -2,9 +2,6 @@
 
 namespace AnyContent\Client;
 
-use CMDL\Util;
-use AnyContent\Client\File;
-
 class Folder
 {
 
@@ -30,7 +27,7 @@ class Folder
             }
         }
 
-        foreach ($result['folders'] as $folder)
+        foreach ($result['folder'] as $folder)
         {
             $this->subFolders[$this->path . '/' . $folder] = $folder;
         }
