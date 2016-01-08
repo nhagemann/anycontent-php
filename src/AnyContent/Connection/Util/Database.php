@@ -1,6 +1,8 @@
 <?php
 namespace AnyContent\Connection\Util;
 
+use KVMLogger\KVMLoggerFactory;
+
 class Database
 {
 
@@ -23,10 +25,35 @@ class Database
     }
 
 
-    public function insert($tableName, $insert, $update = false)
+    /**
+     * @param       $sql
+     * @param array $params
+     *
+     * @return \PDOStatement
+     */
+    public function execute($sql, $params = array())
     {
+        $kvm = KVMLoggerFactory::instance('anycontent-database');
+
         /** @var \PDO $db */
         $dbh = $this->getConnection();
+
+        $stmt = $dbh->prepare($sql);
+
+        $kvm->startStopWatch('anycontent-query-execution-time');
+
+        $stmt->execute($params);
+
+        $duration = $kvm->getDuration('anycontent-query-execution-time');
+        $message  = $kvm->createLogMessage($this->debugQuery($sql, $params), [ 'duration' => $duration ]);
+        $kvm->debug($message);
+
+        return $stmt;
+    }
+
+
+    public function insert($tableName, $insert, $update = false)
+    {
 
         $sql = 'INSERT INTO `' . $tableName;
         $sql .= '` (`' . join('`,`', array_keys($insert)) . '`)';
@@ -42,17 +69,14 @@ class Database
             $values = array_merge($values, array_values($update));
         }
 
-        $stmt = $dbh->prepare($sql);
+        $stmt = $this->execute($sql, $values);
 
-        return $stmt->execute($values);
+        return $stmt;
     }
 
 
     public function update($tableName, $update, $where = false)
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
-
         $values = array_values($update);
 
         $sql = ' UPDATE `' . $tableName;
@@ -64,77 +88,51 @@ class Database
             $values = array_merge($values, array_values($where));
         }
 
-        $stmt = $dbh->prepare($sql);
+        $stmt = $this->execute($sql, $values);
 
-        return $stmt->execute($values);
-    }
-
-
-    public function execute($pdoSQL, $params = array())
-    {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
-
-        $stmt = $dbh->prepare($pdoSQL);
-
-        return $stmt->execute($params);
+        return $stmt;
     }
 
 
     public function fetchOne($tableName, $where = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
+
         $sql = 'SELECT * FROM `' . $tableName;
         $sql .= '` WHERE `' . join('` = ? AND `', array_keys($where)) . '` = ?';
         $params = array_values($where);
-        $stmt   = $dbh->prepare($sql);
 
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         return $stmt->fetch();
 
     }
 
 
-    public function fetchOneSQL($pdoSQL, $params = array())
+    public function fetchOneSQL($sql, $params = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
-
-        $stmt = $dbh->prepare($pdoSQL);
-
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         return $stmt->fetch();
-
     }
 
 
     public function fetchColumn($tableName, $column, $where = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
         $sql = 'SELECT * FROM `' . $tableName;
         $sql .= '` WHERE `' . join('` = ? AND `', array_keys($where)) . '` = ?';
         $params = array_values($where);
-        $stmt   = $dbh->prepare($sql);
 
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         return $stmt->fetchColumn($column);
 
     }
 
 
-    public function fetchColumnSQL($pdoSQL, $column, $params = array())
+    public function fetchColumnSQL($sql, $column, $params = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
 
-        $stmt = $dbh->prepare($pdoSQL);
-
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         return $stmt->fetchColumn($column);
 
@@ -143,14 +141,12 @@ class Database
 
     public function fetchAll($tableName, $where = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
+
         $sql = 'SELECT * FROM `' . $tableName;
         $sql .= '` WHERE `' . join('` = ? AND , `', array_keys($where)) . '` = ?';
         $params = array_values($where);
-        $stmt   = $dbh->prepare($sql);
 
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         $rows = $stmt->fetchAll();
 
@@ -159,14 +155,10 @@ class Database
     }
 
 
-    public function fetchAllSQL($pdoSQL, $params = array())
+    public function fetchAllSQL($sql, $params = array())
     {
-        /** @var \PDO $db */
-        $dbh = $this->getConnection();
 
-        $stmt = $dbh->prepare($pdoSQL);
-
-        $stmt->execute($params);
+        $stmt = $this->execute($sql, $params);
 
         $rows = $stmt->fetchAll();
 
@@ -178,7 +170,7 @@ class Database
     /**
      * http://stackoverflow.com/questions/210564/getting-raw-sql-query-string-from-\PDO-prepared-statements
      */
-    public function debugPrintQuery($pdoSQL, $params = array())
+    public function debugQuery($sql, $params = array())
     {
         $keys = array();
 
@@ -193,10 +185,10 @@ class Database
             {
                 $keys[] = '/[?]/';
             }
-            $value = '#' . $value . '#';
+            $value = '[#' . $value . '#]';
         }
 
-        $query = preg_replace($keys, $params, $pdoSQL, 1, $count);
+        $query = preg_replace($keys, $params, $sql, 1, $count);
 
         return $query;
     }

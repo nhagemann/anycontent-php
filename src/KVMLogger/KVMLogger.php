@@ -11,11 +11,9 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
 
     protected $realm = 'application';
 
-//    protected $requestMonitor = false;
-//
-//    protected $cliMonitor = false;
-
     protected $logger = [ ];
+
+    protected $stopwatch = [ ];
 
     /**
      * Log Levels
@@ -58,9 +56,33 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     }
 
 
-    public function getTiming()
+    public function startStopWatch($event)
     {
-        $time = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+        $this->stopwatch[$event] = microtime(true);
+    }
+
+
+    public function getDuration($event = null)
+    {
+        if ($event != null)
+        {
+            if (array_key_exists($event, $this->stopwatch))
+            {
+                $start = $this->stopwatch[$event] - $_SERVER["REQUEST_TIME_FLOAT"];
+                $stop  = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+
+                $time = $stop - $start;
+
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            $time = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+        }
         $time = number_format($time * 1000, 0, '.', '');
 
         return $time;
@@ -70,7 +92,7 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     public function createLogMessage($message = '', $logValues = [ ])
     {
         $logMessage = new LogMessage($message);
-        $logMessage->setTiming($this->getTiming());
+        $logMessage->setTiming($this->getDuration());
 
         foreach ($logValues as $k => $v)
         {
@@ -106,7 +128,7 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
 
         if ($message->getTiming() == '')
         {
-            $message->setTiming($this->getTiming());
+            $message->setTiming($this->getDuration());
         }
 
         if (array_key_exists($level, $this->logLevels))
@@ -247,37 +269,5 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
             $kvmLogger->log($level, $message, $context);
         }, $errorTypes);
     }
-
-//
-//    public function __destruct()
-//    {
-//        if (php_sapi_name() == "cli" && $this->cliMonitor !== false)
-//        {
-//            $message = $this->createLogMessage();
-//            $message->setMethod('cli');
-//
-//            $message->addLogValue('memory', number_format(memory_get_usage(true) / 1048576, 1, '.', ''));
-//            $message->addLogValue('duration', $message->getTiming());
-//            if (isset($_SERVER['LOGNAME']))
-//            {
-//                $message->addLogValue('user', $_SERVER['LOGNAME']);
-//            }
-//            if (isset($_SERVER['SCRIPT_FILENAME']))
-//            {
-//                $message->addLogValue('script', $_SERVER['SCRIPT_FILENAME']);
-//            }
-//            if (isset($_SERVER['argv']))
-//            {
-//                $message->addLogValue('argv', join(' ', $_SERVER['argv']));
-//            }
-//
-//            $this->log($this->cliMonitor, $message);
-//        }
-//        elseif ($this->requestMonitor !== false)
-//        {
-//            //$this->logRequest();
-//        }
-//
-//    }
 
 }
