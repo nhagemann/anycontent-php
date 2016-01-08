@@ -105,10 +105,10 @@ class RecordsFileFirebaseConfiguration extends AbstractConfiguration
     }
 
 
-    public function addContentType($contentTypeName, $keyCMDL, $keyRecords, $contentTypeTitle = null)
+    public function addContentType($contentTypeName, $keyCMDL, $keyRecords)
     {
 
-        $this->contentTypes[$contentTypeName] = [ 'keyCMDL' => $keyCMDL, 'keyRecords' => $keyRecords, 'title' => $contentTypeTitle, ];
+        $this->contentTypes[$contentTypeName] = [ 'keyCMDL' => $keyCMDL, 'keyRecords' => $keyRecords ];
 
         return $this;
     }

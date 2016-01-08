@@ -139,7 +139,7 @@ TEMPLATE_COUNTERTABLE;
             {
                 $contentTypeName = $file->getBasename('.cmdl');
 
-                $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+                $this->contentTypes[$contentTypeName] = [ ];
 
             }
 
@@ -155,7 +155,7 @@ TEMPLATE_COUNTERTABLE;
                 if ($row['data_type'] == 'content')
                 {
                     $contentTypeName                      = $row['name'];
-                    $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+                    $this->contentTypes[$contentTypeName] = [ ];
                 }
             }
         }
@@ -183,7 +183,7 @@ TEMPLATE_COUNTERTABLE;
             {
                 $configTypeName = $file->getBasename('.cmdl');
 
-                $this->configTypes[$configTypeName] = [ 'title' => null ];
+                $this->configTypes[$configTypeName] = [ ];
 
             }
 
@@ -199,7 +199,7 @@ TEMPLATE_COUNTERTABLE;
                 if ($row['data_type'] == 'config')
                 {
                     $configTypeName                     = $row['name'];
-                    $this->configTypes[$configTypeName] = [ 'title' => null ];
+                    $this->configTypes[$configTypeName] = [ ];
                 }
             }
         }

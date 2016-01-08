@@ -8,13 +8,12 @@ reference fields
 
 check mandatory
 
-content-type title überall entfernen
 
 userinfo soll nur im repository gesetzt werden und zugriff auf repository aus der connection??  (überdenken)
 
 Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
-Repository FileManager
+
 S3 Files
 
 

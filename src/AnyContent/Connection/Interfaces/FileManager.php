@@ -21,16 +21,16 @@ interface FileManager
      *
      * @return  File|bool
      */
-    public function getFile($id);
+    public function getFile($fileId);
 
 
     public function getBinary(File $file);
 
 
-    public function saveFile($id, $binary);
+    public function saveFile($fileId, $binary);
 
 
-    public function deleteFile($id, $deleteEmptyFolder = true);
+    public function deleteFile($fileId, $deleteEmptyFolder = true);
 
 
     public function createFolder($path);

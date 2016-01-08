@@ -7,7 +7,7 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 class RepositoryFactory
 {
 
-    public function createContentArchiveRepository($folder)
+    public function createContentArchiveRepository($name, $folder)
     {
         $configuration = new ContentArchiveConfiguration();
 
@@ -15,7 +15,7 @@ class RepositoryFactory
 
         $connection = $configuration->createReadWriteConnection();
 
-        $repository = new Repository($connection);
+        $repository = new Repository($name, $connection);
 
         return $repository;
 

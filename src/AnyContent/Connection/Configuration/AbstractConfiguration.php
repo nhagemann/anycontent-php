@@ -23,17 +23,6 @@ class AbstractConfiguration
     }
 
 
-    public function getContentTypeTitle($contentTypeName)
-    {
-        if ($this->hasContentType($contentTypeName))
-        {
-            return $this->contentTypes[$contentTypeName]['title'];
-        }
-
-        return null;
-    }
-
-
     public function hasConfigType($configTypeName)
     {
         return array_key_exists($configTypeName, $this->configTypes);
@@ -43,17 +32,6 @@ class AbstractConfiguration
     public function getConfigTypeNames()
     {
         return array_keys($this->configTypes);
-    }
-
-
-    public function getConfigTypeTitle($configTypeName)
-    {
-        if ($this->hasContentType($configTypeName))
-        {
-            return $this->configTypes[$configTypeName]['title'];
-        }
-
-        return null;
     }
 
 

@@ -91,9 +91,9 @@ class DirectoryBasedFilesAccess implements FileManager
     }
 
 
-    public function getFile($id)
+    public function getFile($fileId)
     {
-        $id = trim(trim($id, '/'));
+        $id = trim(trim($fileId, '/'));
         if ($id != '')
         {
             $pathinfo = pathinfo($id);
@@ -125,15 +125,15 @@ class DirectoryBasedFilesAccess implements FileManager
     }
 
 
-    public function saveFile($id, $binary)
+    public function saveFile($fileId, $binary)
     {
 
-        $id       = trim($id, '/');
-        $fileName = pathinfo($id, PATHINFO_FILENAME);
+        $id       = trim($fileId, '/');
+        $fileName = pathinfo($fileId, PATHINFO_FILENAME);
 
         if ($fileName != '') // No writing of .xxx-files
         {
-            $this->filesystem->dumpFile($this->baseFolder . '/' . $id, $binary);
+            $this->filesystem->dumpFile($this->baseFolder . '/' . $fileId, $binary);
 
             return true;
         }
@@ -142,18 +142,18 @@ class DirectoryBasedFilesAccess implements FileManager
     }
 
 
-    public function deleteFile($id, $deleteEmptyFolder = true)
+    public function deleteFile($fileId, $deleteEmptyFolder = true)
     {
         try
         {
-            if ($this->filesystem->exists($this->baseFolder . '/' . $id))
+            if ($this->filesystem->exists($this->baseFolder . '/' . $fileId))
             {
-                $this->filesystem->remove($this->baseFolder . '/' . $id);
+                $this->filesystem->remove($this->baseFolder . '/' . $fileId);
             }
 
             if ($deleteEmptyFolder)
             {
-                $this->deleteFolder(pathinfo($id, PATHINFO_DIRNAME));
+                $this->deleteFolder(pathinfo($fileId, PATHINFO_DIRNAME));
             }
 
             return true;

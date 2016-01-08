@@ -20,7 +20,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
      * @return $this
      * @throws AnyContentClientException
      */
-    public function addContentType($contentTypeName, $filenameCMDL, $filenameRecords, $contentTypeTitle = null)
+    public function addContentType($contentTypeName, $filenameCMDL, $filenameRecords)
     {
         $fs = new Filesystem();
 
@@ -34,7 +34,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
             throw new AnyContentClientException('File ' . $filenameRecords . ' not found.');
         }*/
 
-        $this->contentTypes[$contentTypeName] = [ 'records' => $filenameRecords, 'cmdl' => $filenameCMDL, 'title' => $contentTypeTitle ];
+        $this->contentTypes[$contentTypeName] = [ 'records' => $filenameRecords, 'cmdl' => $filenameCMDL ];
 
         return $this;
     }
@@ -45,7 +45,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
      * @return $this
      * @throws AnyContentClientException
      */
-    public function addConfigType($configTypeName, $filenameCMDL, $filenameRecord, $configTypeTitle = null)
+    public function addConfigType($configTypeName, $filenameCMDL, $filenameRecord)
     {
         $fs = new Filesystem();
 
@@ -60,7 +60,7 @@ class RecordsFileConfiguration extends AbstractConfiguration
             KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameRecord . ' not found.');
         }
 
-        $this->configTypes[$configTypeName] = [ 'record' => $filenameRecord, 'cmdl' => $filenameCMDL, 'title' => $configTypeTitle ];
+        $this->configTypes[$configTypeName] = [ 'record' => $filenameRecord, 'cmdl' => $filenameCMDL ];
 
         return $this;
     }

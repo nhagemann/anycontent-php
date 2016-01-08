@@ -43,7 +43,7 @@ class ContentArchiveConfiguration extends AbstractConfiguration
         {
             $contentTypeName = $file->getBasename('.cmdl');
 
-            $this->contentTypes[$contentTypeName] = [ 'title' => null ];
+            $this->contentTypes[$contentTypeName] = [ ];
 
         }
 
@@ -60,7 +60,7 @@ class ContentArchiveConfiguration extends AbstractConfiguration
             {
                 $configTypeName = $file->getBasename('.cmdl');
 
-                $this->configTypes[$configTypeName] = [ 'title' => null ];
+                $this->configTypes[$configTypeName] = [ ];
 
             }
         }

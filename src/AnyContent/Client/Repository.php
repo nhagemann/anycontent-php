@@ -6,20 +6,23 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Client\Util\RecordsFilter;
 use AnyContent\Client\Util\RecordsPager;
 use AnyContent\Client\Util\RecordsSorter;
-use AnyContent\Connection\AbstractConnection;
+use AnyContent\Connection\Interfaces\FileManager;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
 use AnyContent\Filter\Interfaces\Filter;
 use KVMLogger\KVMLoggerFactory;
 
-class Repository
+class Repository implements FileManager
 {
 
-    /** @var  AbstractConnection */
+    /** @var  ReadOnlyConnection */
     protected $readConnection;
 
-    /** @var AbstractConnection */
+    /** @var WriteConnection */
     protected $writeConnection;
+
+    /** @var  FileManager */
+    protected $fileManager;
 
     /** @var DataDimensions */
     protected $dataDimensions;
@@ -47,8 +50,10 @@ class Repository
     protected $configRecordClassMap = [ ];
 
 
-    public function __construct($readConnection, $writeConnection = null)
+    public function __construct($name, ReadOnlyConnection $readConnection, FileManager $fileManager = null, WriteConnection $writeConnection = null)
     {
+        $this->setName($name);
+
         $this->readConnection = $readConnection;
 
         $this->readConnection->apply($this);
@@ -63,6 +68,7 @@ class Repository
         {
             $this->writeConnection = $readConnection;
         }
+
         $this->userInfo = new UserInfo();
 
     }
@@ -101,6 +107,24 @@ class Repository
     public function setWriteConnection($writeConnection)
     {
         $this->writeConnection = $writeConnection;
+    }
+
+
+    /**
+     * @return FileManager
+     */
+    public function getFileManager()
+    {
+        return $this->fileManager;
+    }
+
+
+    /**
+     * @param FileManager $fileManager
+     */
+    public function setFileManager($fileManager)
+    {
+        $this->fileManager = $fileManager;
     }
 
 
@@ -543,6 +567,59 @@ class Repository
         $dataDimensions  = $this->getCurrentDataDimensions();
 
         return $this->writeConnection->deleteAllRecords($contentTypeName, $dataDimensions);
+    }
+
+
+    /**
+     * @param string $path
+     *
+     * @return Folder|bool
+     */
+    public function getFolder($path = '')
+    {
+        return $this->getFileManager()->getFolder($path);
+    }
+
+
+    /**
+     * @param $id
+     *
+     * @return  File|bool
+     */
+    public function getFile($fileId)
+    {
+        return $this->getFileManager()->getFile($fileId);
+    }
+
+
+    public function getBinary(File $file)
+    {
+        return $this->getFileManager()->getBinary($file);
+    }
+
+
+    public function saveFile($fileId, $binary)
+    {
+        return $this->getFileManager()->saveFile($fileId, $binary);
+    }
+
+
+    public function deleteFile($fileId, $deleteEmptyFolder = true)
+    {
+        return $this->getFileManager()->deleteFile($fileId, $deleteEmptyFolder);
+    }
+
+
+    public function createFolder($path)
+    {
+        return $this->getFileManager()->createFolder($path);
+    }
+
+
+    public function deleteFolder($path, $deleteIfNotEmpty = false)
+    {
+        return $this->getFileManager()->deleteFolder($path, $deleteIfNotEmpty);
+
     }
 
 

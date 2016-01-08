@@ -73,7 +73,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
-        $repository = new Repository($this->connection);
+        $repository = new Repository('phpunit',$this->connection);
 
         $repository->selectContentType('example01');
 

@@ -49,7 +49,7 @@ class RecordsSorterUtilTest extends \PHPUnit_Framework_TestCase
 
         $this->connection = $connection;
 
-        $this->repository = new Repository($this->connection);
+        $this->repository = new Repository('phpunit',$this->connection);
 
     }
 

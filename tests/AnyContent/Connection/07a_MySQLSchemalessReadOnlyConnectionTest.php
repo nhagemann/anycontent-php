@@ -32,8 +32,7 @@ class MySQLSchemalessConnectionTest extends \PHPUnit_Framework_TestCase
 
             $connection = $configuration->createReadWriteConnection();
 
-            $repository = new Repository($connection);
-            $repository->setName('phpunit');
+            $repository = new Repository('phpunit',$connection);
             $repository->selectContentType('profiles');
 
             $record = $repository->createRecord('Agency 1', 1);
@@ -71,8 +70,7 @@ class MySQLSchemalessConnectionTest extends \PHPUnit_Framework_TestCase
             $connection = $configuration->createReadOnlyConnection();
 
             $this->connection = $connection;
-            $repository       = new Repository($connection);
-            $repository->setName('phpunit');
+            $repository       = new Repository('phpunit',$connection);
 
             KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
         }

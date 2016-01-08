@@ -48,8 +48,7 @@ class MySQLSchemalessViewsTest extends \PHPUnit_Framework_TestCase
             $connection = $configuration->createReadWriteConnection();
 
             $this->connection = $connection;
-            $repository       = new Repository($connection);
-            $repository->setName('phpunit');
+            $repository       = new Repository('phpunit',$connection);
 
             KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
         }

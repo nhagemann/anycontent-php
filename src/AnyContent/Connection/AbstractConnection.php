@@ -227,8 +227,7 @@ abstract class AbstractConnection
 
                 $parser = $this->getParser();
 
-                $definition = $parser->parseCMDLString($cmdl, $contentTypeName, $this->getConfiguration()
-                                                                                     ->getContentTypeTitle($contentTypeName));
+                $definition = $parser->parseCMDLString($cmdl, $contentTypeName);
 
                 if ($definition)
                 {
@@ -269,8 +268,7 @@ abstract class AbstractConnection
 
                 $parser = $this->getParser();
 
-                $definition = $parser->parseCMDLString($cmdl, $configTypeName, $this->getConfiguration()
-                                                                                    ->getConfigTypeTitle($configTypeName), 'config');
+                $definition = $parser->parseCMDLString($cmdl, $configTypeName, null, 'config');
 
                 if ($definition)
                 {
@@ -389,31 +387,6 @@ abstract class AbstractConnection
         return $this->currentContentTypeName;
     }
 
-
-//    /**
-//     * @param $contentTypeName
-//     *
-//     * @return bool
-//     * @throws AnyContentClientException
-//     */
-//    public function hasLoadedAllRecords($contentTypeName = null)
-//    {
-//        if ($contentTypeName == null)
-//        {
-//            $contentTypeName = $this->getCurrentContentTypeName();
-//        }
-//
-//        if ($this->getConfiguration()->hasContentType($contentTypeName))
-//        {
-//
-//            if (array_key_exists($contentTypeName, $this->records))
-//            {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
 
     public function selectView($viewName)
     {

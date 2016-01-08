@@ -31,9 +31,7 @@ class MySQLSchemalessDataDimensionsTest extends \PHPUnit_Framework_TestCase
             $database->execute('DROP TABLE IF EXISTS phpunit$profiles');
 
             $connection = $configuration->createReadWriteConnection();
-
-            $repository = new Repository($connection);
-            $repository->setName('phpunit');
+            $repository       = new Repository('phpunit',$connection);
             $repository->selectContentType('profiles');
 
             $record = $repository->createRecord('dmc digital media center', 5);
@@ -70,8 +68,7 @@ class MySQLSchemalessDataDimensionsTest extends \PHPUnit_Framework_TestCase
             $connection = $configuration->createReadWriteConnection();
 
             $this->connection = $connection;
-            $repository       = new Repository($connection);
-            $repository->setName('phpunit');
+            $repository       = new Repository('phpunit',$connection);
 
             KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
         }

@@ -41,7 +41,7 @@ class RecordsFileRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypes()
     {
-        $repository = new Repository($this->connection);
+        $repository = new Repository('phpunit',$this->connection);
 
         $contentTypeNames = $repository->getContentTypeNames();
 
@@ -53,7 +53,7 @@ class RecordsFileRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecord()
     {
-        $repository = new Repository($this->connection);
+        $repository = new Repository('phpunit',$this->connection);
 
         $repository->selectContentType('temp');
 
@@ -65,7 +65,7 @@ class RecordsFileRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
-        $repository = new Repository($this->connection);
+        $repository = new Repository('phpunit',$this->connection);
 
         $repository->selectContentType('temp');
 

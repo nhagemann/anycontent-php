@@ -50,7 +50,7 @@ class LanguagesAndWorkspacesText extends \PHPUnit_Framework_TestCase
 
     public function testContentTypes()
     {
-        $repository = new Repository($this->connection);
+        $repository = new Repository('phpunit',$this->connection);
 
         $contentTypeNames = $repository->getContentTypeNames();
 

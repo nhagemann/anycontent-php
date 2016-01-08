@@ -45,8 +45,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
-
-        $this->repository = new Repository($this->connection);
+        $repository       = new Repository('phpunit',$connection);
 
 
         KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
