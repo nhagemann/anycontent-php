@@ -24,6 +24,7 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     protected $checksContentTypeTableIsUpToDate = [ ];
     protected $checkConfigTypeTableIsPresent = false;
 
+    protected $precalculations = [];
 
     /**
      * @return Database
@@ -340,16 +341,16 @@ TEMPLATE_CONFIGTABLE;
 
     protected function createRecordFromRow($row, $contentTypeName, DataDimensions $dataDimensions)
     {
-        $definition = $this->getContentTypeDefinition($contentTypeName);
+        $precalcuate = $this->precalculateCreateRecordFromRow($contentTypeName,$dataDimensions);
 
-        $record = $this->getRecordFactory()
-                       ->createRecord($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+        /** @var Record $record */
+        $record = $precalcuate['record'];
 
         $record->setId($row['id']);
 
         $properties = [ ];
 
-        foreach ($definition->getProperties($dataDimensions->getViewName()) as $property)
+        foreach ($precalcuate['properties'] as $property)
         {
             if (array_key_exists('property_' . $property, $row))
             {
@@ -371,6 +372,27 @@ TEMPLATE_CONFIGTABLE;
         $record->setLastChangeUserInfo($userInfo);
 
         return $record;
+    }
+
+    protected function precalculateCreateRecordFromRow($contentTypeName,DataDimensions $dataDimensions)
+    {
+        $key = $contentTypeName.'-'.$dataDimensions->getViewName();
+        if (array_key_exists($key,$this->precalculations))
+        {
+            $precalculate = $this->precalculations[$key];
+            $precalculate['record']=clone$precalculate['record'];
+        }
+        else
+        {
+            $definition = $this->getContentTypeDefinition($contentTypeName);
+
+            $precalculate               = [ ];
+            $precalculate['properties'] = $definition->getProperties($dataDimensions->getViewName());
+            $precalculate['record']     = $this->getRecordFactory()
+                                               ->createRecord($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+            $this->precalculations[$key] = $precalculate;
+        }
+        return $precalculate;
     }
 
 
