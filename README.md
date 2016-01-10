@@ -1,10 +1,9 @@
 # anycontent-php
 
+getConfig/saveConfig am Repository
 
 finalizeRecord ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
 finalizeConfig mit selbem Prinzip und hidden properties
-
-reference fields
 
 check mandatory
 
@@ -13,6 +12,7 @@ userinfo soll nur im repository gesetzt werden und zugriff auf repository aus de
 
 Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
+erneut check id = property? (u.a. wegen elastic)
 
 S3 Files
 
@@ -23,7 +23,7 @@ Caching auf Repository-Ebene / repositoryInfo
 
 anycontent-server-php
 
-ancontent http client
+ancontent http client RestLikeBasicConnection, RestLikeExtendedConnection
 
 
 AdminConnection

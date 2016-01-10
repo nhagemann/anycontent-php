@@ -20,6 +20,8 @@ use Doctrine\Common\Cache\CacheProvider;
 abstract class AbstractConnection
 {
 
+    protected $precalculations = [ ];
+
     /**
      * @var AbstractConfiguration
      */
@@ -637,17 +639,37 @@ abstract class AbstractConnection
      */
     protected function exportRecord(AbstractRecord $record, $viewName)
     {
-        $definition        = $record->getDataTypeDefinition();
-        $allowedProperties = $definition->getProperties($viewName);
-
-        $allowedProperties = array_combine($allowedProperties, $allowedProperties);
-
-        $allowedProperties = array_intersect_key($record->getProperties(), $allowedProperties);
-
-        $record = clone $record;
+        $precalculate      = $this->precalculateExportRecord($record, $this->getCurrentDataDimensions());
+        $allowedProperties = array_intersect_key($record->getProperties(), $precalculate['allowedProperties']);
+        $record            = clone $record;
         $record->setProperties($allowedProperties);
 
         return $record;
+    }
+
+
+    protected function precalculateExportRecord(AbstractRecord $record, DataDimensions $dataDimensions)
+    {
+        $key = 'exportrecord-' . $record->getDataType() . '-' . $record->getDataTypeName() . '-' . $dataDimensions->getViewName();
+        if (array_key_exists($key, $this->precalculations))
+        {
+            $precalculate = $this->precalculations[$key];
+        }
+        else
+        {
+
+            $definition        = $record->getDataTypeDefinition();
+            $allowedProperties = $definition->getProperties($dataDimensions->getViewName());
+
+            $allowedProperties = array_combine($allowedProperties, $allowedProperties);
+
+            $precalculate                      = [ ];
+            $precalculate['allowedProperties'] = $allowedProperties;
+
+            $this->precalculations[$key] = $precalculate;
+        }
+
+        return $precalculate;
     }
 
 

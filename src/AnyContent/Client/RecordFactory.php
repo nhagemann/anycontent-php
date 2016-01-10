@@ -10,6 +10,7 @@ use CMDL\Parser;
 
 class RecordFactory
 {
+    protected $precalculations = [ ];
 
     /**
      * @var RecordFactory
@@ -60,9 +61,17 @@ class RecordFactory
     {
         $records = [ ];
 
+        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+
+        /** @var Record $record */
+        $masterRecord = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
+
         foreach ($jsonRecords as $jsonRecord)
         {
-            $record                    = $this->createRecordFromJSONObject($contentTypeDefinition, $jsonRecord, $viewName, $workspace, $language);
+            $record = clone $masterRecord;
+            $record->setID($jsonRecord['id']);
+            $record = $this->finishRecordCreationFromJSON($record,$jsonRecord);
+
             $records[$record->getID()] = $record;
         }
 
@@ -72,6 +81,7 @@ class RecordFactory
 
     public function createRecordFromJSONObject(DataTypeDefinition $dataTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
     {
+
         if ($dataTypeDefinition instanceof ConfigTypeDefinition)
         {
             $classname = $this->getClassForConfigType($dataTypeDefinition->getName());
@@ -87,14 +97,25 @@ class RecordFactory
             $record = new $classname($dataTypeDefinition, '', $viewName, $workspace, $language);
             $record->setID($jsonRecord['id']);
 
-            $name = '';
-
-            if (isset($jsonRecord['properties']['name']))
-            {
-                $name = $jsonRecord['properties']['name'];
-            }
         }
 
+        $record = $this->finishRecordCreationFromJSON($record,$jsonRecord);
+
+
+        return $record;
+    }
+
+
+    /**
+     *
+     * @param $record
+     * @param $jsonRecord
+     *
+     * @return mixed
+     * @throws AnyContentClientException
+     */
+    protected function finishRecordCreationFromJSON($record,$jsonRecord)
+    {
         $revision = isset($jsonRecord['info']['revision']) ? $jsonRecord['info']['revision'] : 1;
         $record->setRevision($revision);
 
@@ -125,7 +146,6 @@ class RecordFactory
 
         return $record;
     }
-
 
     public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
     {

@@ -24,7 +24,6 @@ class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements Re
     protected $checksContentTypeTableIsUpToDate = [ ];
     protected $checkConfigTypeTableIsPresent = false;
 
-    protected $precalculations = [];
 
     /**
      * @return Database
@@ -341,7 +340,7 @@ TEMPLATE_CONFIGTABLE;
 
     protected function createRecordFromRow($row, $contentTypeName, DataDimensions $dataDimensions)
     {
-        $precalcuate = $this->precalculateCreateRecordFromRow($contentTypeName,$dataDimensions);
+        $precalcuate = $this->precalculateCreateRecordFromRow($contentTypeName, $dataDimensions);
 
         /** @var Record $record */
         $record = $precalcuate['record'];
@@ -374,24 +373,26 @@ TEMPLATE_CONFIGTABLE;
         return $record;
     }
 
-    protected function precalculateCreateRecordFromRow($contentTypeName,DataDimensions $dataDimensions)
+
+    protected function precalculateCreateRecordFromRow($contentTypeName, DataDimensions $dataDimensions)
     {
-        $key = $contentTypeName.'-'.$dataDimensions->getViewName();
-        if (array_key_exists($key,$this->precalculations))
+        $key = 'createrecordfromrow' . $contentTypeName . '-' . $dataDimensions->getViewName();
+        if (array_key_exists($key, $this->precalculations))
         {
-            $precalculate = $this->precalculations[$key];
-            $precalculate['record']=clone$precalculate['record'];
+            $precalculate           = $this->precalculations[$key];
+            $precalculate['record'] = clone$precalculate['record'];
         }
         else
         {
             $definition = $this->getContentTypeDefinition($contentTypeName);
 
-            $precalculate               = [ ];
-            $precalculate['properties'] = $definition->getProperties($dataDimensions->getViewName());
-            $precalculate['record']     = $this->getRecordFactory()
-                                               ->createRecord($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+            $precalculate                = [ ];
+            $precalculate['properties']  = $definition->getProperties($dataDimensions->getViewName());
+            $precalculate['record']      = $this->getRecordFactory()
+                                                ->createRecord($definition, [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
             $this->precalculations[$key] = $precalculate;
         }
+
         return $precalculate;
     }
 
@@ -530,7 +531,7 @@ TEMPLATE_CONFIGTABLE;
 
         if (count($rows) == 1)
         {
-            $row = reset($rows);
+            $row    = reset($rows);
             $config = $this->createConfigFromRow($row, $configTypeName, $dataDimensions);
         }
         else

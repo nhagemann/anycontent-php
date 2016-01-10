@@ -102,12 +102,20 @@ class Config extends AbstractRecord implements \JsonSerializable
         return $this->hash;
     }
 
+    public function getDataType()
+    {
+        return 'config';
+    }
 
     public function getConfigTypeName()
     {
         return $this->configTypeDefinition->getName();
     }
 
+    public function getDataTypeName()
+    {
+        return $this->configTypeDefinition->getName();
+    }
 
     public function getDataTypeDefinition()
     {

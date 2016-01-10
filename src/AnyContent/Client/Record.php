@@ -203,6 +203,10 @@ class Record extends AbstractRecord implements \JsonSerializable
         $this->level = $level;
     }
 
+    public function getDataType()
+    {
+        return 'content';
+    }
 
     /**
      * @deprecated
@@ -214,6 +218,11 @@ class Record extends AbstractRecord implements \JsonSerializable
 
 
     public function getContentTypeName()
+    {
+        return $this->contentTypeDefinition->getName();
+    }
+
+    public function getDataTypeName()
     {
         return $this->contentTypeDefinition->getName();
     }

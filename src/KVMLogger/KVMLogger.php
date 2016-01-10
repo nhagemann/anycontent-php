@@ -62,6 +62,16 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     }
 
 
+    public function logDuration($event, $logLevel = LogLevel::DEBUG)
+    {
+        $logMessage = new LogMessage();
+        $logMessage->setMode('stp');
+        $logMessage->addLogValue('event', $event);
+        $logMessage->addLogValue('duration', $this->getDuration($event));
+        $this->log($logLevel, $logMessage);
+    }
+
+
     public function getDuration($event = null)
     {
         if ($event != null)

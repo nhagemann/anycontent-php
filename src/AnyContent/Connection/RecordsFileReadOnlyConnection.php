@@ -57,6 +57,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
      */
     public function getAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null)
     {
+
         if ($contentTypeName == null)
         {
             $contentTypeName = $this->getCurrentContentTypeName();
@@ -74,8 +75,13 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             {
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
             }
+            KVMLoggerFactory::instance('debug')->startStopWatch('fetchAll');
+            $records = $this->getAllMultiViewRecords($contentTypeName, $dataDimensions);
+            KVMLoggerFactory::instance('debug')->logDuration('fetchAll');
 
-            $records = $this->exportRecords($this->getAllMultiViewRecords($contentTypeName, $dataDimensions), $dataDimensions->getViewName());
+            KVMLoggerFactory::instance('debug')->startStopWatch('exportAll');
+            $records = $this->exportRecords($records, $dataDimensions->getViewName());
+            KVMLoggerFactory::instance('debug')->logDuration('exportAll');
 
             $this->stashAllRecords($records, $dataDimensions);
 
