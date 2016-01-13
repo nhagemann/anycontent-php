@@ -250,6 +250,8 @@ TEMPLATE_COUNTERTABLE;
 
     public function apply(AbstractConnection $connection)
     {
+        parent::apply($connection);
+
         $connection->setDatabase($this->getDatabase());
     }
 

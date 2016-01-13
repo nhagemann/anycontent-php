@@ -1,0 +1,12 @@
+<?php
+
+namespace AnyContent\Client;
+
+class RepositoryInfo
+{
+
+    protected $contentTypes = [ ];
+
+    protected $configTypes = [ ];
+
+}

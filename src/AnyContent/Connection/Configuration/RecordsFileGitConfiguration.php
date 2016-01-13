@@ -100,6 +100,8 @@ class RecordsFileGitConfiguration extends RecordsFileConfiguration
 
     public function apply(AbstractConnection $connection)
     {
+        parent::apply($connection);
+
         $connection->setPrivateKey($this->privateKey);
         $connection->setUniqueConnection($this->confidence);
     }

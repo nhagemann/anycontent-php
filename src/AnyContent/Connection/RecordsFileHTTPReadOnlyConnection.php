@@ -2,7 +2,6 @@
 
 namespace AnyContent\Connection;
 
-use AnyContent\Connection\Abstracts\AbstractRecordsFileReadOnly;
 
 use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;

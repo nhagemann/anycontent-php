@@ -23,7 +23,16 @@ Caching auf Repository-Ebene / repositoryInfo
 
 anycontent-server-php
 
-ancontent http client RestLikeBasicConnection, RestLikeExtendedConnection
+ancontent http client RestLikeBasicConnection, 
+- STASH rein, insbesondere für getRecord Test
+- Dimensions in die URLs inklusive Timeshift
+- getConfig
+
+
+RestLikeExtendedConnection
+
+
+MySQLSchemalessConfiguration - setRepositoryName anstatt $repositoryName als Parameter
 
 
 AdminConnection
