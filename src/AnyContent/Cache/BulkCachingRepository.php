@@ -60,7 +60,7 @@ class BulkCachingRepository extends Repository
                 $data = json_decode($data,true);
 
                 $recordFactory = new RecordFactory([ 'validateProperties' => false ]);
-                $records = $recordFactory->createRecordsFromJSONArray($this->getCurrentContentType(),$data);
+                $records = $recordFactory->createRecordsFromJSONRecordsArray($this->getCurrentContentType(),$data);
                 return $records;
             }
         }

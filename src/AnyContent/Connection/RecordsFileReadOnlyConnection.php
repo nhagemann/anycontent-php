@@ -75,13 +75,9 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             {
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
             }
-            KVMLoggerFactory::instance('debug')->startStopWatch('fetchAll');
             $records = $this->getAllMultiViewRecords($contentTypeName, $dataDimensions);
-            KVMLoggerFactory::instance('debug')->logDuration('fetchAll');
 
-            KVMLoggerFactory::instance('debug')->startStopWatch('exportAll');
             $records = $this->exportRecords($records, $dataDimensions->getViewName());
-            KVMLoggerFactory::instance('debug')->logDuration('exportAll');
 
             $this->stashAllRecords($records, $dataDimensions);
 
@@ -113,7 +109,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             $definition = $this->getContentTypeDefinition($contentTypeName);
 
             $records = $this->getRecordFactory()
-                            ->createRecordsFromJSONArray($definition, $data['records']);
+                            ->createRecordsFromJSONRecordsArray($definition, $data['records']);
 
             return $records;
         }
@@ -223,7 +219,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         {
             $data = json_decode($data, true);
 
-            $config = $this->getRecordFactory()->createRecordFromJSONObject($definition, $data);
+            $config = $this->getRecordFactory()->createRecordFromJSON($definition, $data);
 
         }
         else

@@ -91,7 +91,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                 $definition = $this->getContentTypeDefinition($contentTypeName);
 
                 $record = $this->getRecordFactory()
-                               ->createRecordFromJSONObject($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+                               ->createRecordFromJSON($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
 
                 return $this->exportRecord($record,$dataDimensions->getViewName());
             }
@@ -134,7 +134,7 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
             $definition = $this->getContentTypeDefinition($contentTypeName);
 
             $records = $this->getRecordFactory()
-                            ->createRecordsFromJSONArray($definition, $data);
+                            ->createRecordsFromJSONRecordsArray($definition, $data);
 
             return $records;
 

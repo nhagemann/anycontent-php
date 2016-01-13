@@ -57,7 +57,7 @@ class RecordFactory
     }
 
 
-    public function createRecordsFromJSONArray(ContentTypeDefinition $contentTypeDefinition, $jsonRecords, $viewName = "default", $workspace = "default", $language = "default")
+    public function createRecordsFromJSONRecordsArray(ContentTypeDefinition $contentTypeDefinition, $jsonRecords, $viewName = "default", $workspace = "default", $language = "default")
     {
         $records = [ ];
 
@@ -79,7 +79,18 @@ class RecordFactory
     }
 
 
-    public function createRecordFromJSONObject(DataTypeDefinition $dataTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
+    /**
+     * Creates record object from (array) decoded JSON record (json_decode($json,true))
+     *
+     * @param DataTypeDefinition $dataTypeDefinition
+     * @param                    $jsonRecord
+     * @param string             $viewName
+     * @param string             $workspace
+     * @param string             $language
+     *
+     * @return Config|Record
+     */
+    public function createRecordFromJSON(DataTypeDefinition $dataTypeDefinition, $jsonRecord, $viewName = "default", $workspace = "default", $language = "default")
     {
 
         if ($dataTypeDefinition instanceof ConfigTypeDefinition)

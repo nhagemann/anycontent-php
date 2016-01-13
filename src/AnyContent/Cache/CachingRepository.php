@@ -179,7 +179,7 @@ class CachingRepository extends Repository
     protected function createCacheKey($namespace, $params = [ ])
     {
         $dataDimensions = $this->getCurrentDataDimensions();
-        $cacheKey       = '[' . $namespace . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
+        $cacheKey       = '['.$this->getName().'][' . $namespace . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
 
         return $cacheKey;
     }
@@ -200,7 +200,7 @@ class CachingRepository extends Repository
     {
         if ($this->isSingleContentRecordCaching())
         {
-            $cacheKey = $this->createCacheKey('record', [ $recordId ]);
+            $cacheKey = $this->createCacheKey('record', [ $this->getCurrentContentTypeName(), $recordId ]);
 
             $data = $this->getCacheProvider()->fetch($cacheKey);
             if ($data)
@@ -208,7 +208,7 @@ class CachingRepository extends Repository
                 $data = json_decode($data, true);
 
                 $recordFactory = new RecordFactory([ 'validateProperties' => false ]);
-                $record        = $recordFactory->createRecordFromJSONObject($this->getCurrentContentType(), $data);
+                $record        = $recordFactory->createRecordFromJSON($this->getCurrentContentTypeDefinition(), $data);
 
                 return $record;
             }
