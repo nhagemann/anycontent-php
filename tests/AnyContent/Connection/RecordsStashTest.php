@@ -32,7 +32,7 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
 
     public function testSingleRecordStashed()
     {
-        $record = new Record($this->connection->getCurrentContentType(), 'New Record');
+        $record = new Record($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record->setID(1);
 
         $dataDimensions = $this->connection->getCurrentDataDimensions();
@@ -57,7 +57,7 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
 
     public function testDifferingDimensionsStashed()
     {
-        $record = new Record($this->connection->getCurrentContentType(), 'New Record');
+        $record = new Record($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record->setID(1);
 
         $dataDimensions = $this->connection->getCurrentDataDimensions();
@@ -82,7 +82,7 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
 
     public function testRelativeTimeShift()
     {
-        $record = new Record($this->connection->getCurrentContentType(), 'New Record');
+        $record = new Record($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record->setID(1);
 
         $dataDimensions = $this->connection->getCurrentDataDimensions();
@@ -98,7 +98,7 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
 
     public function testAlternateRecordClass()
     {
-        $record = new AlternateRecordClass($this->connection->getCurrentContentType(), 'New Record');
+        $record = new AlternateRecordClass($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record->setID(1);
 
         $dataDimensions = $this->connection->getCurrentDataDimensions();
@@ -115,10 +115,10 @@ class RecordStashTest extends \PHPUnit_Framework_TestCase
 
     public function testAllRecordsStash()
     {
-        $record1 = new Record($this->connection->getCurrentContentType(), 'New Record');
+        $record1 = new Record($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record1->setID(1);
 
-        $record2 = new Record($this->connection->getCurrentContentType(), 'New Record');
+        $record2 = new Record($this->connection->getCurrentContentTypeDefinition(), 'New Record');
         $record2->setID(2);
 
         $allRecords = [ $record1, $record2 ];

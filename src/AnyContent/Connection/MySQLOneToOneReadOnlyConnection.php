@@ -63,7 +63,7 @@ class MySQLOneToOneReadOnlyConnection extends AbstractConnection implements Read
     /**
      * @return ContentTypeDefinition
      */
-    public function getCurrentContentType()
+    public function getCurrentContentTypeDefinition()
 
     {
 

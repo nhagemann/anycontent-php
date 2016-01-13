@@ -2,6 +2,7 @@
 
 namespace AnyContent\Connection\Interfaces;
 
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use CMDL\ContentTypeDefinition;
@@ -48,7 +49,7 @@ interface ReadOnlyConnection
     /**
      * @return ContentTypeDefinition
      */
-    public function getCurrentContentType();
+    public function getCurrentContentTypeDefinition();
 
 
     /**
@@ -100,6 +101,12 @@ interface ReadOnlyConnection
 
     public function getClassForContentType($contentTypeName);
 
+
+    /**
+     *
+     * @return Config
+     */
+    public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null);
 
 //    public function registerRecordClassForConfigType($configTypeName, $classname);
 //

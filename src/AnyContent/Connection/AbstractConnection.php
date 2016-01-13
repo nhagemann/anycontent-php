@@ -358,7 +358,6 @@ abstract class AbstractConnection
 
     }
 
-
     /**
      * @return ContentTypeDefinition
      * @throws AnyContentClientException
@@ -452,7 +451,7 @@ abstract class AbstractConnection
     public function resetDataDimensions()
     {
 
-        $this->dataDimensions = new DataDimensions($this->getCurrentContentType());
+        $this->dataDimensions = new DataDimensions($this->getCurrentContentTypeDefinition());
 
         return $this->dataDimensions;
     }

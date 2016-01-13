@@ -126,7 +126,7 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
 
                 $data = json_decode($data, true);
 
-                $record = $this->getRecordFactory()->createRecordFromJSON($this->getCurrentContentType(), $data);
+                $record = $this->getRecordFactory()->createRecordFromJSON($this->getCurrentContentTypeDefinition(), $data);
 
                 if ($record !== null)
                 {

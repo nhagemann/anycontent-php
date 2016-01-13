@@ -92,7 +92,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->selectContentType('profiles');
 
-        $record = new Record($connection->getCurrentContentType(), 'test');
+        $record = new Record($connection->getCurrentContentTypeDefinition(), 'test');
 
         $id = $connection->saveRecord($record);
 
@@ -114,7 +114,7 @@ class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 
         for ($i = 1; $i <= 5; $i++)
         {
-            $record    = new Record($connection->getCurrentContentType(), 'Test ' . $i);
+            $record    = new Record($connection->getCurrentContentTypeDefinition(), 'Test ' . $i);
             $records[] = $record;
         }
 

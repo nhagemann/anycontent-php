@@ -245,7 +245,7 @@ class Repository implements FileManager
      */
     public function getCurrentContentType()
     {
-        return $this->readConnection->getCurrentContentType();
+        return $this->readConnection->getCurrentContentTypeDefinition();
     }
 
 
@@ -256,7 +256,7 @@ class Repository implements FileManager
      */
     public function getCurrentContentTypeDefinition()
     {
-        return $this->readConnection->getCurrentContentType();
+        return $this->readConnection->getCurrentContentTypeDefinition();
     }
 
 
@@ -346,7 +346,7 @@ class Repository implements FileManager
     public function reset()
     {
 
-        $this->dataDimensions = new DataDimensions($this->getCurrentContentType());
+        $this->dataDimensions = new DataDimensions($this->getCurrentContentTypeDefinition());
 
         return $this;
     }

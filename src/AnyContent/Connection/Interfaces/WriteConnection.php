@@ -2,6 +2,7 @@
 
 namespace AnyContent\Connection\Interfaces;
 
+use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\UserInfo;
@@ -56,6 +57,7 @@ interface WriteConnection extends ReadOnlyConnection
     public function deleteAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
+    public function saveConfig(Config $config, DataDimensions $dataDimensions = null);
 //    public function registerRecordClassForContentType($contentTypeName, $classname);
 //
 //
