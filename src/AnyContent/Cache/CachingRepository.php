@@ -242,6 +242,33 @@ class CachingRepository extends Repository
         return parent::getRecords($filter, $page, $count, $order);
     }
 
+    protected function getAllRecords()
+    {
+        if ($this->isAllContentRecordsCaching())
+        {
+            $cacheKey = $this->createCacheKey('allrecords', [ $this->getCurrentContentTypeName() ]);
+
+            $data = $this->getCacheProvider()->fetch($cacheKey);
+            if ($data)
+            {
+                $data = json_decode($data, true);
+
+                $recordFactory = new RecordFactory([ 'validateProperties' => false ]);
+                $records        = $recordFactory->createRecordsFromJSONRecordsArray($this->getCurrentContentTypeDefinition(), $data);
+
+                return $records;
+            }
+
+            $records = parent::getAllRecords();
+
+            $data = json_encode($records);
+
+            $this->getCacheProvider()->save($cacheKey, $data, $this->allContentRecordsCaching);
+
+            return $records;
+        }
+        return parent::getAllRecords();
+    }
 
     public function countRecords($filter = '')
     {

@@ -35,9 +35,6 @@ class CacheingRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $cache = new PhpFileCache(__DIR__ . '/../../../tmp/phpfilecache');
 
-//        $mock       = $this->getMock('Doctrine\Common\Cache\ArrayCache', [ 'doContains' ]);
-//        $this->mock = $mock;
-
         $repository->setCacheProvider($cache);
         $this->repository = $repository;
 
@@ -48,12 +45,21 @@ class CacheingRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testGetRecords()
     {
         $repository = $this->repository;
+        $repository->setAllContentRecordsCaching(60);
+
 
         $repository->selectContentType('profiles');
 
         $records = $repository->getRecords();
 
         $this->assertCount(608, $records);
+
+        $records = $repository->getRecords();
+
+        $this->assertCount(608, $records);
+
+        $this->assertEquals(2,$repository->getCacheProvider()->getMissCounter('records'));
+        $this->assertEquals(1,$repository->getCacheProvider()->getHitCounter('records'));
     }
 
 
@@ -71,4 +77,6 @@ class CacheingRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1,$repository->getCacheProvider()->getHitCounter('records'));
 
     }
+
+
 }

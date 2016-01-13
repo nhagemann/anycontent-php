@@ -416,9 +416,7 @@ class Repository implements FileManager
     public function getRecords($filter = '', $page = 1, $count = null, $order = [ '.id' ])
     {
 
-        $dataDimensions = $this->getCurrentDataDimensions();
-
-        $records = $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
+        $records = $this->getAllRecords();
 
         if ($filter != '')
         {
@@ -433,6 +431,14 @@ class Repository implements FileManager
         }
 
         return $records;
+    }
+
+
+    protected function getAllRecords()
+    {
+        $dataDimensions = $this->getCurrentDataDimensions();
+
+        return $this->readConnection->getAllRecords($this->getCurrentContentTypeName(), $dataDimensions);
     }
 
 
