@@ -14,8 +14,18 @@ use Doctrine\Common\Cache\CacheProvider;
 class CachingRepository extends Repository
 {
 
+    /**
+     * Items are cached with last modified date of content/config type. Cache doesn't have to be flushed, but last
+     * modified dates must be retrieved regulary.
+     */
     const CACHE_STRATEGY_HEARTBEAT = 1;
-    const CACHE_STRATEGY_EXPIRATION = 2;
+
+    /**
+     * Every save operation leads to a full flash of the cache. Very fast, if you don't have too much
+     * write operations. Only eventually consistent, if you have more than one writing client connecting to
+     * your repositories.
+     */
+    const CACHE_STRATEGY_FULL_FLASH = 2;
 
     /** @var  CacheProvider */
     protected $cacheProvider;
@@ -185,9 +195,11 @@ class CachingRepository extends Repository
     }
 
 
-    public function createRecord($name = '', $recordId = null)
+    protected function flushCache()
     {
-        return parent::createRecord($name, $recordId);
+        // TODO Check for caching strategy
+        // TODO Check if namespaced deleteAll is working too, if so use sub namespaces
+        $this->getCacheProvider()->flushAll();
     }
 
 
@@ -319,12 +331,16 @@ class CachingRepository extends Repository
 
     public function saveRecord(Record $record)
     {
+        $this->flushCache();
+
         return parent::saveRecord($record);
     }
 
 
     public function saveRecords($records)
     {
+        $this->flushCache();
+
         return parent::saveRecords($records);
 
     }
@@ -332,12 +348,16 @@ class CachingRepository extends Repository
 
     public function deleteRecord($recordId)
     {
+        $this->flushCache();
+
         return parent::deleteRecord($recordId);
     }
 
 
     public function deleteRecords($recordIds)
     {
+        $this->flushCache();
+
         return parent::deleteRecord($recordIds);
     }
 
@@ -349,12 +369,16 @@ class CachingRepository extends Repository
      */
     public function sortRecords(array $sorting)
     {
+        $this->flushCache();
+
         return parent::sortRecords($sorting);
     }
 
 
     public function deleteAllRecords()
     {
+        $this->flushCache();
+
         return parent::deleteAllRecords();
     }
 

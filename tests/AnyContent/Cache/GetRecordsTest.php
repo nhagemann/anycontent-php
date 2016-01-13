@@ -9,7 +9,7 @@ use Doctrine\Common\Cache\PhpFileCache;
 use KVMLogger\KVMLoggerFactory;
 use Symfony\Component\Filesystem\Filesystem;
 
-class CacheingRepositoryTest extends \PHPUnit_Framework_TestCase
+class GetRecordsTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  CachingRepository */
