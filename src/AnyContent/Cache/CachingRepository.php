@@ -243,7 +243,12 @@ class CachingRepository extends Repository
         {
             if ($filter != '' || $count != null)
             {
-                $cacheKey = $this->createCacheKey('records-query', [ $this->getCurrentContentTypeName(), $filter, $count, join(',', $order) ]);
+                if (!is_array($order))
+                {
+                    $order = [ $order ];
+                }
+
+                $cacheKey = $this->createCacheKey('records-query', [ $this->getCurrentContentTypeName(), $filter, $page, $count, join(',', $order) ]);
 
                 $data = $this->getCacheProvider()->fetch($cacheKey);
                 if ($data)
