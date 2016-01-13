@@ -177,13 +177,20 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
         if ($this->hasContentType($contentTypeName))
         {
+            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
+            {
+                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
+            }
+
             $url = 'content/' . $contentTypeName . '/records';
 
             $response = $this->getClient()->get($url);
 
-            $json = $response->json();
+            $json    = $response->json();
             $records = $this->getRecordFactory()
-                           ->createRecordsFromJSONRecordsArray($this->getContentTypeDefinition($contentTypeName), $json['records']);
+                            ->createRecordsFromJSONRecordsArray($this->getContentTypeDefinition($contentTypeName), $json['records']);
+
+            $this->stashAllRecords($records, $dataDimensions);
 
             return $records;
         }
@@ -210,6 +217,10 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
         if ($this->hasContentType($contentTypeName))
         {
+            if ($this->hasStashedRecord($contentTypeName, $recordId, $dataDimensions))
+            {
+                return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions);
+            }
             $url = 'content/' . $contentTypeName . '/record/' . $recordId;
 
             try
@@ -230,36 +241,12 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
             $record = $this->getRecordFactory()
                            ->createRecordFromJSON($this->getContentTypeDefinition($contentTypeName), $json['record']);
 
+            $this->stashRecord($record, $dataDimensions);
+
             return $record;
         }
 
         throw new AnyContentClientException ('Unknown content type ' . $contentTypeName);
-
-//        if ($contentTypeName == null)
-//        {
-//            $contentTypeName = $this->getCurrentContentTypeName();
-//        }
-//
-//        if ($dataDimensions == null)
-//        {
-//            $dataDimensions = $this->getCurrentDataDimensions();
-//        }
-//
-//        $tableName = $this->getContentTypeTableName($contentTypeName);
-//
-//        $sql = 'SELECT * FROM ' . $tableName . ' WHERE id = ? AND workspace = ? AND language = ? AND deleted = 0 AND validfrom_timestamp <= ? AND validuntil_timestamp > ?';
-//
-//        $timestamp = TimeShifter::getTimeshiftTimestamp($dataDimensions->getTimeShift());
-//
-//        $rows = $this->getDatabase()
-//                     ->fetchAllSQL($sql, [ $recordId, $dataDimensions->getWorkspace(), $dataDimensions->getLanguage(), $timestamp, $timestamp ]);
-//
-//        if (count($rows) == 1)
-//        {
-//            return $this->createRecordFromRow(reset($rows), $contentTypeName, $dataDimensions);
-//        }
-//
-//        return false;
 
     }
 
