@@ -179,7 +179,7 @@ class CachingRepository extends Repository
     protected function createCacheKey($namespace, $params = [ ])
     {
         $dataDimensions = $this->getCurrentDataDimensions();
-        $cacheKey       = '['.$this->getName().'][' . $namespace . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
+        $cacheKey       = '[' . $this->getName() . '][' . $namespace . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
 
         return $cacheKey;
     }
@@ -239,8 +239,36 @@ class CachingRepository extends Repository
      */
     public function getRecords($filter = '', $page = 1, $count = null, $order = [ '.id' ])
     {
+        if ($this->isContentQueryRecordsCaching())
+        {
+            if ($filter != '' || $count != null)
+            {
+                $cacheKey = $this->createCacheKey('records-query', [ $this->getCurrentContentTypeName(), $filter, $count, join(',', $order) ]);
+
+                $data = $this->getCacheProvider()->fetch($cacheKey);
+                if ($data)
+                {
+                    $data = json_decode($data, true);
+
+                    $recordFactory = new RecordFactory([ 'validateProperties' => false ]);
+                    $records       = $recordFactory->createRecordsFromJSONRecordsArray($this->getCurrentContentTypeDefinition(), $data);
+
+                    return $records;
+                }
+
+                $records = parent::getRecords($filter, $page, $count, $order);
+
+                $data = json_encode($records);
+
+                $this->getCacheProvider()->save($cacheKey, $data, $this->contentQueryRecordsCaching);
+
+                return $records;
+            }
+        }
+
         return parent::getRecords($filter, $page, $count, $order);
     }
+
 
     protected function getAllRecords()
     {
@@ -254,7 +282,7 @@ class CachingRepository extends Repository
                 $data = json_decode($data, true);
 
                 $recordFactory = new RecordFactory([ 'validateProperties' => false ]);
-                $records        = $recordFactory->createRecordsFromJSONRecordsArray($this->getCurrentContentTypeDefinition(), $data);
+                $records       = $recordFactory->createRecordsFromJSONRecordsArray($this->getCurrentContentTypeDefinition(), $data);
 
                 return $records;
             }
@@ -267,8 +295,10 @@ class CachingRepository extends Repository
 
             return $records;
         }
+
         return parent::getAllRecords();
     }
+
 
     public function countRecords($filter = '')
     {

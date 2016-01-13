@@ -78,5 +78,24 @@ class CacheingRepositoryTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testQueryRecords()
+    {
+        $repository = $this->repository;
+        $repository->setContentQueryRecordsCaching(60);
+
+        $repository->selectContentType('profiles');
+
+        $records = $repository->getRecords('',1,10);
+
+        $this->assertCount(10, $records);
+
+        $records = $repository->getRecords('',1,10);
+
+        $this->assertCount(10, $records);
+
+        $this->assertEquals(2,$repository->getCacheProvider()->getMissCounter('records'));
+        $this->assertEquals(1,$repository->getCacheProvider()->getHitCounter('records'));
+    }
+
 
 }
