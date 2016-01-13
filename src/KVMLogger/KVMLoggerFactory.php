@@ -15,13 +15,13 @@ class KVMLoggerFactory
 
 
     /**
-     * @param string $realm
+     * @param string $namespace
      *
      * @return KVMLogger
      */
-    public static function create($realm = 'application')
+    public static function create($namespace = 'application')
     {
-        $kvmLogger = new KVMLogger($realm);
+        $kvmLogger = new KVMLogger($namespace);
 
         self::$instance = $kvmLogger;
 
@@ -50,11 +50,11 @@ class KVMLoggerFactory
 
 
     /**
-     * @param string $realm
+     * @param string $namespace
      *
      * @return KVMLogger
      */
-    public static function instance($realm = null)
+    public static function instance($namespace = 'application')
     {
         if (!self::$instance)
         {
@@ -62,10 +62,7 @@ class KVMLoggerFactory
         }
 
         $kvmLogger = self::$instance;
-        if ($realm)
-        {
-            $kvmLogger->setRealm($realm);
-        }
+        $kvmLogger->setNamespace($namespace);
 
         return $kvmLogger;
     }

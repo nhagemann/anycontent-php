@@ -7,6 +7,10 @@ class LogMessage
 
     protected $mode = 'msg';
 
+    protected $chunk = '';
+
+    protected $namespace = 'application';
+
     protected $realm = '';
 
     protected $type = '';
@@ -32,6 +36,24 @@ class LogMessage
     /**
      * @return string
      */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
+    }
+
+
+    /**
+     * @return string
+     */
     public function getMode()
     {
         return $this->mode;
@@ -44,6 +66,24 @@ class LogMessage
     public function setMode($method)
     {
         $this->mode = $method;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getChunk()
+    {
+        return $this->chunk;
+    }
+
+
+    /**
+     * @param string $chunk
+     */
+    public function setChunk($chunk)
+    {
+        $this->chunk = $chunk;
     }
 
 
@@ -164,16 +204,18 @@ class LogMessage
     public function __tostring()
     {
         $logValues            = [ ];
-        $logValues['mode']  = $this->getMode();
-        $logValues['ms']  = $this->getTiming();
+        $logValues['mode']    = $this->getMode();
+        $logValues['ms']      = $this->getTiming();
         $logValues['message'] = $this->getMessage();
 
+        $logValues['realm'] = $this->getRealm();
         $logValues['type']    = $this->getType();
         $logValues['subtype'] = $this->getSubtype();
 
         $logValues = array_merge($logValues, $this->additionalLogValues);
 
-        $logValues['realm']   = $this->getRealm();
+        $logValues['namespace'] = $this->getNamespace();
+        $logValues['chunk'] = $this->getChunk();
 
         $message = [ ];
         foreach ($logValues as $k => $v)
@@ -183,8 +225,6 @@ class LogMessage
                 $message[] = $k . '="' . str_replace('"', '\"', $v) . '"';
             }
         }
-
-
 
         return join(', ', $message);
 

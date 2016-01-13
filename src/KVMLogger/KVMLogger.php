@@ -9,7 +9,9 @@ use Psr\Log\LogLevel;
 class KVMLogger extends AbstractLogger implements LoggerInterface
 {
 
-    protected $realm = 'application';
+    protected $chunk = '';
+
+    protected $namespace = 'application';
 
     protected $logger = [ ];
 
@@ -32,9 +34,46 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     );
 
 
-    public function __construct($realm = 'application')
+    public function __construct($namespace = 'application')
     {
-        $this->setRealm($realm);
+        $this->setNamespace($namespace);
+        $this->setChunk(substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8));
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getChunk()
+    {
+        return $this->chunk;
+    }
+
+
+    /**
+     * @param string $chunk
+     */
+    public function setChunk($chunk)
+    {
+        $this->chunk = $chunk;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
     }
 
 
@@ -128,13 +167,10 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
         if (!$message instanceof LogMessage)
         {
             $message = new LogMessage($message);
-            $message->setRealm($this->getRealm());
-        }
 
-        if ($message->getRealm() == '')
-        {
-            $message->setRealm($this->getRealm());
         }
+        $message->setNamespace($this->getNamespace());
+        $message->setChunk($this->getChunk());
 
         if ($message->getTiming() == '')
         {
