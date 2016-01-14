@@ -167,7 +167,7 @@ class Client
     }
 
 
-    public function getClassForContentType($contentTypeName)
+    public function getRecordClassForContentType($contentTypeName)
     {
         if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
         {
@@ -809,7 +809,7 @@ class Client
                 }
 
             }
-            $className  = $this->getClassForContentType($contentTypeDefinition->getName());
+            $className  = $this->getRecordClassForContentType($contentTypeDefinition->getName());
         }
 
         // The following operation is slow even on cached requests, therefore the retrieved objects are cached too
@@ -957,7 +957,7 @@ class Client
                 foreach ($result['records'] AS $item)
                 {
 
-                    //$className = $this->getClassForContentType($contentTypeDefinition->getName());
+                    //$className = $this->getRecordClassForContentType($contentTypeDefinition->getName());
 
                     $cacheToken = $this->cachePrefix . '_record_' . $contentTypeDefinition->getName() . '_' . $item['id'] . '_' . md5($timestamp . '_' . $timeshift . '_' . $workspace . '_' . $viewName . '_' . $language) . '_' . $this->getHeartBeat();
 
@@ -1023,7 +1023,7 @@ class Client
      */
     protected function createRecordFromJSONResult($contentTypeDefinition, $result, $viewName, $workspace, $language, $validateProperties = true)
     {
-        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+        $classname = $this->getRecordClassForContentType($contentTypeDefinition->getName());
 
         /** @var Record $record */
         $record = new $classname($contentTypeDefinition, $result['properties']['name'], $viewName, $workspace, $language);

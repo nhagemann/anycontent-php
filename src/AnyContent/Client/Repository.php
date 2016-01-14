@@ -45,9 +45,8 @@ class Repository implements FileManager
      */
     protected $publicUrl = null;
 
-    protected $contentRecordClassMap = [ ];
-
-    protected $configRecordClassMap = [ ];
+    /** @var  RecordFactory */
+    protected $recordFactory;
 
 
     public function __construct($name, ReadOnlyConnection $readConnection, FileManager $fileManager = null, WriteConnection $writeConnection = null)
@@ -363,18 +362,30 @@ class Repository implements FileManager
     }
 
 
+    /**
+     * @return RecordFactory
+     */
+    public function getRecordFactory()
+    {
+        if (!$this->recordFactory)
+        {
+            $this->recordFactory = new RecordFactory([ 'validateProperties' => false ]);
+
+        }
+
+        return $this->recordFactory;
+
+    }
+
+
     public function createRecord($name = '', $recordId = null)
     {
-        /**
-         * We use the readConnection, since you might want to create records, even if you're not gonna be able to store them
-         *
-         * @var Record $record
-         */
-        $record = $this->readConnection->getRecordFactory()
-                                       ->createRecord($this->getContentTypeDefinition(), [ ], $this->getCurrentDataDimensions()
-                                                                                                   ->getViewName(), $this->getCurrentDataDimensions()
-                                                                                                                         ->getWorkspace(), $this->getCurrentDataDimensions()
-                                                                                                                                                ->getLanguage());
+
+        $record = $this->getRecordFactory()
+                       ->createRecord($this->getContentTypeDefinition(), [ ], $this->getCurrentDataDimensions()
+                                                                                   ->getViewName(), $this->getCurrentDataDimensions()
+                                                                                                         ->getWorkspace(), $this->getCurrentDataDimensions()
+                                                                                                                                ->getLanguage());
         $record->setId($recordId);
         $record->setName($name);
 
@@ -645,12 +656,7 @@ class Repository implements FileManager
 
         if ($this->hasContentType($contentTypeName))
         {
-            $this->contentRecordClassMap[$contentTypeName] = $classname;
-            $this->readConnection->registerRecordClassForContentType($contentTypeName, $classname);
-            if ($this->writeConnection && $this->readConnection != $this->writeConnection)
-            {
-                $this->writeConnection->registerRecordClassForContentType($contentTypeName, $classname);
-            }
+            $this->getRecordFactory()->registerRecordClassForContentType($contentTypeName, $classname);
 
             KVMLoggerFactory::instance('anycontent-repository')
                             ->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
@@ -662,14 +668,9 @@ class Repository implements FileManager
     }
 
 
-    public function getClassForContentType($contentTypeName)
+    public function getRecordClassForContentType($contentTypeName)
     {
-        if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
-        {
-            return $this->contentRecordClassMap[$contentTypeName];
-        }
-
-        return 'AnyContent\Client\Record';
+        return $this->getRecordFactory()->getRecordClassForContentType($contentTypeName);
     }
 
 

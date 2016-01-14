@@ -177,9 +177,9 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
         if ($this->hasContentType($contentTypeName))
         {
-            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
+            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName)))
             {
-                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
+                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
 
             $url = 'content/' . $contentTypeName . '/records';
@@ -257,12 +257,38 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
      */
     public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null)
     {
-//        if ($dataDimensions == null)
-//        {
-//            $dataDimensions = $this->getCurrentDataDimensions();
-//        }
-//
-//        return $this->exportRecord($this->getMultiViewConfig($configTypeName, $dataDimensions), $dataDimensions->getViewName());
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        if ($this->hasConfigType($configTypeName))
+        {
+            if ($this->hasStashedConfig($configTypeName, $dataDimensions))
+            {
+                return $this->getStashedConfig($configTypeName, $dataDimensions);
+            }
+
+            $url = 'config/' . $configTypeName . '/record';
+
+            try
+            {
+                $response = $this->getClient()->get($url);
+            }
+            catch (ClientException $e)
+            {
+                if ($e->getCode() == 404)
+                {
+                    $config = $this->getRecordFactory()
+                                   ->createConfig($this->getConfigTypeDefinition($configTypeName), [ ], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+
+                    return $config;
+                }
+                throw new AnyContentClientException ($e->getMessage());
+            }
+        }
+
+        throw new AnyContentClientException ('Unknown config type ' . $configTypeName);
 
     }
 

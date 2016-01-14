@@ -85,9 +85,9 @@ class DrupalEntityFilesConnection extends RecordFilesReadWriteConnection
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        if ($this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName)))
+        if ($this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getRecordClassForContentType($contentTypeName)))
         {
-            return $this->getStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName));
+            return $this->getStashedAllRecords($contentTypeName,$dataDimensions,$this->getRecordClassForContentType($contentTypeName));
         }
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);

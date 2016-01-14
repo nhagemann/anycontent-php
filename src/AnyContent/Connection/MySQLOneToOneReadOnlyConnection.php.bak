@@ -128,14 +128,5 @@ class MySQLOneToOneReadOnlyConnection extends AbstractConnection implements Read
     }
 
 
-    public function registerRecordClassForContentType($contentTypeName, $classname)
-
-    {
-    }
-
-
-    public function getClassForContentType($contentTypeName)
-    {
-    }
 
 }

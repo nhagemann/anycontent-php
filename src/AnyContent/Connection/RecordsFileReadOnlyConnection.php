@@ -71,9 +71,9 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         if ($this->getConfiguration()->hasContentType($contentTypeName))
         {
 
-            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName)))
+            if ($this->hasStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName)))
             {
-                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($contentTypeName));
+                return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
             $records = $this->getAllMultiViewRecords($contentTypeName, $dataDimensions);
 

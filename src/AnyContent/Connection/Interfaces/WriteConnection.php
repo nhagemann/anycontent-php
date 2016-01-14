@@ -11,7 +11,9 @@ interface WriteConnection extends ReadOnlyConnection
 {
 
     /**
-     * @param UserInfo $userInfo
+     * @param $userInfo
+     *
+     * @return $this
      */
     public function setUserInfo($userInfo);
 
@@ -58,9 +60,6 @@ interface WriteConnection extends ReadOnlyConnection
 
 
     public function saveConfig(Config $config, DataDimensions $dataDimensions = null);
-//    public function registerRecordClassForContentType($contentTypeName, $classname);
-//
-//
-//    public function getClassForContentType($contentTypeName);
+
 
 }

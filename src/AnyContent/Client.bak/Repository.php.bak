@@ -450,7 +450,7 @@ class Repository
      */
     public function getRecordsAsRecordObjects($filter = null, $limit = null, $page = 1, $className = null)
     {
-        $currentClassName = $this->getClient()->getClassForContentType($this->contentTypeName);
+        $currentClassName = $this->getClient()->getRecordClassForContentType($this->contentTypeName);
 
         if ($className != null && $currentClassName != $className)
         {

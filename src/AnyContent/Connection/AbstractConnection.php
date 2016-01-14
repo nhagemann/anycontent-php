@@ -11,6 +11,7 @@ use AnyContent\Client\RecordFactory;
 use AnyContent\Client\Repository;
 use AnyContent\Client\UserInfo;
 use AnyContent\Connection\Configuration\AbstractConfiguration;
+use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
 use CMDL\Parser;
 use CMDL\Util;
@@ -40,8 +41,6 @@ abstract class AbstractConnection
 
     /** @var  RecordFactory */
     protected $recordFactory;
-
-    protected $contentRecordClassMap = [ ];
 
     /** @var  UserInfo */
     protected $userInfo;
@@ -115,6 +114,15 @@ abstract class AbstractConnection
 
 
     /**
+     * @return bool
+     */
+    public function hasRepository()
+    {
+        return (boolean)$this->repository;
+    }
+
+
+    /**
      * @param CacheProvider $cache
      * @param int           $confidence
      * @param int           $storage
@@ -169,6 +177,10 @@ abstract class AbstractConnection
 
     public function getRecordFactory()
     {
+        if ($this->hasRepository())
+        {
+            return $this->getRepository()->getRecordFactory();
+        }
         if (!$this->recordFactory)
         {
             $this->recordFactory = new RecordFactory([ 'validateProperties' => false ]);
@@ -180,29 +192,25 @@ abstract class AbstractConnection
     }
 
 
-    public function registerRecordClassForContentType($contentTypeName, $classname)
+    public function getRecordClassForContentType($contentTypeName)
     {
-        if ($this->hasContentType($contentTypeName))
+        if ($this->hasRepository())
         {
-            $this->contentRecordClassMap[$contentTypeName] = $classname;
-
-            $this->getRecordFactory()->registerRecordClassForContentType($contentTypeName, $classname);
-
-            return true;
-        }
-
-        return false;
-    }
-
-
-    public function getClassForContentType($contentTypeName)
-    {
-        if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
-        {
-            return $this->contentRecordClassMap[$contentTypeName];
+            return $this->getRepository()->getRecordClassForContentType($contentTypeName);
         }
 
         return 'AnyContent\Client\Record';
+    }
+
+
+    public function getRecordClassForConfigType($configTypeName)
+    {
+        if ($this->hasRepository())
+        {
+            return $this->getRepository()->getRecordClassForContentType($configTypeName);
+        }
+
+        return 'AnyContent\Client\Config';
     }
 
 
@@ -297,8 +305,18 @@ abstract class AbstractConnection
 
 
     /**
+     * @return array
+     */
+    public function getConfigTypeNames()
+    {
+        return $this->configuration->getConfigTypeNames();
+    }
+
+
+    /**
      * @return ContentTypeDefinition[]
      * @throws AnyContentClientException
+     * @deprecated
      */
     public function getContentTypes()
     {
@@ -314,9 +332,38 @@ abstract class AbstractConnection
     }
 
 
+    /**
+     * @return ConfigTypeDefinition[]
+     * @throws AnyContentClientException
+     */
+    public function getConfigTypeDefinitions()
+    {
+        $configTypes = [ ];
+        foreach ($this->getConfiguration()->getContentTypeNames() as $configTypeName)
+        {
+            $definition                          = $this->getConfigTypeDefinition($configTypeName);
+            $configTypes[$definition->getName()] = $definition;
+        }
+
+        return $configTypes;
+
+    }
+
+
     public function hasContentType($contentTypeName)
     {
         if (in_array($contentTypeName, $this->getContentTypeNames()))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function hasConfigType($configTypeName)
+    {
+        if (in_array($configTypeName, $this->getConfigTypeNames()))
         {
             return true;
         }
@@ -357,6 +404,7 @@ abstract class AbstractConnection
         return $this->currentContentTypeDefinition;
 
     }
+
 
     /**
      * @return ContentTypeDefinition
@@ -622,11 +670,15 @@ abstract class AbstractConnection
 
 
     /**
-     * @param UserInfo $userInfo
+     * @param $userInfo
+     *
+     * @return $this
      */
     public function setUserInfo($userInfo)
     {
         $this->userInfo = $userInfo;
+
+        return $this;
     }
 
 

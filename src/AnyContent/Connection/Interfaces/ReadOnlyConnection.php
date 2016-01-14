@@ -5,6 +5,7 @@ namespace AnyContent\Connection\Interfaces;
 use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
+use AnyContent\Client\Repository;
 use CMDL\ContentTypeDefinition;
 
 interface ReadOnlyConnection
@@ -96,11 +97,10 @@ interface ReadOnlyConnection
     public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
-    public function registerRecordClassForContentType($contentTypeName, $classname);
 
+    public function getRecordClassForContentType($contentTypeName);
 
-    public function getClassForContentType($contentTypeName);
-
+    public function getRecordClassForConfigType($configTypeName);
 
     /**
      *
@@ -108,11 +108,37 @@ interface ReadOnlyConnection
      */
     public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null);
 
+
+    /**
+     * @param Repository $repository
+     */
+    public function apply(Repository $repository);
+
+
+    /**
+     * @return Repository
+     */
+    public function getRepository();
+
+
+    /**
+     * @param Repository $repository
+     */
+    public function setRepository($repository);
+
+
+    /**
+     * @return bool
+     */
+    public function hasRepository();
+
+
+    //public function registerRecordClassForContentType($contentTypeName, $classname);
+
 //    public function registerRecordClassForConfigType($configTypeName, $classname);
 //
 //
-//    public function getClassForConfigType($configTypeName);
-
+//    public function getRecordClassForConfigType($configTypeName);
 
     /**
      * Check for last content/config or cmdl change within repository or for a distinct content/config type

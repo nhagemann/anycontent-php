@@ -61,7 +61,7 @@ class RecordFactory
     {
         $records = [ ];
 
-        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+        $classname = $this->getRecordClassForContentType($contentTypeDefinition->getName());
 
         /** @var Record $record */
         $masterRecord = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
@@ -95,14 +95,14 @@ class RecordFactory
 
         if ($dataTypeDefinition instanceof ConfigTypeDefinition)
         {
-            $classname = $this->getClassForConfigType($dataTypeDefinition->getName());
+            $classname = $this->getRecordClassForConfigType($dataTypeDefinition->getName());
 
             /** @var Config $record */
             $record = new $classname($dataTypeDefinition, $viewName, $workspace, $language);
         }
         else
         {
-            $classname = $this->getClassForContentType($dataTypeDefinition->getName());
+            $classname = $this->getRecordClassForContentType($dataTypeDefinition->getName());
 
             /** @var Record $record */
             $record = new $classname($dataTypeDefinition, '', $viewName, $workspace, $language);
@@ -160,7 +160,7 @@ class RecordFactory
 
     public function createRecord(ContentTypeDefinition $contentTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
     {
-        $classname = $this->getClassForContentType($contentTypeDefinition->getName());
+        $classname = $this->getRecordClassForContentType($contentTypeDefinition->getName());
 
         /** @var Record $record */
         $record = new $classname($contentTypeDefinition, '', $viewName, $workspace, $language);
@@ -212,7 +212,7 @@ class RecordFactory
 
     public function createConfig(ConfigTypeDefinition $configTypeDefinition, $properties = [ ], $viewName = "default", $workspace = "default", $language = "default")
     {
-        $classname = $this->getClassForConfigType($configTypeDefinition->getName());
+        $classname = $this->getRecordClassForConfigType($configTypeDefinition->getName());
 
         /** @var Config $config */
         $config = new $classname($configTypeDefinition, '', $viewName, $workspace, $language);
@@ -243,7 +243,7 @@ class RecordFactory
     }
 
 
-    public function getClassForContentType($contentTypeName)
+    public function getRecordClassForContentType($contentTypeName)
     {
 
         if (array_key_exists($contentTypeName, $this->contentRecordClassMap))
@@ -264,7 +264,7 @@ class RecordFactory
     }
 
 
-    public function getClassForConfigType($configTypeName)
+    public function getRecordClassForConfigType($configTypeName)
     {
 
         if (array_key_exists($configTypeName, $this->configRecordClassMap))

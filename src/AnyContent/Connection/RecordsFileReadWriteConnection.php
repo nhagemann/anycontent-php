@@ -173,7 +173,7 @@ class RecordsFileReadWriteConnection extends RecordsFileReadOnlyConnection imple
 
         if ($this->writeData($this->getConfiguration()->getUriRecords($contentTypeName), $data))
         {
-            $this->unstashAllRecords($contentTypeName, $dataDimensions, $this->getClassForContentType($this->getCurrentContentTypeName()));
+            $this->unstashAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($this->getCurrentContentTypeName()));
 
             return array_keys($allRecords);
 

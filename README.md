@@ -9,8 +9,11 @@ check mandatory
 
 
 userinfo soll nur im repository gesetzt werden und zugriff auf repository aus der connection??  (überdenken)
-
 Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
+
+alpha ids
+
+
 
 erneut check id = property? (u.a. wegen elastic)
 
@@ -24,10 +27,12 @@ Caching auf Repository-Ebene / repositoryInfo
 anycontent-server-php
 
 ancontent http client RestLikeBasicConnection, 
-- STASH rein, insbesondere für getRecord Test
 - Dimensions in die URLs inklusive Timeshift
 - getConfig
+- Caching CMDL muss aktiviert werden, Caching RepositoryInfo muss möglich sein
 
+custom content type und stashing überprüfen
+custom content type und caching überprüfen
 
 RestLikeExtendedConnection
 

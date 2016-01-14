@@ -76,7 +76,7 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        if (!$this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName)))
+        if (!$this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getRecordClassForContentType($contentTypeName)))
         {
             // try to get the count information directly
 
@@ -113,7 +113,7 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
             $dataDimensions = $this->getCurrentDataDimensions();
         }
 
-        if (!$this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getClassForContentType($contentTypeName)))
+        if (!$this->hasStashedAllRecords($contentTypeName,$dataDimensions,$this->getRecordClassForContentType($contentTypeName)))
         {
             // try to get the record directly
             if ($this->numberOfSingleRecordFetches < $this->getConfiguration()->getMaxNumberOfSingleRecordFetches())
