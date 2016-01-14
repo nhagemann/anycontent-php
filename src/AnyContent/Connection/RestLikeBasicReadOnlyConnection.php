@@ -219,7 +219,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
         {
             if ($this->hasStashedRecord($contentTypeName, $recordId, $dataDimensions))
             {
-                return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions);
+                return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions,$this->getRecordClassForContentType($contentTypeName));
             }
             $url = 'content/' . $contentTypeName . '/record/' . $recordId;
 
@@ -266,7 +266,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
         {
             if ($this->hasStashedConfig($configTypeName, $dataDimensions))
             {
-                return $this->getStashedConfig($configTypeName, $dataDimensions);
+                return $this->getStashedConfig($configTypeName, $dataDimensions,$this->getRecordClassForConfigType($configTypeName));
             }
 
             $url = 'config/' . $configTypeName . '/record';

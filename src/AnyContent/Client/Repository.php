@@ -252,18 +252,17 @@ class Repository implements FileManager
         return $this->readConnection->getContentTypeDefinition($contentTypeName);
     }
 
-
-    /**
-     * @deprecated
-     *
-     * @return \CMDL\ContentTypeDefinition
-     * @throws AnyContentClientException
-     */
-    public function getCurrentContentType()
-    {
-        return $this->readConnection->getCurrentContentTypeDefinition();
-    }
-
+//
+//    /**
+//     * @deprecated
+//     *
+//     * @return \CMDL\ContentTypeDefinition
+//     * @throws AnyContentClientException
+//     */
+//    public function getCurrentContentTypeDefinition()
+//    {
+//        return $this->readConnection->getCurrentContentTypeDefinition();
+//    }
 
     /**
      *
