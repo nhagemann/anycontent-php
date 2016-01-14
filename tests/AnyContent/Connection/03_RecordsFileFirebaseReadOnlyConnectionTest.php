@@ -72,7 +72,7 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
             $this->markTestSkipped('Firebase credentials missing.');
         }
 
-        $contentTypes = $connection->getContentTypes();
+        $contentTypes = $connection->getContentTypeDefinitions();
 
         $this->assertArrayHasKey('profiles', $contentTypes);
 

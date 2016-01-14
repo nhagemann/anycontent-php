@@ -44,20 +44,33 @@ class LanguagesAndWorkspacesText extends \PHPUnit_Framework_TestCase
 
         $this->connection = $connection;
 
-        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
     }
 
 
     public function testContentTypes()
     {
-        $repository = new Repository('phpunit',$this->connection);
+        $repository = new Repository('phpunit', $this->connection);
 
         $contentTypeNames = $repository->getContentTypeNames();
 
-        $this->assertCount(6,$contentTypeNames);
+        $this->assertCount(6, $contentTypeNames);
 
         $this->assertTrue($repository->hasContentType('example01'));
     }
+
+
+    public function testConfigTypes()
+    {
+        $repository = new Repository('phpunit', $this->connection);
+
+        $configTypeNames = $repository->getConfigTypeNames();
+
+        $this->assertCount(3, $configTypeNames);
+
+        $this->assertTrue($repository->hasConfigType('config1'));
+    }
+
 
     public function testLastModified()
     {

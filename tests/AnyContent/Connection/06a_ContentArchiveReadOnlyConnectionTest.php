@@ -50,7 +50,7 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $contentTypes = $connection->getContentTypes();
+        $contentTypes = $connection->getContentTypeDefinitions();
 
         $this->assertArrayHasKey('profiles', $contentTypes);
 

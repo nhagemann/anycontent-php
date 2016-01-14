@@ -198,12 +198,18 @@ class Repository implements FileManager
     }
 
 
+    public function getConfigTypeNames()
+    {
+        return $this->readConnection->getConfigTypeNames();
+    }
+
+
     /**
      * @return \CMDL\ContentTypeDefinition[]
      */
-    public function getContentTypes()
+    public function getContentTypeDefinitions()
     {
-        return $this->readConnection->getContentTypes();
+        return $this->readConnection->getContentTypeDefinitions();
     }
 
 
@@ -245,7 +251,6 @@ class Repository implements FileManager
 
         return $this->readConnection->getContentTypeDefinition($contentTypeName);
     }
-
 
 
     /**

@@ -115,7 +115,7 @@ class MySQLSchemalessConnectionTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('MySQL credentials missing.');
         }
 
-        $contentTypes = $connection->getContentTypes();
+        $contentTypes = $connection->getContentTypeDefinitions();
 
         $this->assertArrayHasKey('profiles', $contentTypes);
 

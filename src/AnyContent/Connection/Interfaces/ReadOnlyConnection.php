@@ -20,7 +20,7 @@ interface ReadOnlyConnection
     /**
      * @return ContentTypeDefinition[]
      */
-    public function getContentTypes();
+    public function getContentTypeDefinitions();
 
 
     /**

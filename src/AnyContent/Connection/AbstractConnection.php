@@ -316,9 +316,8 @@ abstract class AbstractConnection
     /**
      * @return ContentTypeDefinition[]
      * @throws AnyContentClientException
-     * @deprecated
      */
-    public function getContentTypes()
+    public function getContentTypeDefinitions()
     {
         $contentTypes = [ ];
         foreach ($this->getConfiguration()->getContentTypeNames() as $contentTypeName)

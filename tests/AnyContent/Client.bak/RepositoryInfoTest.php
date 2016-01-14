@@ -45,11 +45,11 @@ class RepositoryInfoTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testGetContentTypes()
+    public function testgetContentTypeDefinitions()
     {
         /** @var Repository $repository */
         $repository   = $this->client->getRepository();
-        $contentTypes = $repository->getContentTypes();
+        $contentTypes = $repository->getContentTypeDefinitions();
         foreach ($contentTypes as $contentTypeName => $contentTypeTitle)
         {
             $this->assertTrue($repository->hasContentType($contentTypeName));
@@ -60,11 +60,11 @@ class RepositoryInfoTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testGetConfigTypes()
+    public function testgetConfigTypeDefinitions()
     {
         /** @var Repository $repository */
         $repository   = $this->client->getRepository();
-        $configTypes = $repository->getConfigTypes();
+        $configTypes = $repository->getConfigTypeDefinitions();
 
         foreach ($configTypes as $configTypeName => $configTypeTitle)
         {

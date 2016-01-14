@@ -77,7 +77,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('RestLike Basic Connection credentials missing.');
         }
 
-        $contentTypes = $connection->getContentTypes();
+        $contentTypes = $connection->getContentTypeDefinitions();
 
         $this->assertArrayHasKey('dtag_searchresult_product', $contentTypes);
 
