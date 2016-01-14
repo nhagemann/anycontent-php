@@ -73,7 +73,6 @@ class RepositoryFactory
         $repository = $this->createRepository($name, $connection, $fileManager, $this->getOption('title', null), $cache);
 
         return $repository;
-
     }
 
 
@@ -100,16 +99,15 @@ class RepositoryFactory
     {
         if ($cache == true)
         {
-            $repository = new Repository($name, $connection, $fileManager);
-        }
-        else
-        {
             $repository = new CachingRepository($name, $connection, $fileManager);
 
             $repository->setSingleContentRecordCaching(60);
             $repository->setAllContentRecordsCaching(60);
             $repository->setContentQueryRecordsCaching(60);
-
+        }
+        else
+        {
+            $repository = new Repository($name, $connection, $fileManager);
         }
 
         $repository->setTitle($title);
