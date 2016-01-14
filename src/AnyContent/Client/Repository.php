@@ -214,6 +214,15 @@ class Repository implements FileManager
 
 
     /**
+     * @return \CMDL\ConfigTypeDefinition[]
+     */
+    public function getConfigTypeDefinitions()
+    {
+        return $this->readConnection->getConfigTypeDefinitions();
+    }
+
+
+    /**
      * @param $contentTypeName
      *
      * @return bool

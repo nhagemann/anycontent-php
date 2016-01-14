@@ -338,7 +338,7 @@ abstract class AbstractConnection
     public function getConfigTypeDefinitions()
     {
         $configTypes = [ ];
-        foreach ($this->getConfiguration()->getContentTypeNames() as $configTypeName)
+        foreach ($this->getConfiguration()->getConfigTypeNames() as $configTypeName)
         {
             $definition                          = $this->getConfigTypeDefinition($configTypeName);
             $configTypes[$definition->getName()] = $definition;

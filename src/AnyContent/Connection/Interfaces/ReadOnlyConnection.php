@@ -6,6 +6,7 @@ use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Client\Record;
 use AnyContent\Client\Repository;
+use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
 
 interface ReadOnlyConnection
@@ -18,9 +19,21 @@ interface ReadOnlyConnection
 
 
     /**
+     * @return string[]
+     */
+    public function getConfigTypeNames();
+
+
+    /**
      * @return ContentTypeDefinition[]
      */
     public function getContentTypeDefinitions();
+
+
+    /**
+     * @return ConfigTypeDefinition[]
+     */
+    public function getConfigTypeDefinitions();
 
 
     /**
@@ -29,6 +42,14 @@ interface ReadOnlyConnection
      * @return mixed
      */
     public function hasContentType($contentTypeName);
+
+
+    /**
+     * @param $contentTypeName
+     *
+     * @return mixed
+     */
+    public function hasConfigType($contentTypeName);
 
 
     /**
