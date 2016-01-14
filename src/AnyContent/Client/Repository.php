@@ -219,6 +219,17 @@ class Repository implements FileManager
 
 
     /**
+     * @param $configTypeName
+     *
+     * @return bool
+     */
+    public function hasConfigType($configTypeName)
+    {
+        return $this->readConnection->hasConfigType($configTypeName);
+    }
+
+
+    /**
      * @param null $contentTypeName
      *
      * @return \CMDL\ConfigTypeDefinition|\CMDL\ContentTypeDefinition|\CMDL\DataTypeDefinition|null
@@ -234,6 +245,7 @@ class Repository implements FileManager
 
         return $this->readConnection->getContentTypeDefinition($contentTypeName);
     }
+
 
 
     /**
@@ -598,6 +610,35 @@ class Repository implements FileManager
     }
 
 
+    public function getConfig($configTypeName)
+    {
+        $dataDimensions = $this->getCurrentDataDimensions();
+
+        return $this->readConnection->getConfig($configTypeName, $dataDimensions);
+    }
+
+
+    public function saveConfig(Config $config)
+    {
+        if (!$this->writeConnection)
+        {
+            throw new AnyContentClientException ('Current connection(s) doesn\'t support write operations.');
+        }
+
+        $dataDimensions = $this->getCurrentDataDimensions();
+
+        $this->writeConnection->setUserInfo($this->getCurrentUserInfo());
+
+        $result = $this->writeConnection->saveConfig($config, $dataDimensions);
+
+        KVMLoggerFactory::instance('anycontent-repository')
+                        ->info('Saving config ' . $config->getConfigTypeName());
+
+        return $result;
+
+    }
+
+
     /**
      * @param string $path
      *
@@ -669,6 +710,29 @@ class Repository implements FileManager
 
 
     public function getRecordClassForContentType($contentTypeName)
+    {
+        return $this->getRecordFactory()->getRecordClassForContentType($contentTypeName);
+    }
+
+
+    public function registerRecordClassForConfigType($configTypeName, $classname)
+    {
+
+        if ($this->hasConfigType($configTypeName))
+        {
+            $this->getRecordFactory()->registerRecordClassForConfigType($configTypeName, $classname);
+
+            KVMLoggerFactory::instance('anycontent-repository')
+                            ->info('Custom record class ' . $classname . ' for config type ' . $configTypeName);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function getRecordClassForConfigType($contentTypeName)
     {
         return $this->getRecordFactory()->getRecordClassForContentType($contentTypeName);
     }

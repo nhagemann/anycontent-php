@@ -117,7 +117,7 @@ class ContentArchiveConfiguration extends AbstractConfiguration
     {
         if ($this->hasConfigType($configTypeName))
         {
-            return $this->getContentArchiveFolder() . '/data/config/' . $configTypeName . '/' . $dataDimensions->getWorkspace() . '/' . $dataDimensions->getLanguage();
+            return $this->getContentArchiveFolder() . '/data/config/' . $configTypeName . '/' . $dataDimensions->getWorkspace() . '/' . $dataDimensions->getLanguage().'/'.$configTypeName.'.json';
         }
 
         throw new AnyContentClientException ('Unknown config type ' . $configTypeName);

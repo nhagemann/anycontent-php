@@ -219,7 +219,11 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         {
             $data = json_decode($data, true);
 
-            $config = $this->getRecordFactory()->createRecordFromJSON($definition, $data);
+            $config = $this->getRecordFactory()->createConfig($definition, $data['properties']);
+            if (isset($data['info']['revision']))
+            {
+                $config->setRevision($data['info']['revision']);
+            }
 
         }
         else

@@ -45,7 +45,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
 
         $this->connection = $connection;
 
-        KVMLoggerFactory::createWithKLogger(__DIR__.'/../../../tmp');
+        KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
     }
 
 
@@ -73,7 +73,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
-        $repository = new Repository('phpunit',$this->connection);
+        $repository = new Repository('phpunit', $this->connection);
 
         $repository->selectContentType('example01');
 
@@ -90,7 +90,7 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Test ' . $i, $record->getProperty('article'));
         }
 
-        $repository->registerRecordClassForContentType('example01','AnyContent\Client\AlternateRecordClass');
+        $repository->registerRecordClassForContentType('example01', 'AnyContent\Client\AlternateRecordClass');
 
         $records = $repository->getRecords();
 
@@ -98,15 +98,49 @@ class CustomRecordClassTest extends \PHPUnit_Framework_TestCase
         foreach ($records as $id => $record)
         {
             $i++;
-            $this->assertInstanceOf('AnyContent\Client\AlternateRecordClass',$record);
+            $this->assertInstanceOf('AnyContent\Client\AlternateRecordClass', $record);
             $this->assertEquals($i, $id);
-            $this->assertEquals('New Record '.$i,$record->getName());
+            $this->assertEquals('New Record ' . $i, $record->getName());
             $this->assertEquals('Test ' . $i, $record->getProperty('article'));
         }
 
     }
 
 
+    public function testGetConfig()
+    {
+        $repository = new Repository('phpunit', $this->connection);
+
+        $repository->registerRecordClassForConfigType('config1', 'AnyContent\Client\AlternateConfigRecordClass');
+
+        $config = $repository->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\AlternateConfigRecordClass', $config);
+
+        $config->setProperty('city', 'Hamburg');
+
+        $repository->saveConfig($config);
+    }
+
+
+    public function testGetConfigNewConnection()
+    {
+        $repository = new Repository('phpunit', $this->connection);
+
+        $config = $repository->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertEquals('Hamburg',$config->getProperty('city'));
+
+        $repository->registerRecordClassForConfigType('config1', 'AnyContent\Client\AlternateConfigRecordClass');
+
+        $config = $repository->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\AlternateConfigRecordClass', $config);
+
+        $config->setProperty('city', 'Hamburg');
+    }
 
 }
 
@@ -117,5 +151,14 @@ class AlternateRecordClass extends Record
     public function getArticle()
     {
         return $this->getProperty('article');
+    }
+}
+
+class AlternateConfigRecordClass extends Config
+{
+
+    public function getCity()
+    {
+        return $this->getProperty('city');
     }
 }

@@ -97,16 +97,17 @@ interface ReadOnlyConnection
     public function getRecord($recordId, $contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
-
     public function getRecordClassForContentType($contentTypeName);
 
-    public function getRecordClassForConfigType($configTypeName);
 
     /**
      *
      * @return Config
      */
     public function getConfig($configTypeName = null, DataDimensions $dataDimensions = null);
+
+
+    public function getRecordClassForConfigType($configTypeName);
 
 
     /**
@@ -133,12 +134,7 @@ interface ReadOnlyConnection
     public function hasRepository();
 
 
-    //public function registerRecordClassForContentType($contentTypeName, $classname);
 
-//    public function registerRecordClassForConfigType($configTypeName, $classname);
-//
-//
-//    public function getRecordClassForConfigType($configTypeName);
 
     /**
      * Check for last content/config or cmdl change within repository or for a distinct content/config type
