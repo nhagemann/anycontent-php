@@ -10,6 +10,8 @@ use AnyContent\Connection\Interfaces\FileManager;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Interfaces\WriteConnection;
 use AnyContent\Filter\Interfaces\Filter;
+use CMDL\ConfigTypeDefinition;
+use CMDL\ContentTypeDefinition;
 use KVMLogger\KVMLoggerFactory;
 
 class Repository implements FileManager
@@ -70,6 +72,7 @@ class Repository implements FileManager
 
         $this->userInfo = new UserInfo();
 
+        $this->fileManager = $fileManager;
     }
 
 
@@ -106,6 +109,15 @@ class Repository implements FileManager
     public function setWriteConnection($writeConnection)
     {
         $this->writeConnection = $writeConnection;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function hasFiles()
+    {
+        return (boolean)$this->fileManager;
     }
 
 
@@ -247,7 +259,7 @@ class Repository implements FileManager
     /**
      * @param null $contentTypeName
      *
-     * @return \CMDL\ConfigTypeDefinition|\CMDL\ContentTypeDefinition|\CMDL\DataTypeDefinition|null
+     * @return ContentTypeDefinition
      * @throws AnyContentClientException
      */
     public function getContentTypeDefinition($contentTypeName = null)
@@ -259,6 +271,19 @@ class Repository implements FileManager
         }
 
         return $this->readConnection->getContentTypeDefinition($contentTypeName);
+    }
+
+
+    /**
+     * @param $configTypeName
+     *
+     * @return ConfigTypeDefinition
+     * @throws AnyContentClientException
+     */
+    public function getConfigTypeDefinition($configTypeName)
+    {
+
+        return $this->readConnection->getConfigTypeDefinition($configTypeName);
     }
 
 //
