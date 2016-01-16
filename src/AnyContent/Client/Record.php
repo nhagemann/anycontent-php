@@ -2,9 +2,6 @@
 
 namespace AnyContent\Client;
 
-use CMDL\CMDLParserException;
-use CMDL\Util;
-
 use CMDL\ContentTypeDefinition;
 
 class Record extends AbstractRecord implements \JsonSerializable
@@ -15,20 +12,10 @@ class Record extends AbstractRecord implements \JsonSerializable
     /** @var ContentTypeDefinition */
     protected $dataTypeDefinition = null;
 
-
-//    protected $workspace = 'default';
-//    protected $language = 'default';
-//
-//    public $properties = array();
-//
-//    public $revision = 1;
-
     protected $level = null;
 
     /** @var  UserInfo */
     public $creationUserInfo = null;
-
-
 
 
     public function __construct(ContentTypeDefinition $contentTypeDefinition, $name, $view = 'default', $workspace = 'default', $language = 'default')
@@ -45,51 +32,6 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-//    public function setProperty($property, $value)
-//    {
-//
-//        $property = Util::generateValidIdentifier($property);
-//        if ($this->dataTypeDefinition->hasProperty($property, $this->view))
-//        {
-//            $this->properties[$property] = $value;
-//            $this->hash                  = null;
-//            $this->revisionTimestamp     = null;
-//        }
-//        else
-//        {
-//            throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
-//        }
-//
-//        return $this;
-//    }
-
-//
-//    public function getProperty($property, $default = null)
-//    {
-//        if (array_key_exists($property, $this->properties))
-//        {
-//            return $this->properties[$property];
-//        }
-//        else
-//        {
-//            return $default;
-//        }
-//    }
-//
-//
-//    public function getSequence($property)
-//    {
-//        $values = json_decode($this->getProperty($property), true);
-//
-//        if (!is_array($values))
-//        {
-//            $values = array();
-//        }
-//
-//        return new Sequence($this->dataTypeDefinition, $values);
-//    }
-
-
     public function getTable($property)
     {
         $values = json_decode($this->getProperty($property), true);
@@ -100,7 +42,7 @@ class Record extends AbstractRecord implements \JsonSerializable
         }
 
         $formElementDefinition = $this->dataTypeDefinition->getViewDefinition($this->view)
-                                                             ->getFormElementDefinition($property);
+                                                          ->getFormElementDefinition($property);
 
         $columns = count($formElementDefinition->getList(1));
 
@@ -203,10 +145,12 @@ class Record extends AbstractRecord implements \JsonSerializable
         $this->level = $level;
     }
 
+
     public function getDataType()
     {
         return 'content';
     }
+
 
     /**
      * @deprecated
@@ -227,9 +171,6 @@ class Record extends AbstractRecord implements \JsonSerializable
     {
         return $this->dataTypeDefinition;
     }
-
-
-
 
 
     public function getStatus()
@@ -276,8 +217,6 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-
-
     public function setCreationUserInfo(UserInfo $creationUserInfo)
     {
         $this->creationUserInfo = clone $creationUserInfo;
@@ -291,14 +230,6 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->creationUserInfo;
     }
 
-
-
-
-
-    /* public function getAttributes()
-     {
-         return array( 'workspace' => $this->getWorkspace(), 'language' => $this->getLanguage(), 'position' => $this->getPosition(), 'parent_id' => $this->getParentRecordId(), 'level' => $this->getLevelWithinSortedTree() );
-     }*/
 
     function jsonSerialize()
     {
