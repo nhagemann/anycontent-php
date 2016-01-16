@@ -3,6 +3,7 @@ namespace AnyContent\Connection\Configuration;
 
 use AnyContent\AnyContentClientException;
 use AnyContent\Connection\RestLikeBasicReadOnlyConnection;
+use AnyContent\Connection\RestLikeBasicReadWriteConnection;
 
 class RestLikeConfiguration extends AbstractConfiguration
 {
@@ -56,7 +57,13 @@ class RestLikeConfiguration extends AbstractConfiguration
     public function addConfigTypes()
     {
 
-        //$this->contentTypes[$contentTypeName] = [ 'uri' => $uriRecords, 'cmdl' => $urlCMDL ];
+        /** @var RestLikeBasicReadOnlyConnection $connection */
+        $connection = $this->getConnection();
+        $info       = $connection->getRepositoryInfo();
+
+        $configTypes = array_keys($info['config']);
+
+        $this->configTypes = array_fill_keys($configTypes, [ ]);
 
         return $this;
     }
@@ -67,6 +74,10 @@ class RestLikeConfiguration extends AbstractConfiguration
         return new RestLikeBasicReadOnlyConnection($this);
     }
 
+    public function createReadWriteConnection()
+    {
+        return new  RestLikeBasicReadWriteConnection($this);
+    }
 
     /**
      * @return int

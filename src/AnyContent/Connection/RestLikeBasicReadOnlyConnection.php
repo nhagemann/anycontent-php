@@ -75,8 +75,9 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
         if (!array_key_exists((string)$dataDimensions, $this->repositoryInfo))
         {
-            $response = $this->getClient()
-                             ->get('info');// . $dataDimensions->getWorkspace() . '/' . $dataDimensions->getLanguage() . '?timeshift=' . $dataDimensions->getTimeShift());
+            $url = 'info/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();
+
+            $response = $this->getClient()->get($url);
             $json     = $response->json();
 
             $this->repositoryInfo[(string)$dataDimensions] = $json;
@@ -95,7 +96,9 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
     {
         if ($this->hasContentType($contentTypeName))
         {
-            $response = $this->getClient()->get('content/' . $contentTypeName . '/cmdl');
+            $url = 'content/' . $contentTypeName . '/cmdl';
+
+            $response = $this->getClient()->get($url);
             $json     = $response->json();
 
             return $json['cmdl'];
@@ -116,7 +119,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
         if ($this->getConfiguration()->hasConfigType($configTypeName))
         {
 
-            $response = $this->getClient()->get('content/' . $configTypeName . '/cmdl');
+            $response = $this->getClient()->get('config/' . $configTypeName . '/cmdl');
             $json     = $response->json();
 
             return $json['cmdl'];
@@ -182,7 +185,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
 
-            $url = 'content/' . $contentTypeName . '/records';
+            $url = 'content/' . $contentTypeName . '/records/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();
 
             $response = $this->getClient()->get($url);
 
@@ -219,9 +222,9 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
         {
             if ($this->hasStashedRecord($contentTypeName, $recordId, $dataDimensions))
             {
-                return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions,$this->getRecordClassForContentType($contentTypeName));
+                return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
-            $url = 'content/' . $contentTypeName . '/record/' . $recordId;
+            $url = 'content/' . $contentTypeName . '/record/' . $recordId . '/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();;
 
             try
             {
@@ -266,14 +269,21 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
         {
             if ($this->hasStashedConfig($configTypeName, $dataDimensions))
             {
-                return $this->getStashedConfig($configTypeName, $dataDimensions,$this->getRecordClassForConfigType($configTypeName));
+                return $this->getStashedConfig($configTypeName, $dataDimensions, $this->getRecordClassForConfigType($configTypeName));
             }
 
-            $url = 'config/' . $configTypeName . '/record';
+            $url = 'config/' . $configTypeName . '/record/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();;
 
             try
             {
                 $response = $this->getClient()->get($url);
+
+                $json = $response->json();
+
+                $config = $this->getRecordFactory()
+                               ->createRecordFromJSON($this->getConfigTypeDefinition($configTypeName), $json['record'], $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
+
+                return $config;
             }
             catch (ClientException $e)
             {

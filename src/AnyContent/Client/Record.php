@@ -12,7 +12,7 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public $id = null;
 
-    protected $contentTypeDefinition = null;
+    protected $dataTypeDefinition = null;
 
     protected $view = 'default';
     protected $workspace = 'default';
@@ -33,7 +33,7 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function __construct(ContentTypeDefinition $contentTypeDefinition, $name, $view = 'default', $workspace = 'default', $language = 'default')
     {
-        $this->contentTypeDefinition = $contentTypeDefinition;
+        $this->dataTypeDefinition = $contentTypeDefinition;
 
         $this->setProperty('name', $name);
         $this->view      = $view;
@@ -49,7 +49,7 @@ class Record extends AbstractRecord implements \JsonSerializable
     {
 
         $property = Util::generateValidIdentifier($property);
-        if ($this->contentTypeDefinition->hasProperty($property, $this->view))
+        if ($this->dataTypeDefinition->hasProperty($property, $this->view))
         {
             $this->properties[$property] = $value;
             $this->hash                  = null;
@@ -86,7 +86,7 @@ class Record extends AbstractRecord implements \JsonSerializable
             $values = array();
         }
 
-        return new Sequence($this->contentTypeDefinition, $values);
+        return new Sequence($this->dataTypeDefinition, $values);
     }
 
 
@@ -99,7 +99,7 @@ class Record extends AbstractRecord implements \JsonSerializable
             $values = array();
         }
 
-        $formElementDefinition = $this->contentTypeDefinition->getViewDefinition($this->view)
+        $formElementDefinition = $this->dataTypeDefinition->getViewDefinition($this->view)
                                                              ->getFormElementDefinition($property);
 
         $columns = count($formElementDefinition->getList(1));
@@ -213,30 +213,30 @@ class Record extends AbstractRecord implements \JsonSerializable
      */
     public function getContentType()
     {
-        return $this->contentTypeDefinition->getName();
+        return $this->dataTypeDefinition->getName();
     }
 
 
     public function getContentTypeName()
     {
-        return $this->contentTypeDefinition->getName();
+        return $this->dataTypeDefinition->getName();
     }
 
     public function getDataTypeName()
     {
-        return $this->contentTypeDefinition->getName();
+        return $this->dataTypeDefinition->getName();
     }
 
 
     public function getDataTypeDefinition()
     {
-        return $this->contentTypeDefinition;
+        return $this->dataTypeDefinition;
     }
 
 
     public function getContentTypeDefinition()
     {
-        return $this->contentTypeDefinition;
+        return $this->dataTypeDefinition;
     }
 
 
@@ -260,7 +260,7 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function getStatusLabel()
     {
-        $statusList = $this->contentTypeDefinition->getStatusList();
+        $statusList = $this->dataTypeDefinition->getStatusList();
         if ($statusList)
         {
             if (array_key_exists($this->getProperty('status'), $statusList))
@@ -282,7 +282,7 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public function getSubtypeLabel()
     {
-        $subtypesList = $this->contentTypeDefinition->getSubtypes();
+        $subtypesList = $this->dataTypeDefinition->getSubtypes();
         if ($subtypesList)
         {
             if (array_key_exists($this->getProperty('subtype'), $subtypesList))

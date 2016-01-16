@@ -9,8 +9,16 @@ use KVMLogger\KVMLoggerFactory;
 class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
 {
 
-    /** @var  RestLikeBasicReadOnlyConnection */
+    /** @var  RestLikeBasicReadWriteConnection */
     public $connection;
+
+    static $randomString;
+
+
+    public static function setUpBeforeClass()
+    {
+        self::$randomString = md5(time());
+    }
 
 
     public function setUp()
@@ -20,9 +28,10 @@ class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
             $configuration = new RestLikeConfiguration();
 
             $configuration->setUri(PHPUNIT_CREDENTIALS_RESTLIKE_URL);
-            $connection = $configuration->createReadOnlyConnection();
+            $connection = $configuration->createReadWriteConnection();
 
             $configuration->addContentTypes();
+            $configuration->addConfigTypes();
 
             $this->connection = $connection;
 
@@ -31,45 +40,41 @@ class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testTest()
-    {
 
+    public function testConfigSameConnection()
+    {
+        $connection = $this->connection;
+
+        $config = $connection->getConfig('dtag_search_notfound');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertTrue($config->hasProperty('copytext5'));
+
+        $config->setProperty('copytext5', self::$randomString);
+
+        $connection->saveConfig($config);
+
+        $config = $connection->getConfig('dtag_search_notfound');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertEquals(self::$randomString, $config->getProperty('copytext5'));
     }
 
-//    public function testConfigSameConnection()
-//    {
-//        $connection = $this->connection;
-//
-//        $config = $connection->getConfig('dtag_search_notfound');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('', $config->getProperty('city'));
-//
-//        $config->setProperty('city', 'Frankfurt');
-//
-//        $connection->saveConfig($config);
-//
-//        $config = $connection->getConfig('config1');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('Frankfurt', $config->getProperty('city'));
-//    }
-//
-//
-//    public function testConfigNewConnection()
-//    {
-//        $connection = $this->connection;
-//
-//        $config = $connection->getConfig('config1');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('Frankfurt', $config->getProperty('city'));
-//    }
-//
-//
+
+    public function testConfigNewConnection()
+    {
+        $connection = $this->connection;
+
+        $config = $connection->getConfig('dtag_search_notfound');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertEquals(self::$randomString, $config->getProperty('copytext5'));
+    }
+
+
 //    public function testViewsConfigSameConnection()
 //    {
 //        $connection = $this->connection;

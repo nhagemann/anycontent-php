@@ -10,7 +10,7 @@ use CMDL\ConfigTypeDefinition;
 class Config extends AbstractRecord implements \JsonSerializable
 {
 
-    protected $configTypeDefinition = null;
+    protected $dataTypeDefinition = null;
 
     protected $workspace = 'default';
     protected $language = 'default';
@@ -27,7 +27,7 @@ class Config extends AbstractRecord implements \JsonSerializable
 
     public function __construct(ConfigTypeDefinition $configTypeDefinition, $view = 'default', $workspace = 'default', $language = 'default')
     {
-        $this->configTypeDefinition = $configTypeDefinition;
+        $this->dataTypeDefinition = $configTypeDefinition;
 
         $this->workspace = $workspace;
         $this->language  = $language;
@@ -39,7 +39,7 @@ class Config extends AbstractRecord implements \JsonSerializable
     {
 
         $property = Util::generateValidIdentifier($property);
-        if ($this->configTypeDefinition->hasProperty($property))
+        if ($this->dataTypeDefinition->hasProperty($property))
         {
             $this->properties[$property] = $value;
             $this->hash                  = null;
@@ -75,7 +75,7 @@ class Config extends AbstractRecord implements \JsonSerializable
             $values = array();
         }
 
-        return new Sequence($this->configTypeDefinition, $values);
+        return new Sequence($this->dataTypeDefinition, $values);
     }
 
 
@@ -109,23 +109,23 @@ class Config extends AbstractRecord implements \JsonSerializable
 
     public function getConfigTypeName()
     {
-        return $this->configTypeDefinition->getName();
+        return $this->dataTypeDefinition->getName();
     }
 
     public function getDataTypeName()
     {
-        return $this->configTypeDefinition->getName();
+        return $this->dataTypeDefinition->getName();
     }
 
     public function getDataTypeDefinition()
     {
-        return $this->configTypeDefinition;
+        return $this->dataTypeDefinition;
     }
 
 
     public function getConfigTypeDefinition()
     {
-        return $this->configTypeDefinition;
+        return $this->dataTypeDefinition;
     }
 
 
