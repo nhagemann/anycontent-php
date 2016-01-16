@@ -12,23 +12,23 @@ class Record extends AbstractRecord implements \JsonSerializable
 
     public $id = null;
 
+    /** @var ContentTypeDefinition */
     protected $dataTypeDefinition = null;
 
-    protected $view = 'default';
-    protected $workspace = 'default';
-    protected $language = 'default';
 
-    public $properties = array();
-
-    public $revision = 1;
+//    protected $workspace = 'default';
+//    protected $language = 'default';
+//
+//    public $properties = array();
+//
+//    public $revision = 1;
 
     protected $level = null;
 
     /** @var  UserInfo */
     public $creationUserInfo = null;
 
-    /** @var UserInfo */
-    public $lastChangeUserInfo = null;
+
 
 
     public function __construct(ContentTypeDefinition $contentTypeDefinition, $name, $view = 'default', $workspace = 'default', $language = 'default')
@@ -45,49 +45,49 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-    public function setProperty($property, $value)
-    {
+//    public function setProperty($property, $value)
+//    {
+//
+//        $property = Util::generateValidIdentifier($property);
+//        if ($this->dataTypeDefinition->hasProperty($property, $this->view))
+//        {
+//            $this->properties[$property] = $value;
+//            $this->hash                  = null;
+//            $this->revisionTimestamp     = null;
+//        }
+//        else
+//        {
+//            throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
+//        }
+//
+//        return $this;
+//    }
 
-        $property = Util::generateValidIdentifier($property);
-        if ($this->dataTypeDefinition->hasProperty($property, $this->view))
-        {
-            $this->properties[$property] = $value;
-            $this->hash                  = null;
-            $this->revisionTimestamp     = null;
-        }
-        else
-        {
-            throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
-        }
-
-        return $this;
-    }
-
-
-    public function getProperty($property, $default = null)
-    {
-        if (array_key_exists($property, $this->properties))
-        {
-            return $this->properties[$property];
-        }
-        else
-        {
-            return $default;
-        }
-    }
-
-
-    public function getSequence($property)
-    {
-        $values = json_decode($this->getProperty($property), true);
-
-        if (!is_array($values))
-        {
-            $values = array();
-        }
-
-        return new Sequence($this->dataTypeDefinition, $values);
-    }
+//
+//    public function getProperty($property, $default = null)
+//    {
+//        if (array_key_exists($property, $this->properties))
+//        {
+//            return $this->properties[$property];
+//        }
+//        else
+//        {
+//            return $default;
+//        }
+//    }
+//
+//
+//    public function getSequence($property)
+//    {
+//        $values = json_decode($this->getProperty($property), true);
+//
+//        if (!is_array($values))
+//        {
+//            $values = array();
+//        }
+//
+//        return new Sequence($this->dataTypeDefinition, $values);
+//    }
 
 
     public function getTable($property)
@@ -222,17 +222,6 @@ class Record extends AbstractRecord implements \JsonSerializable
         return $this->dataTypeDefinition->getName();
     }
 
-    public function getDataTypeName()
-    {
-        return $this->dataTypeDefinition->getName();
-    }
-
-
-    public function getDataTypeDefinition()
-    {
-        return $this->dataTypeDefinition;
-    }
-
 
     public function getContentTypeDefinition()
     {
@@ -240,16 +229,7 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-    public function setRevision($revision)
-    {
-        $this->revision = $revision;
-    }
 
-
-    public function getRevision()
-    {
-        return $this->revision;
-    }
 
 
     public function getStatus()
@@ -296,23 +276,6 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-    public function setLastChangeUserInfo(UserInfo $lastChangeUserInfo)
-    {
-        $this->lastChangeUserInfo = clone $lastChangeUserInfo;
-
-        return $this;
-    }
-
-
-    public function getLastChangeUserInfo()
-    {
-        if ($this->lastChangeUserInfo == null)
-        {
-            $this->lastChangeUserInfo = new UserInfo();
-        }
-
-        return $this->lastChangeUserInfo;
-    }
 
 
     public function setCreationUserInfo(UserInfo $creationUserInfo)
@@ -329,60 +292,7 @@ class Record extends AbstractRecord implements \JsonSerializable
     }
 
 
-    public function setLanguage($language)
-    {
-        $this->language = $language;
 
-        return $this;
-    }
-
-
-    public function getLanguage()
-    {
-        return $this->language;
-    }
-
-
-    public function setWorkspace($workspace)
-    {
-        $this->workspace = $workspace;
-
-        return $this;
-    }
-
-
-    public function getWorkspace()
-    {
-        return $this->workspace;
-    }
-
-
-    public function setViewName($view)
-    {
-        $this->view = $view;
-
-        return $this;
-    }
-
-
-    public function getViewName()
-    {
-        return $this->view;
-    }
-
-
-    public function setProperties($properties)
-    {
-        $this->properties = $properties;
-
-        return $this;
-    }
-
-
-    public function getProperties()
-    {
-        return $this->properties;
-    }
 
 
     /* public function getAttributes()

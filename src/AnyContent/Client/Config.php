@@ -2,28 +2,27 @@
 
 namespace AnyContent\Client;
 
-use CMDL\CMDLParserException;
-use CMDL\Util;
-
 use CMDL\ConfigTypeDefinition;
 
 class Config extends AbstractRecord implements \JsonSerializable
 {
 
+    /**
+     * @var ConfigTypeDefinition
+     */
     protected $dataTypeDefinition = null;
 
-    protected $workspace = 'default';
-    protected $language = 'default';
-
-    public $properties = array();
-
-    public $revision = 1;
-    public $revisionTimestamp = null;
-
-    public $hash = null;
-
-    public $lastChangeUserInfo;
-
+//    protected $workspace = 'default';
+//    protected $language = 'default';
+//
+//    public $properties = array();
+//
+//    public $revision = 1;
+//    public $revisionTimestamp = null;
+//
+//    public $hash = null;
+//
+//    public $lastChangeUserInfo;
 
     public function __construct(ConfigTypeDefinition $configTypeDefinition, $view = 'default', $workspace = 'default', $language = 'default')
     {
@@ -31,95 +30,86 @@ class Config extends AbstractRecord implements \JsonSerializable
 
         $this->workspace = $workspace;
         $this->language  = $language;
-
+        $this->view      = $view;
     }
 
+//
+//    public function setProperty($property, $value)
+//    {
+//
+//        $property = Util::generateValidIdentifier($property);
+//        if ($this->dataTypeDefinition->hasProperty($property))
+//        {
+//            $this->properties[$property] = $value;
+//            $this->hash                  = null;
+//            $this->revisionTimestamp     = null;
+//        }
+//        else
+//        {
+//            throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
+//        }
+//
+//    }
 
-    public function setProperty($property, $value)
-    {
+//
+//    public function getProperty($property, $default = null)
+//    {
+//        if (array_key_exists($property, $this->properties))
+//        {
+//            return $this->properties[$property];
+//        }
+//        else
+//        {
+//            return $default;
+//        }
+//    }
+//
+//
+//    public function getSequence($property)
+//    {
+//        $values = json_decode($this->getProperty($property), true);
+//
+//        if (!is_array($values))
+//        {
+//            $values = array();
+//        }
+//
+//        return new Sequence($this->dataTypeDefinition, $values);
+//    }
 
-        $property = Util::generateValidIdentifier($property);
-        if ($this->dataTypeDefinition->hasProperty($property))
-        {
-            $this->properties[$property] = $value;
-            $this->hash                  = null;
-            $this->revisionTimestamp     = null;
-        }
-        else
-        {
-            throw new CMDLParserException('Unknown property ' . $property, CMDLParserException::CMDL_UNKNOWN_PROPERTY);
-        }
-
-    }
-
-
-    public function getProperty($property, $default = null)
-    {
-        if (array_key_exists($property, $this->properties))
-        {
-            return $this->properties[$property];
-        }
-        else
-        {
-            return $default;
-        }
-    }
-
-
-    public function getSequence($property)
-    {
-        $values = json_decode($this->getProperty($property), true);
-
-        if (!is_array($values))
-        {
-            $values = array();
-        }
-
-        return new Sequence($this->dataTypeDefinition, $values);
-    }
-
-
-    public function getID()
-    {
-        return $this->id;
-    }
-
-
-    public function setID($id)
-    {
-        $this->id = $id;
-    }
-
-
-    public function setHash($hash)
-    {
-        $this->hash = $hash;
-    }
-
-
-    public function getHash()
-    {
-        return $this->hash;
-    }
+//
+//    public function getID()
+//    {
+//        return $this->id;
+//    }
+//
+//
+//    public function setID($id)
+//    {
+//        $this->id = $id;
+//    }
+//
+//
+//    public function setHash($hash)
+//    {
+//        $this->hash = $hash;
+//    }
+//
+//
+//    public function getHash()
+//    {
+//        return $this->hash;
+//    }
 
     public function getDataType()
     {
         return 'config';
     }
 
+
     public function getConfigTypeName()
     {
         return $this->dataTypeDefinition->getName();
-    }
-
-    public function getDataTypeName()
-    {
-        return $this->dataTypeDefinition->getName();
-    }
-
-    public function getDataTypeDefinition()
-    {
-        return $this->dataTypeDefinition;
     }
 
 
@@ -128,87 +118,83 @@ class Config extends AbstractRecord implements \JsonSerializable
         return $this->dataTypeDefinition;
     }
 
+//
+//    public function setRevision($revision)
+//    {
+//        $this->revision = $revision;
+//    }
+//
+//
+//    public function getRevision()
+//    {
+//        return $this->revision;
+//    }
 
-    public function setRevision($revision)
-    {
-        $this->revision = $revision;
-    }
+//    public function setRevisionTimestamp($revisionTimestamp)
+//    {
+//        $this->revisionTimestamp = $revisionTimestamp;
+//    }
+//
+//
+//    public function getRevisionTimestamp()
+//    {
+//        return $this->revisionTimestamp;
+//    }
 
+//
+//    public function setLastChangeUserInfo($lastChangeUserInfo)
+//    {
+//        $this->lastChangeUserInfo = $lastChangeUserInfo;
+//    }
 
-    public function getRevision()
-    {
-        return $this->revision;
-    }
-
-
-    public function setRevisionTimestamp($revisionTimestamp)
-    {
-        $this->revisionTimestamp = $revisionTimestamp;
-    }
-
-
-    public function getRevisionTimestamp()
-    {
-        return $this->revisionTimestamp;
-    }
-
-
-    public function setLastChangeUserInfo($lastChangeUserInfo)
-    {
-        $this->lastChangeUserInfo = $lastChangeUserInfo;
-    }
-
-
-    public function getLastChangeUserInfo()
-    {
-        return $this->lastChangeUserInfo;
-    }
-
-
-    public function setLanguage($language)
-    {
-        $this->language = $language;
-    }
-
-
-    public function getLanguage()
-    {
-        return $this->language;
-    }
-
-
-    public function setWorkspace($workspace)
-    {
-        $this->workspace = $workspace;
-    }
-
-
-    public function getWorkspace()
-    {
-        return $this->workspace;
-    }
-
-
-    public function setProperties($properties)
-    {
-        $this->properties = $properties;
-    }
-
-
-    public function getProperties()
-    {
-        return $this->properties;
-    }
-
+//    public function getLastChangeUserInfo()
+//    {
+//        return $this->lastChangeUserInfo;
+//    }
+//
+//
+//    public function setLanguage($language)
+//    {
+//        $this->language = $language;
+//    }
+//
+//
+//    public function getLanguage()
+//    {
+//        return $this->language;
+//    }
+//
+//
+//    public function setWorkspace($workspace)
+//    {
+//        $this->workspace = $workspace;
+//    }
+//
+//
+//    public function getWorkspace()
+//    {
+//        return $this->workspace;
+//    }
+//
+//
+//    public function setProperties($properties)
+//    {
+//        $this->properties = $properties;
+//    }
+//
+//
+//    public function getProperties()
+//    {
+//        return $this->properties;
+//    }
 
     function jsonSerialize()
     {
-        $record                     = [ ];
-        $record['properties']       = $this->getProperties();
-        $record['info']             = [ ];
-        $record['info']['revision'] = $this->getRevision();
-        //$record['info']['creation']   = $this->getCreationUserInfo();
-        //$record['info']['lastchange'] = $this->getLastChangeUserInfo();
+        $record                       = [ ];
+        $record['properties']         = $this->getProperties();
+        $record['info']               = [ ];
+        $record['info']['revision']   = $this->getRevision();
+        $record['info']['lastchange'] = $this->getLastChangeUserInfo();
 
         return $record;
     }
