@@ -12,22 +12,24 @@ class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
     /** @var  RestLikeBasicReadWriteConnection */
     public $connection;
 
-    static $randomString;
+    static $randomString1;
+    static $randomString2;
 
 
     public static function setUpBeforeClass()
     {
-        self::$randomString = md5(time());
+        self::$randomString1 = md5(time());
+        self::$randomString2 = md5(time());
     }
 
 
     public function setUp()
     {
-        if (defined('PHPUNIT_CREDENTIALS_RESTLIKE_URL'))
+        if (defined('PHPUNIT_CREDENTIALS_RESTLIKE_URL2'))
         {
             $configuration = new RestLikeConfiguration();
 
-            $configuration->setUri(PHPUNIT_CREDENTIALS_RESTLIKE_URL);
+            $configuration->setUri(PHPUNIT_CREDENTIALS_RESTLIKE_URL2);
             $connection = $configuration->createReadWriteConnection();
 
             $configuration->addContentTypes();
@@ -45,21 +47,26 @@ class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $config = $connection->getConfig('dtag_search_notfound');
+        if (!$connection)
+        {
+            $this->markTestSkipped('RestLike Basic Connection credentials missing.');
+        }
+
+        $config = $connection->getConfig('config1');
 
         $this->assertInstanceOf('AnyContent\Client\Config', $config);
 
-        $this->assertTrue($config->hasProperty('copytext5'));
+        $this->assertTrue($config->hasProperty('city'));
 
-        $config->setProperty('copytext5', self::$randomString);
+        $config->setProperty('city', self::$randomString1);
 
         $connection->saveConfig($config);
 
-        $config = $connection->getConfig('dtag_search_notfound');
+        $config = $connection->getConfig('config1');
 
         $this->assertInstanceOf('AnyContent\Client\Config', $config);
 
-        $this->assertEquals(self::$randomString, $config->getProperty('copytext5'));
+        $this->assertEquals(self::$randomString1, $config->getProperty('city'));
     }
 
 
@@ -67,44 +74,54 @@ class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection;
 
-        $config = $connection->getConfig('dtag_search_notfound');
+        if (!$connection)
+        {
+            $this->markTestSkipped('RestLike Basic Connection credentials missing.');
+        }
+
+        $config = $connection->getConfig('config1');
 
         $this->assertInstanceOf('AnyContent\Client\Config', $config);
 
-        $this->assertEquals(self::$randomString, $config->getProperty('copytext5'));
+        $this->assertEquals(self::$randomString1, $config->getProperty('city'));
     }
 
 
-//    public function testViewsConfigSameConnection()
-//    {
-//        $connection = $this->connection;
-//
-//        $connection->selectView('test');
-//
-//        $config = $connection->getConfig('config1');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('', $config->getProperty('comment'));
-//
-//        $config->setProperty('comment', 'Test');
-//
-//        $connection->saveConfig($config);
-//
-//        $config = $connection->getConfig('config1');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('Test', $config->getProperty('comment'));
-//
-//        $connection->selectView('default');
-//
-//        $config = $connection->getConfig('config1');
-//
-//        $this->assertInstanceOf('AnyContent\Client\Config', $config);
-//
-//        $this->assertEquals('Frankfurt', $config->getProperty('city'));
-//
-//    }
+    public function testViewsConfigSameConnection()
+    {
+        $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('RestLike Basic Connection credentials missing.');
+        }
+
+        $connection->selectView('test');
+
+        $config = $connection->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertTrue($config->hasProperty('comment'));
+
+        $config->setProperty('comment', self::$randomString2);
+
+        $connection->saveConfig($config);
+
+        $config = $connection->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertEquals(self::$randomString2, $config->getProperty('comment'));
+
+        $connection->selectView('default');
+
+        $config = $connection->getConfig('config1');
+
+        $this->assertInstanceOf('AnyContent\Client\Config', $config);
+
+        $this->assertEquals(self::$randomString1, $config->getProperty('city'));
+
+    }
 
 }

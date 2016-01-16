@@ -16,11 +16,11 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (defined('PHPUNIT_CREDENTIALS_RESTLIKE_URL'))
+        if (defined('PHPUNIT_CREDENTIALS_RESTLIKE_URL1'))
         {
             $configuration = new RestLikeConfiguration();
 
-            $configuration->setUri(PHPUNIT_CREDENTIALS_RESTLIKE_URL);
+            $configuration->setUri(PHPUNIT_CREDENTIALS_RESTLIKE_URL1);
             $connection = $configuration->createReadOnlyConnection();
 
             $configuration->addContentTypes();

@@ -553,8 +553,13 @@ abstract class AbstractConnection
 
     protected function unstashRecord($contentTypeName, $recordId, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
     {
-        $hash = md5($contentTypeName . $dataDimensions . $recordClass);
-        unset($this->recordsStash[$hash][$recordId]);
+        $tempDataDimensions = $dataDimensions;
+        foreach ($this->getContentTypeDefinition($contentTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+        {
+            $tempDataDimensions->setViewName($viewDefinition->getName());
+            $hash = md5($contentTypeName . $tempDataDimensions . $recordClass);
+            unset($this->recordsStash[$hash][$recordId]);
+        }
     }
 
 
@@ -619,10 +624,14 @@ abstract class AbstractConnection
     {
         if (!$dataDimensions->hasRelativeTimeShift())
         {
-            $hash = md5($contentTypeName . $dataDimensions . $recordClass);
+            $tempDataDimensions = $dataDimensions;
+            foreach ($this->getContentTypeDefinition($contentTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+            {
+                $hash = md5($contentTypeName . $tempDataDimensions . $recordClass);
 
-            unset($this->recordsStash[$hash]);
-            $this->hasStashedAllRecords[$hash] = false;
+                unset($this->recordsStash[$hash]);
+                $this->hasStashedAllRecords[$hash] = false;
+            }
 
         }
     }
@@ -640,8 +649,13 @@ abstract class AbstractConnection
 
     protected function unstashConfig($configTypeName, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Config')
     {
-        $hash = md5($configTypeName . $dataDimensions . $recordClass);
-        unset($this->configStash[$hash]);
+
+        $tempDataDimensions = $dataDimensions;
+        foreach ($this->getConfigTypeDefinition($configTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+        {
+            $hash = md5($configTypeName . $tempDataDimensions . $recordClass);
+            unset($this->configStash[$hash]);
+        }
     }
 
 

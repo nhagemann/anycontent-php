@@ -9,6 +9,7 @@ use AnyContent\Client\Record;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Event\CompleteEvent;
+use GuzzleHttp\Event\EndEvent;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Message\Response;
 use KVMLogger\KVMLoggerFactory;
@@ -42,7 +43,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
             $emitter = $client->getEmitter();
 
-            $emitter->on('complete', function (CompleteEvent $event)
+            $emitter->on('end', function (EndEvent $event)
             {
 
                 $kvm = KVMLoggerFactory::instance('anycontent-connection');
@@ -75,7 +76,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
         if (!array_key_exists((string)$dataDimensions, $this->repositoryInfo))
         {
-            $url = 'info/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();
+            $url = 'info/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&view=' . $dataDimensions->getViewName() . '&timeshift=' . $dataDimensions->getTimeShift();
 
             $response = $this->getClient()->get($url);
             $json     = $response->json();
@@ -185,7 +186,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
                 return $this->getStashedAllRecords($contentTypeName, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
 
-            $url = 'content/' . $contentTypeName . '/records/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();
+            $url = 'content/' . $contentTypeName . '/records/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&view=' . $dataDimensions->getViewName() . '&timeshift=' . $dataDimensions->getTimeShift();
 
             $response = $this->getClient()->get($url);
 
@@ -224,7 +225,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
             {
                 return $this->getStashedRecord($contentTypeName, $recordId, $dataDimensions, $this->getRecordClassForContentType($contentTypeName));
             }
-            $url = 'content/' . $contentTypeName . '/record/' . $recordId . '/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();;
+            $url = 'content/' . $contentTypeName . '/record/' . $recordId . '/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&view=' . $dataDimensions->getViewName() . '&timeshift=' . $dataDimensions->getTimeShift();;
 
             try
             {
@@ -272,7 +273,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
                 return $this->getStashedConfig($configTypeName, $dataDimensions, $this->getRecordClassForConfigType($configTypeName));
             }
 
-            $url = 'config/' . $configTypeName . '/record/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&timeshift=' . $dataDimensions->getTimeShift();;
+            $url = 'config/' . $configTypeName . '/record/' . $dataDimensions->getWorkspace() . '?language=' . $dataDimensions->getLanguage() . '&view=' . $dataDimensions->getViewName() . '&timeshift=' . $dataDimensions->getTimeShift();;
 
             try
             {
