@@ -1,7 +1,7 @@
 <?php
 namespace AnyContent\Connection\Util;
 
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class Database
 {
@@ -33,7 +33,7 @@ class Database
      */
     public function execute($sql, $params = array())
     {
-        $kvm = KVMLoggerFactory::instance('anycontent-database');
+        $kvm = KVMLogger::instance('anycontent-database');
 
         /** @var \PDO $db */
         $dbh = $this->getConnection();

@@ -6,6 +6,7 @@ use AnyContent\Client\Record;
 use AnyContent\Client\Repository;
 use AnyContent\Connection\Configuration\MySQLSchemalessConfiguration;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class MySQLSchemalessReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {

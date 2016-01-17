@@ -12,7 +12,7 @@ use GuzzleHttp\Event\CompleteEvent;
 use GuzzleHttp\Event\EndEvent;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Message\Response;
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use KVMLogger\LogMessage;
 
 class RestLikeBasicReadOnlyConnection extends AbstractConnection implements ReadOnlyConnection
@@ -46,7 +46,7 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
             $emitter->on('end', function (EndEvent $event)
             {
 
-                $kvm = KVMLoggerFactory::instance('anycontent-connection');
+                $kvm = KVMLogger::instance('anycontent-connection');
 
                 $response = $event->getResponse();
 

@@ -4,6 +4,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordsFileGitConfiguration;
 use AnyContent\Connection\RecordsFileGitReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {

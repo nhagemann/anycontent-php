@@ -8,6 +8,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use AnyContent\Connection\RecordFilesReadWriteConnection;
 use CMDL\Parser;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileRepositoryTest extends \PHPUnit_Framework_TestCase

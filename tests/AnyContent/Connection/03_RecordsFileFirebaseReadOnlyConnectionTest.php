@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordsFileFirebaseConfiguration;
 use AnyContent\Connection\RecordsFileFirebaseReadOnlyConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {

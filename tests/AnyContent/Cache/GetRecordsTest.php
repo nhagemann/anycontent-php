@@ -7,6 +7,7 @@ use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use Doctrine\Common\Cache\PhpFileCache;
 
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class GetRecordsTest extends \PHPUnit_Framework_TestCase

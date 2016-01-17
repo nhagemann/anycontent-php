@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RestLikeConfiguration;
 
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RestLikeBasicConnectionConfigTest extends \PHPUnit_Framework_TestCase
 {

@@ -6,6 +6,7 @@ use AnyContent\Client\Record;
 
 use AnyContent\Connection\Configuration\RestLikeConfiguration;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RestLikeBasicConnectionReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
 {

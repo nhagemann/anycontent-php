@@ -6,6 +6,7 @@ use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\Configuration\RestLikeConfiguration;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 {
@@ -35,7 +36,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNotSelected()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -51,7 +52,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNames()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -68,7 +69,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeDefinitions()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -88,7 +89,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testCountRecords()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -106,7 +107,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecord()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -132,7 +133,7 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 

@@ -6,6 +6,7 @@ use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use CMDL\Parser;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class LanguagesAndWorkspacesText extends \PHPUnit_Framework_TestCase

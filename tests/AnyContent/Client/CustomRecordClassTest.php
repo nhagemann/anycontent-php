@@ -7,6 +7,7 @@ use AnyContent\Connection\ContentArchiveReadWriteConnection;
 use CMDL\Parser;
 
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class CustomRecordClassTest extends \PHPUnit_Framework_TestCase

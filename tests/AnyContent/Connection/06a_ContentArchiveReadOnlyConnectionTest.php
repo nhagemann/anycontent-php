@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\ContentArchiveConfiguration;
 use AnyContent\Connection\ContentArchiveReadOnlyConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
 {

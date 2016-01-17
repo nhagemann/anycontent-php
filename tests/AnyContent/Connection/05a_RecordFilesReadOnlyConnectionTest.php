@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RecordFilesReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {

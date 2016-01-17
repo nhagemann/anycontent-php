@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesReadWriteConnectionTest extends \PHPUnit_Framework_TestCase

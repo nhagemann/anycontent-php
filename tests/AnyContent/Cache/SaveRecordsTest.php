@@ -9,6 +9,7 @@ use AnyContent\Connection\RecordsFileReadWriteConnection;
 use Doctrine\Common\Cache\PhpFileCache;
 
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class SaveRecordsTest extends \PHPUnit_Framework_TestCase

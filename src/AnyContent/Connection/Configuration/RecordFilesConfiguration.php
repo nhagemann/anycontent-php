@@ -5,7 +5,7 @@ use AnyContent\AnyContentClientException;
 use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\RecordFilesReadOnlyConnection;
 use AnyContent\Connection\RecordFilesReadWriteConnection;
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesConfiguration extends AbstractConfiguration
@@ -26,7 +26,7 @@ class RecordFilesConfiguration extends AbstractConfiguration
 
         if (!$fs->exists($folderRecords))
         {
-            KVMLoggerFactory::instance('anycontent')->warning('Folder ' . $folderRecords . ' not found.');
+            KVMLogger::instance('anycontent')->warning('Folder ' . $folderRecords . ' not found.');
         }
 
         $this->contentTypes[$contentTypeName] = [ 'records' => $folderRecords, 'cmdl' => $filenameCMDL];
@@ -46,13 +46,13 @@ class RecordFilesConfiguration extends AbstractConfiguration
 
         if (!$fs->exists($filenameCMDL))
         {
-            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameCMDL . ' not found.');
+            KVMLogger::instance('anycontent-connection')->info('File ' . $filenameCMDL . ' not found.');
 
         }
 
         if (!$fs->exists($filenameRecord))
         {
-            KVMLoggerFactory::instance('anycontent-connection')->info('File ' . $filenameRecord . ' not found.');
+            KVMLogger::instance('anycontent-connection')->info('File ' . $filenameRecord . ' not found.');
         }
 
         $this->configTypes[$configTypeName] = [ 'record' => $filenameRecord, 'cmdl' => $filenameCMDL];

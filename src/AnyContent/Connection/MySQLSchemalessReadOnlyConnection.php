@@ -13,7 +13,7 @@ use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use AnyContent\Connection\Util\Database;
 
 use CMDL\Util;
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class MySQLSchemalessReadOnlyConnection extends AbstractConnection implements ReadOnlyConnection
 {
@@ -539,7 +539,7 @@ TEMPLATE_CONFIGTABLE;
             $definition = $this->getConfigTypeDefinition($configTypeName);
             $config     = $this->getRecordFactory()->createConfig($definition);
 
-            KVMLoggerFactory::instance('anycontent-connection')
+            KVMLogger::instance('anycontent-connection')
                             ->info('Config ' . $configTypeName . ' not found');
         }
 

@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RecordStashTest extends \PHPUnit_Framework_TestCase
 {

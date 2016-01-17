@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadOnlyConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +31,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNotSelected()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -41,7 +42,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeNames()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -53,7 +54,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testContentTypeDefinitions()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -68,7 +69,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCountRecords()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -81,7 +82,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecord()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 
@@ -98,7 +99,7 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRecords()
     {
-        KVMLoggerFactory::instance()->debug(__METHOD__);
+        KVMLogger::instance()->debug(__METHOD__);
 
         $connection = $this->connection;
 

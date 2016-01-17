@@ -7,6 +7,7 @@ use AnyContent\Connection\Configuration\RecordFilesConfiguration;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\RecordsFileReadWriteConnection;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RecordFilesViewsTest extends \PHPUnit_Framework_TestCase

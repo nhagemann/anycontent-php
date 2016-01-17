@@ -8,6 +8,10 @@ use Psr\Log\LogLevel;
 
 class KVMLogger extends AbstractLogger implements LoggerInterface
 {
+    /**
+     * @var KVMLogger
+     */
+    private static $instance = null;
 
     protected $chunk = '';
 
@@ -38,6 +42,8 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
     {
         $this->setNamespace($namespace);
         $this->setChunk(substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8));
+
+        self::$instance = $this;
     }
 
 
@@ -314,6 +320,24 @@ class KVMLogger extends AbstractLogger implements LoggerInterface
             }
             $kvmLogger->log($level, $message, $context);
         }, $errorTypes);
+    }
+
+    /**
+     * @param string $namespace
+     *
+     * @return KVMLogger
+     */
+    public static function instance($namespace = 'application')
+    {
+        if (!self::$instance)
+        {
+            self::$instance = new KVMNullLogger();
+        }
+
+        $kvmLogger = self::$instance;
+        $kvmLogger->setNamespace($namespace);
+
+        return $kvmLogger;
     }
 
 }

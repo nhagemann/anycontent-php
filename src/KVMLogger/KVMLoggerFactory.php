@@ -9,12 +9,6 @@ class KVMLoggerFactory
 {
 
     /**
-     * @var KVMLogger
-     */
-    private static $instance = null;
-
-
-    /**
      * @param string $namespace
      *
      * @return KVMLogger
@@ -22,8 +16,6 @@ class KVMLoggerFactory
     public static function create($namespace = 'application')
     {
         $kvmLogger = new KVMLogger($namespace);
-
-        self::$instance = $kvmLogger;
 
         return $kvmLogger;
     }
@@ -42,27 +34,6 @@ class KVMLoggerFactory
         $kvmLogger = new KVMLogger($realm);;
 
         $kvmLogger->addLogger($kLogger, $logLevelThreshold);
-
-        self::$instance = $kvmLogger;
-
-        return $kvmLogger;
-    }
-
-
-    /**
-     * @param string $namespace
-     *
-     * @return KVMLogger
-     */
-    public static function instance($namespace = 'application')
-    {
-        if (!self::$instance)
-        {
-            self::$instance = new KVMNullLogger();
-        }
-
-        $kvmLogger = self::$instance;
-        $kvmLogger->setNamespace($namespace);
 
         return $kvmLogger;
     }

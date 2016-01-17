@@ -5,6 +5,7 @@ namespace AnyContent\Connection;
 use AnyContent\Connection\FileManager\DirectoryBasedFilesAccess;
 use AnyContent\Connection\Interfaces\FileManager;
 use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class DirectoryBasedFilesAccessReadOnlyTest extends \PHPUnit_Framework_TestCase
 {

@@ -12,7 +12,7 @@ use AnyContent\Connection\Interfaces\WriteConnection;
 use AnyContent\Filter\Interfaces\Filter;
 use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class Repository implements FileManager
 {
@@ -538,7 +538,7 @@ class Repository implements FileManager
 
         $result = $this->writeConnection->saveRecord($record, $dataDimensions);
 
-        KVMLoggerFactory::instance('anycontent-repository')
+        KVMLogger::instance('anycontent-repository')
                         ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
 
         return $result;
@@ -562,7 +562,7 @@ class Repository implements FileManager
         if (count($records) > 0)
         {
             $record = reset($records);
-            KVMLoggerFactory::instance('anycontent-repository')
+            KVMLogger::instance('anycontent-repository')
                             ->info('Saving ' . count($records) . ' records of content type ' . $record->getContentTypeName());
         }
 
@@ -669,7 +669,7 @@ class Repository implements FileManager
 
         $result = $this->writeConnection->saveConfig($config, $dataDimensions);
 
-        KVMLoggerFactory::instance('anycontent-repository')
+        KVMLogger::instance('anycontent-repository')
                         ->info('Saving config ' . $config->getConfigTypeName());
 
         return $result;
@@ -737,7 +737,7 @@ class Repository implements FileManager
         {
             $this->getRecordFactory()->registerRecordClassForContentType($contentTypeName, $classname);
 
-            KVMLoggerFactory::instance('anycontent-repository')
+            KVMLogger::instance('anycontent-repository')
                             ->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
 
             return true;
@@ -760,7 +760,7 @@ class Repository implements FileManager
         {
             $this->getRecordFactory()->registerRecordClassForConfigType($configTypeName, $classname);
 
-            KVMLoggerFactory::instance('anycontent-repository')
+            KVMLogger::instance('anycontent-repository')
                             ->info('Custom record class ' . $classname . ' for config type ' . $configTypeName);
 
             return true;

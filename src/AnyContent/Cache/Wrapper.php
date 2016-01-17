@@ -2,7 +2,7 @@
 namespace AnyContent\Cache;
 
 use Doctrine\Common\Cache\CacheProvider;
-use KVMLogger\KVMLoggerFactory;
+use KVMLogger\KVMLogger;
 
 class Wrapper extends CacheProvider
 {
@@ -74,7 +74,7 @@ class Wrapper extends CacheProvider
     {
         $md5Key = md5($id);
 
-        $kvm = KVMLoggerFactory::instance('anycontent-cache');
+        $kvm = KVMLogger::instance('anycontent-cache');
 
         $data = $this->getCacheProvider()->doFetch($md5Key);
 
@@ -108,7 +108,7 @@ class Wrapper extends CacheProvider
 
         $md5Key = md5($id);
 
-        $kvm = KVMLoggerFactory::instance('anycontent-cache');
+        $kvm = KVMLogger::instance('anycontent-cache');
 
         $hit = $this->getCacheProvider()->doContains($md5Key);
 
