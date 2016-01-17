@@ -128,4 +128,17 @@ class PropertyFilter implements Filter
 
         return $s;
     }
+
+
+    public function __toString()
+    {
+        if ($this->term)
+        {
+            return $this->term['property'] . ' ' . $this->term['operator'] . ' ' . $this->term['value'];
+        }
+        else
+        {
+            return '';
+        }
+    }
 }

@@ -156,6 +156,7 @@ class RestLikeBasicReadWriteConnection extends RestLikeBasicReadOnlyConnection i
 
         $this->stashConfig($config, $dataDimensions);
 
+        return true;
     }
 
 }

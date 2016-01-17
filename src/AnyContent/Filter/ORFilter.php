@@ -40,4 +40,9 @@ class ORFilter implements Filter
         return false;
     }
 
+
+    public function __toString()
+    {
+        return '(' . join(' OR ', $this->terms) . ')';
+    }
 }

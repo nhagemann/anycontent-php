@@ -59,6 +59,12 @@ interface WriteConnection extends ReadOnlyConnection
     public function deleteAllRecords($contentTypeName = null, DataDimensions $dataDimensions = null);
 
 
+    /**
+     * @param Config              $config
+     * @param DataDimensions|null $dataDimensions
+     *
+     * @return bool
+     */
     public function saveConfig(Config $config, DataDimensions $dataDimensions = null);
 
 

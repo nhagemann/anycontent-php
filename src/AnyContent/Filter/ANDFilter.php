@@ -41,4 +41,9 @@ class ANDFilter implements Filter
         return true;
     }
 
+
+    public function __toString()
+    {
+        return '(' . join(' AND ', $this->terms) . ')';
+    }
 }

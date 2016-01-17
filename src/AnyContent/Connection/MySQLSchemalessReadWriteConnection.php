@@ -348,5 +348,7 @@ class MySQLSchemalessReadWriteConnection extends MySQLSchemalessReadOnlyConnecti
         $values['validuntil_timestamp'] = TimeShifter::getMaxTimestamp();
 
         $this->getDatabase()->insert($tableName, $values);
+
+        return true;
     }
 }

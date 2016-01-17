@@ -45,8 +45,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $connection = $configuration->createReadWriteConnection();
 
         $this->connection = $connection;
-        $repository       = new Repository('phpunit',$connection);
-
+        $this->repository = new Repository('phpunit', $connection);
 
         KVMLoggerFactory::createWithKLogger(__DIR__ . '/../../../tmp');
 
@@ -204,6 +203,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($filter->match($record3));
     }
 
+
     public function testNumericalComparison()
     {
         $this->repository->selectContentType('example01');
@@ -223,6 +223,24 @@ class FilterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($filter->match($record2));
         $this->assertTrue($filter->match($record3));
     }
+
+    public function testFilterAsString()
+    {
+        $filter = new PropertyFilter('source < 111');
+        $this->assertEquals('source < 111',(string)$filter);
+
+        $filter1 = new PropertyFilter('name = New Record');
+        $filter2 = new PropertyFilter('source = a');
+        $filter3 = new PropertyFilter('source = b');
+
+        $andFilter = new ANDFilter([ $filter1, $filter2 ]);
+
+        $orFilter = new ORFilter([ $andFilter, $filter3 ]);
+
+        $this->assertEquals('(name = New Record AND source = a)',(string)$andFilter);
+        $this->assertEquals('((name = New Record AND source = a) OR source = b)',(string)$orFilter);
+    }
+
 
 //
 //    public function testSimpleFilter()
