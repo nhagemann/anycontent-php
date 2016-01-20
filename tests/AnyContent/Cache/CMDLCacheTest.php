@@ -49,7 +49,7 @@ class CMDLCacheTest extends \PHPUnit_Framework_TestCase
     public function testGetRecordWithoutCMDLCache()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
 
         $repository->selectContentType('profiles');
 
@@ -66,7 +66,7 @@ class CMDLCacheTest extends \PHPUnit_Framework_TestCase
         $repository = $this->repository;
 
         $repository->getCacheProvider()->clearHitMissCounter();
-        $repository->setSingleContentRecordCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
         $repository->enableCmdlCaching(60);
 
         $repository->selectContentType('profiles');

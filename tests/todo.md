@@ -19,9 +19,6 @@
 - CachingRepository: ConfigCaching
 - CachingRepository: FilesCaching
 - CachingRepository: respect confidence value
-
-
-Client-Klasse mit einfachem Zugriff auf Repositories und Setzen einer Cache-Strategie
 - Bug dopplet md5
 
 - Decision: Property VALIDATION - NOT PART OF THE STORAGE ENGINGE  

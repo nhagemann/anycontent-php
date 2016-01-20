@@ -158,7 +158,7 @@ class CachingRepository extends Repository
     }
 
 
-    public function setSingleContentRecordCaching($duration)
+    public function enableSingleContentRecordCaching($duration)
     {
         $this->singleContentRecordCaching = $duration;
     }
@@ -173,7 +173,7 @@ class CachingRepository extends Repository
     }
 
 
-    public function setAllContentRecordsCaching($duration)
+    public function enableAllContentRecordsCaching($duration)
     {
         $this->allContentRecordsCaching = $duration;
     }
@@ -188,7 +188,7 @@ class CachingRepository extends Repository
     }
 
 
-    public function setContentQueryRecordsCaching($duration)
+    public function enableContentQueryRecordsCaching($duration)
     {
         $this->contentQueryRecordsCaching = $duration;
     }

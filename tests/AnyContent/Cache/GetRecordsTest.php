@@ -47,7 +47,7 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
     public function testGetRecords()
     {
         $repository = $this->repository;
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
 
 
         $repository->selectContentType('profiles');
@@ -68,7 +68,7 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
     public function testGetRecord()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
 
         $repository->selectContentType('profiles');
 
@@ -83,7 +83,7 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
     public function testQueryRecords()
     {
         $repository = $this->repository;
-        $repository->setContentQueryRecordsCaching(60);
+        $repository->enableContentQueryRecordsCaching(60);
 
         $repository->selectContentType('profiles');
 

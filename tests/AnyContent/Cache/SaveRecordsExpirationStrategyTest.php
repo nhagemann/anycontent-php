@@ -72,8 +72,8 @@ class SaveRecordsExpirationStrategyTest extends \PHPUnit_Framework_TestCase
     public function testChangeRecord()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
         $repository->selectContentType('profiles');
 
         $this->assertTrue($repository->hasExpirationCacheStrategy());
@@ -93,8 +93,8 @@ class SaveRecordsExpirationStrategyTest extends \PHPUnit_Framework_TestCase
     public function testChangedRecord()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
         $repository->selectContentType('profiles');
 
         $record = $repository->getRecord(1);
@@ -110,8 +110,8 @@ class SaveRecordsExpirationStrategyTest extends \PHPUnit_Framework_TestCase
     public function testCacheStrategyFailure()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
         $repository->selectContentType('profiles');
 
         $record = $repository->getRecord(1);

@@ -73,8 +73,8 @@ class SaveRecordsLastModifiedStategyTest extends \PHPUnit_Framework_TestCase
     public function testChangeRecord()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
         $repository->selectContentType('profiles');
 
         $record = $repository->getRecord(1);
@@ -91,8 +91,8 @@ class SaveRecordsLastModifiedStategyTest extends \PHPUnit_Framework_TestCase
     public function testChangedRecord()
     {
         $repository = $this->repository;
-        $repository->setSingleContentRecordCaching(60);
-        $repository->setAllContentRecordsCaching(60);
+        $repository->enableSingleContentRecordCaching(60);
+        $repository->enableAllContentRecordsCaching(60);
 
         $this->assertFalse($repository->hasExpirationCacheStrategy());
         $this->assertTrue($repository->hasLastModifiedCacheStrategy());

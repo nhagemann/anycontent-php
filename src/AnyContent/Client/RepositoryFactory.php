@@ -101,9 +101,9 @@ class RepositoryFactory
         {
             $repository = new CachingRepository($name, $connection, $fileManager);
 
-            $repository->setSingleContentRecordCaching(60);
-            $repository->setAllContentRecordsCaching(60);
-            $repository->setContentQueryRecordsCaching(60);
+            $repository->enableSingleContentRecordCaching(60);
+            $repository->enableAllContentRecordsCaching(60);
+            $repository->enableContentQueryRecordsCaching(60);
         }
         else
         {
