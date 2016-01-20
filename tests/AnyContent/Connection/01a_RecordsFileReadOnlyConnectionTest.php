@@ -117,5 +117,9 @@ class RecordsFileReadOnlyConnectionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testLastModified()
+    {
+        $this->assertInternalType('int',$this->connection->getLastModifiedDate());
+    }
 
 }

@@ -10,6 +10,7 @@ use AnyContent\Client\Record;
 use AnyContent\Connection\Configuration\RecordsFileConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 use KVMLogger\KVMLogger;
+use Symfony\Component\Filesystem\Filesystem;
 
 class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOnlyConnection
 {
@@ -140,7 +141,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         }
 
         KVMLogger::instance('anycontent-connection')
-                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+                 ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
 
         return false;
 
@@ -162,7 +163,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
         }
 
         KVMLogger::instance('anycontent')
-                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+                 ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
 
         return false;
 
@@ -231,7 +232,7 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
             $config = $this->getRecordFactory()->createConfig($definition);
 
             KVMLogger::instance('anycontent-connection')
-                            ->info('Config ' . $configTypeName . ' not found');
+                     ->info('Config ' . $configTypeName . ' not found');
         }
 
         return $config;
@@ -302,6 +303,62 @@ class RecordsFileReadOnlyConnection extends AbstractConnection implements ReadOn
     protected function readRecords($filename)
     {
         return $this->readData($filename);
+    }
+
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+
+        $t = 0;
+
+        $configuration = $this->getConfiguration();
+
+        if ($contentTypeName == null && $configTypeName == null)
+        {
+            foreach ($configuration->getContentTypeNames() as $contentTypeName)
+            {
+                $uri = $configuration->getUriCMDLForContentType($contentTypeName);
+
+                $t = max((int)@filemtime($uri), $t);
+
+                $uri = $configuration->getUriRecords($contentTypeName);
+
+                $t = max((int)@filemtime($uri), $t);
+            }
+            foreach ($configuration->getConfigTypeNames() as $configTypeName)
+            {
+                $uri = $configuration->getUriCMDLForConfigType($configTypeName);
+
+                $t = max((int)@filemtime($uri), $t);
+
+                $uri = $configuration->getUriConfig($configTypeName);
+
+                $t = max((int)@filemtime($uri), $t);
+            }
+        }
+        elseif ($contentTypeName != null)
+        {
+            $uri = $configuration->getUriCMDLForContentType($contentTypeName);
+
+            $t = max((int)@filemtime($uri), $t);
+
+            $uri = $configuration->getUriRecords($contentTypeName);
+
+            $t = max((int)@filemtime($uri), $t);
+        }
+        elseif ($configTypeName != null)
+        {
+            $uri = $configuration->getUriCMDLForConfigType($configTypeName);
+
+            $t = max((int)@filemtime($uri), $t);
+
+            $uri = $configuration->getUriConfig($configTypeName);
+
+            $t = max((int)@filemtime($uri), $t);
+        }
+
+        return $t;
+
     }
 
 }

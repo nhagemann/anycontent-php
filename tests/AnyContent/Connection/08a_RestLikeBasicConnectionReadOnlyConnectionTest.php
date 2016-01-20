@@ -156,4 +156,9 @@ class RestLikeBasicConnectionReadOnlyTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+
+    public function testLastModified()
+    {
+        $this->assertInternalType('string',$this->connection->getLastModifiedDate());
+    }
 }

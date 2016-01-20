@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 
+use AnyContent\Client\DataDimensions;
 use AnyContent\Connection\Configuration\RecordsFileHttpConfiguration;
 use AnyContent\Connection\Interfaces\ReadOnlyConnection;
 
@@ -34,5 +35,11 @@ class RecordsFileHttpReadOnlyConnection extends RecordsFileReadOnlyConnection im
         $response = $client->get($fileName);
 
         return $response->getBody();
+    }
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        //@upgrade
+        return time();
     }
 }

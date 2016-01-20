@@ -167,6 +167,6 @@ interface ReadOnlyConnection
      * @param null $contentTypeName
      * @param null $configTypeName
      */
-    //public function getLastModifiedDate($contentTypeName = null, $configTypeName = null);
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null);
 
 }

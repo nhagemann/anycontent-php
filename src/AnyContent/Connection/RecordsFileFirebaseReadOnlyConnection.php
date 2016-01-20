@@ -147,4 +147,10 @@ class RecordsFileFirebaseReadOnlyConnection extends RecordsFileReadOnlyConnectio
 
         throw new AnyContentClientException ('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
     }
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        //@upgrade
+        return time();
+    }
 }

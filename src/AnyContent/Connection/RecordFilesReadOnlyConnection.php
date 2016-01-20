@@ -93,12 +93,12 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
                 $record = $this->getRecordFactory()
                                ->createRecordFromJSON($definition, $data, $dataDimensions->getViewName(), $dataDimensions->getWorkspace(), $dataDimensions->getLanguage());
 
-                return $this->exportRecord($record,$dataDimensions->getViewName());
+                return $this->exportRecord($record, $dataDimensions->getViewName());
             }
         }
 
         KVMLogger::instance('anycontent-connection')
-                        ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
+                 ->info('Record ' . $recordId . ' not found for content type ' . $this->getCurrentContentTypeName());
 
         return false;
 
@@ -113,7 +113,6 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
      */
     protected function getAllMultiViewRecords($contentTypeName = null, DataDimensions $dataDimensions)
     {
-
 
         $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
 
@@ -140,10 +139,87 @@ class RecordFilesReadOnlyConnection extends RecordsFileReadOnlyConnection implem
 
         }
 
-
-
         return [ ];
 
+    }
+
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        $t = 0;
+
+        $configuration = $this->getConfiguration();
+
+        if ($contentTypeName == null && $configTypeName == null)
+        {
+            foreach ($configuration->getContentTypeNames() as $contentTypeName)
+            {
+                $t = max($t, $this->getLastModifedDateForContentType($contentTypeName, $dataDimensions));
+            }
+
+            foreach ($configuration->getConfigTypeNames() as $configTypeName)
+            {
+                $t = max($t, $this->getLastModifedDateForConfigType($configTypeName, $dataDimensions));
+            }
+        }
+        elseif ($contentTypeName != null)
+        {
+            return $this->getLastModifedDateForContentType($contentTypeName, $dataDimensions);
+        }
+        elseif ($configTypeName != null)
+        {
+            return $this->getLastModifedDateForConfigType($configTypeName, $dataDimensions);
+        }
+
+        return $t;
+
+    }
+
+
+    protected function getLastModifedDateForContentType($contentTypeName, DataDimensions $dataDimensions)
+    {
+        $t      = 0;
+        $folder = $this->getConfiguration()->getFolderNameRecords($contentTypeName, $dataDimensions);
+
+        if (file_exists($folder))
+        {
+            $finder = new Finder();
+            $finder->in($folder)->depth(0)->sort(
+                function (SplFileInfo $a, SplFileInfo $b)
+                {
+                    return ($b->getMTime() - $a->getMTime());
+                }
+            );
+
+            $iterator = $finder->getIterator();
+            $file     = reset($iterator);
+
+            $t = max($t, (int)$file->getMTime());
+        }
+
+        $uri = $this->getConfiguration()->getUriCMDLForContentType($contentTypeName);
+        $t   = max((int)@filemtime($uri), $t);
+
+        return $t;
+    }
+
+
+    protected function getLastModifedDateForConfigType($configTypeName, DataDimensions $dataDimensions)
+    {
+        $t = 0;
+
+        $uri = $this->getConfiguration()->getUriConfig($configTypeName, $dataDimensions);
+        $t   = max((int)@filemtime($uri), $t);
+
+        $uri = $this->getConfiguration()->getUriCMDLForConfigType($configTypeName);
+        $t   = max((int)@filemtime($uri), $t);
+
+        return $t;
     }
 
 }

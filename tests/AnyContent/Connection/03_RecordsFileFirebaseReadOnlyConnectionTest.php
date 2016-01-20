@@ -141,4 +141,16 @@ class RecordsFileFirebaseReadOnlyConnectionTest extends \PHPUnit_Framework_TestC
         }
     }
 
+    public function testLastModified()
+    {
+        $connection = $this->connection;
+
+        if (!$connection)
+        {
+            $this->markTestSkipped('Firebase credentials missing.');
+        }
+
+        $this->assertInternalType('int',$connection->getLastModifiedDate());
+    }
+
 }

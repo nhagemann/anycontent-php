@@ -303,4 +303,81 @@ class RestLikeBasicReadOnlyConnection extends AbstractConnection implements Read
 
     }
 
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        if ($dataDimensions == null)
+        {
+            $dataDimensions = $this->getCurrentDataDimensions();
+        }
+
+        $t = 0;
+
+        $configuration = $this->getConfiguration();
+
+        if ($contentTypeName == null && $configTypeName == null)
+        {
+            foreach ($configuration->getContentTypeNames() as $contentTypeName)
+            {
+                $t = max($t, $this->getLastModifedDateForContentType($contentTypeName, $dataDimensions));
+            }
+
+            foreach ($configuration->getConfigTypeNames() as $configTypeName)
+            {
+                $t = max($t, $this->getLastModifedDateForConfigType($configTypeName, $dataDimensions));
+            }
+        }
+        elseif ($contentTypeName != null)
+        {
+            return $this->getLastModifedDateForContentType($contentTypeName, $dataDimensions);
+        }
+        elseif ($configTypeName != null)
+        {
+            return $this->getLastModifedDateForConfigType($configTypeName, $dataDimensions);
+        }
+
+        return $t;
+
+    }
+
+
+    protected function getLastModifedDateForContentType($contentTypeName, DataDimensions $dataDimensions)
+    {
+        $t = 0;
+
+        $info = $this->getRepositoryInfo($dataDimensions);
+
+        if (isset($info['content'][$contentTypeName]['lastchange_content']))
+        {
+            $t = max($t, $info['content'][$contentTypeName]['lastchange_content']);
+        }
+
+        if (isset($info['content'][$contentTypeName]['lastchange_cmdl']))
+        {
+            $t = max($t, $info['content'][$contentTypeName]['lastchange_cmdl']);
+        }
+
+        return $t;
+    }
+
+
+    protected function getLastModifedDateForConfigType($configTypeName, DataDimensions $dataDimensions)
+    {
+        $t = 0;
+
+        $info = $this->getRepositoryInfo($dataDimensions);
+
+        if (isset($info['config'][$configTypeName]['lastchange_config']))
+        {
+            $t = max($t, $info['config'][$configTypeName]['lastchange_config']);
+        }
+
+        if (isset($info['config'][$configTypeName]['lastchange_cmdl']))
+        {
+            $t = max($t, $info['config'][$configTypeName]['lastchange_cmdl']);
+        }
+
+        return $t;
+    }
+
 }

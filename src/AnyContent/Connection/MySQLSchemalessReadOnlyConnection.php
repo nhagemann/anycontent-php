@@ -540,7 +540,7 @@ TEMPLATE_CONFIGTABLE;
             $config     = $this->getRecordFactory()->createConfig($definition);
 
             KVMLogger::instance('anycontent-connection')
-                            ->info('Config ' . $configTypeName . ' not found');
+                     ->info('Config ' . $configTypeName . ' not found');
         }
 
         return $config;
@@ -573,6 +573,13 @@ TEMPLATE_CONFIGTABLE;
         $config->setLastChangeUserInfo($userInfo);
 
         return $config;
+    }
+
+
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
+    {
+        //@upgrade
+        return time();
     }
 
 }

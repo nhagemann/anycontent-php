@@ -118,4 +118,9 @@ class ContentArchiveConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $records);
     }
 
+    public function testLastModified()
+    {
+        $this->assertInternalType('int',$this->connection->getLastModifiedDate());
+    }
+
 }

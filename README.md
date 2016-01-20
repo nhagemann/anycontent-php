@@ -23,11 +23,10 @@ Caching auf Repository-Ebene / repositoryInfo
 anycontent-server-php
 
 ancontent http client RestLikeBasicConnection, 
-- Dimensions in die URLs inklusive Timeshift
-- getConfig
-- Caching CMDL muss aktiviert werden, Caching RepositoryInfo muss möglich sein
 
-custom content type und stashing überprüfen
+- Caching RepositoryInfo muss möglich sein
+
+
 custom content type und caching überprüfen
 
 RestLikeExtendedConnection
@@ -42,9 +41,6 @@ SortingConnection -> Repository prüft Interface und überlässt Sorting der Con
 NestedSortingConnection -> Repository prüft Interface und überlässt NestedSorting der Connection
 
 
-Erweiterung Filter
-- (string)für Filter wandelt in SimpleQuery-Format oder gleich Parenthesis
-
 Parser reduzieren
 remove synchronize properties
 
@@ -52,7 +48,7 @@ Repository Constructor sollte repository name aufnehmen
 
 
 
-
+MySQLOneToOne
 
 
 - STASH

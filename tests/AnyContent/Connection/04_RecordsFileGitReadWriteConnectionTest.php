@@ -145,4 +145,9 @@ class RecordsFileGitReadWriteConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::$randomString, $record->getName());
 
     }
+
+    public function testLastModified()
+    {
+        $this->assertInternalType('int',$this->connection->getLastModifiedDate());
+    }
 }
