@@ -8,6 +8,7 @@ use AnyContent\Client\Record;
 use AnyContent\Client\Repository;
 use CMDL\ConfigTypeDefinition;
 use CMDL\ContentTypeDefinition;
+use Doctrine\Common\Cache\CacheProvider;
 
 interface ReadOnlyConnection
 {
@@ -156,6 +157,9 @@ interface ReadOnlyConnection
 
 
 
+    public function setCacheProvider(CacheProvider $cacheProvider);
+
+    public function enableCMDLCaching($duration = 60);
 
     /**
      * Check for last content/config or cmdl change within repository or for a distinct content/config type

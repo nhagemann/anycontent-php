@@ -1,15 +1,11 @@
 # anycontent-php
 
-getConfig/saveConfig am Repository
 
 finalizeRecord ggf. noch plus Entfernen/Loggen aller unbekannten/unerlaubten properties?
 finalizeConfig mit selbem Prinzip und hidden properties
 
 check mandatory
 
-
-userinfo soll nur im repository gesetzt werden und zugriff auf repository aus der connection??  (überdenken)
-Testen custom config type record und generell handling überdenken (nur aus repository heraus?)
 
 alpha ids
 

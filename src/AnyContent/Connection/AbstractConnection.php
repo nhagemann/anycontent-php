@@ -3,6 +3,7 @@
 namespace AnyContent\Connection;
 
 use AnyContent\AnyContentClientException;
+use AnyContent\Cache\Wrapper;
 use AnyContent\Client\AbstractRecord;
 use AnyContent\Client\Config;
 use AnyContent\Client\DataDimensions;
@@ -55,16 +56,22 @@ abstract class AbstractConnection
     protected $repository;
 
     /** @var  CacheProvider */
-    protected $cache;
+    protected $cacheProvider;
 
-    protected $cacheDuration;
+    /** @var  ArrayCache - Fallback local definition cache */
+    protected $arrayCache;
+
+    protected $cmdlCaching = false;
+
+    protected $durationCMDLCaching = 0;
 
 
     public function __construct(AbstractConfiguration $configuration)
     {
         $this->configuration = $configuration;
         $this->configuration->apply($this);
-        $this->userInfo = new UserInfo();
+        $this->userInfo   = new UserInfo();
+        $this->arrayCache = new ArrayCache();
     }
 
 
@@ -122,17 +129,32 @@ abstract class AbstractConnection
     }
 
 
-    /**
-     * @param CacheProvider $cache
-     * @param int           $confidence
-     * @param int           $storage
-     * @param string        $namespace
-     */
-    public function setCMDLCache(CacheProvider $cache, $confidence = 600, $storageDuration = 600, $namespace = 'cmdl')
+    public function enableCMDLCaching($duration = 60)
     {
-        $this->cache = $cache;
-        $this->cache->setNamespace($namespace);
-        $this->cacheDuration = min($confidence, $storageDuration);
+        $this->cmdlCaching = $duration;
+    }
+
+
+    /**
+     * @return Wrapper | CacheProvider
+     */
+    public function getCacheProvider()
+    {
+        if (!$this->cacheProvider)
+        {
+            $this->cacheProvider = new ArrayCache();
+        }
+
+        return $this->cacheProvider;
+    }
+
+
+    /**
+     * @param CacheProvider $cacheProvider
+     */
+    public function setCacheProvider(CacheProvider $cacheProvider)
+    {
+        $this->cacheProvider = $cacheProvider;
     }
 
 
@@ -141,12 +163,13 @@ abstract class AbstractConnection
      */
     protected function getCMDLCache()
     {
-        if (!$this->cache)
+        if ($this->cmdlCaching)
         {
-            $this->cache = new ArrayCache();
+            return $this->getCacheProvider();
+
         }
 
-        return $this->cache;
+        return $this->arrayCache;
     }
 
 
@@ -225,9 +248,15 @@ abstract class AbstractConnection
     {
         if ($this->getConfiguration()->hasContentType($contentTypeName))
         {
-            if ($this->getCMDLCache()->contains($contentTypeName))
+            $cacheKey = '[cmdl][config][' . $contentTypeName . ']';
+            if ($this->repository)
             {
-                return $this->getCMDLCache()->fetch($contentTypeName);
+                $cacheKey = '[' . $this->repository->getName() . ']' . $cacheKey;
+            }
+
+            if ($this->getCMDLCache()->contains($cacheKey))
+            {
+                return unserialize($this->getCMDLCache()->fetch($cacheKey));
             }
 
             $cmdl = $this->getCMDLForContentType($contentTypeName);
@@ -242,7 +271,7 @@ abstract class AbstractConnection
                 if ($definition)
                 {
                     $this->contentTypeDefinitions[$contentTypeName]['definition'] = $definition;
-                    $this->getCMDLCache()->save($contentTypeName, $definition, $this->cacheDuration);
+                    $this->getCMDLCache()->save($cacheKey, serialize($definition), (int)$this->cmdlCaching);
 
                     return $definition;
                 }
@@ -265,10 +294,16 @@ abstract class AbstractConnection
     {
         if ($this->getConfiguration()->hasConfigType($configTypeName))
         {
-            $cacheToken = 'cmdl-configtype-' . $configTypeName;
-            if ($this->getCMDLCache()->contains($cacheToken))
+
+            $cacheKey = '[cmdl][config][' . $configTypeName . ']';
+            if ($this->repository)
             {
-                return $this->getCMDLCache()->fetch($cacheToken);
+                $cacheKey = '[' . $this->repository->getName() . ']' . $cacheKey;
+            }
+
+            if ($this->getCMDLCache()->contains($cacheKey))
+            {
+                return $this->getCMDLCache()->fetch($cacheKey);
             }
 
             $cmdl = $this->getCMDLForConfigType($configTypeName);
@@ -282,8 +317,9 @@ abstract class AbstractConnection
 
                 if ($definition)
                 {
+
                     //$this->contentTypeDefinitions[$configTypeName]['definition'] = $definition;
-                    $this->getCMDLCache()->save($cacheToken, $definition, $this->cacheDuration);
+                    $this->getCMDLCache()->save($cacheKey, $definition, (int)$this->cmdlCaching);
 
                     return $definition;
                 }
@@ -403,7 +439,6 @@ abstract class AbstractConnection
 //        return $this->currentContentTypeDefinition;
 //
 //    }
-
 
     /**
      * @return ContentTypeDefinition
@@ -554,7 +589,8 @@ abstract class AbstractConnection
     protected function unstashRecord($contentTypeName, $recordId, DataDimensions $dataDimensions, $recordClass = 'AnyContent\Client\Record')
     {
         $tempDataDimensions = $dataDimensions;
-        foreach ($this->getContentTypeDefinition($contentTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+        foreach ($this->getContentTypeDefinition($contentTypeName)
+                      ->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
         {
             $tempDataDimensions->setViewName($viewDefinition->getName());
             $hash = md5($contentTypeName . $tempDataDimensions . $recordClass);
@@ -625,7 +661,8 @@ abstract class AbstractConnection
         if (!$dataDimensions->hasRelativeTimeShift())
         {
             $tempDataDimensions = $dataDimensions;
-            foreach ($this->getContentTypeDefinition($contentTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+            foreach ($this->getContentTypeDefinition($contentTypeName)
+                          ->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
             {
                 $hash = md5($contentTypeName . $tempDataDimensions . $recordClass);
 
@@ -651,7 +688,8 @@ abstract class AbstractConnection
     {
 
         $tempDataDimensions = $dataDimensions;
-        foreach ($this->getConfigTypeDefinition($configTypeName)->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
+        foreach ($this->getConfigTypeDefinition($configTypeName)
+                      ->getViewDefinitions() as $viewDefinition) // make sure all eventually related views are deleted
         {
             $hash = md5($configTypeName . $tempDataDimensions . $recordClass);
             unset($this->configStash[$hash]);

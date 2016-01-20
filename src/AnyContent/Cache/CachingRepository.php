@@ -10,6 +10,7 @@ use AnyContent\Client\Repository;
 use AnyContent\Filter\Interfaces\Filter;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\ChainCache;
 
 class CachingRepository extends Repository
 {
@@ -75,9 +76,23 @@ class CachingRepository extends Repository
      */
     public function setCacheProvider($cacheProvider)
     {
+
+        $arrayCache = new ArrayCache();
+
+        $cacheChain = new ChainCache([$arrayCache,$cacheProvider]);
+
+        $cacheProvider = new Wrapper($cacheChain);
+
         $cacheProvider = new Wrapper($cacheProvider);
 
         $this->cacheProvider = $cacheProvider;
+
+        $this->readConnection->setCacheProvider($cacheProvider);
+
+        if ($this->writeConnection)
+        {
+            $this->writeConnection->setCacheProvider($cacheProvider);
+        }
     }
 
 
@@ -90,9 +105,19 @@ class CachingRepository extends Repository
     }
 
 
-    public function setCmdlCaching($duration)
+    /**
+     * Allow connection to cache CMDL definitions. Adjustable via duration if you're not sure how likely CMDL changes occur.
+     *
+     * @param $duration
+     */
+    public function enableCmdlCaching($duration = 60)
     {
         $this->cmdlCaching = $duration;
+        $this->readConnection->enableCMDLCaching($duration);
+        if ($this->writeConnection)
+        {
+            $this->writeConnection->enableCMDLCaching($duration);
+        }
     }
 
 

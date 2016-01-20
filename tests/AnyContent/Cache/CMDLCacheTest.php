@@ -10,7 +10,7 @@ use KVMLogger\KVMLoggerFactory;
 use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
-class GetRecordsTest extends \PHPUnit_Framework_TestCase
+class CMDLCacheTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  CachingRepository */
@@ -29,6 +29,8 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
 
         $repository = new CachingRepository('phpunit', $connection);
 
+
+
         $fs = new Filesystem();
 
         $fs->remove(__DIR__ . '/../../../tmp/phpfilecache');
@@ -43,28 +45,8 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testGetRecords()
-    {
-        $repository = $this->repository;
-        $repository->setAllContentRecordsCaching(60);
 
-
-        $repository->selectContentType('profiles');
-
-        $records = $repository->getRecords();
-
-        $this->assertCount(608, $records);
-
-        $records = $repository->getRecords();
-
-        $this->assertCount(608, $records);
-
-        $this->assertEquals(2,$repository->getCacheProvider()->getMissCounter());
-        $this->assertEquals(1,$repository->getCacheProvider()->getHitCounter());
-    }
-
-
-    public function testGetRecord()
+    public function testGetRecordWithoutCMDLCache()
     {
         $repository = $this->repository;
         $repository->setSingleContentRecordCaching(60);
@@ -79,24 +61,28 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testQueryRecords()
+    public function testGetRecordWithCMDLCache()
     {
         $repository = $this->repository;
-        $repository->setContentQueryRecordsCaching(60);
+
+        $repository->getCacheProvider()->clearHitMissCounter();
+        $repository->setSingleContentRecordCaching(60);
+        $repository->enableCmdlCaching(60);
 
         $repository->selectContentType('profiles');
 
-        $records = $repository->getRecords('',1,10);
+        $repository->getRecord(1);
+        $repository->getRecord(1);
 
-        $this->assertCount(10, $records);
+        $this->assertEquals(3,$repository->getCacheProvider()->getMissCounter());
+        $this->assertEquals(5,$repository->getCacheProvider()->getHitCounter());
 
-        $records = $repository->getRecords('',1,10);
+        $definition = $repository->getContentTypeDefinition('profiles');
 
-        $this->assertCount(10, $records);
-
-        $this->assertEquals(2,$repository->getCacheProvider()->getMissCounter());
-        $this->assertEquals(1,$repository->getCacheProvider()->getHitCounter());
+        $this->assertEquals(3,$repository->getCacheProvider()->getMissCounter());
+        $this->assertEquals(7,$repository->getCacheProvider()->getHitCounter());
     }
+
 
 
 }
