@@ -12,7 +12,7 @@ use KVMLogger\KVMLoggerFactory;
 use KVMLogger\KVMLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
-class SaveRecordsTest extends \PHPUnit_Framework_TestCase
+class SaveRecordsExpirationStrategyTest extends \PHPUnit_Framework_TestCase
 {
 
     /** @var  CachingRepository */
@@ -76,6 +76,9 @@ class SaveRecordsTest extends \PHPUnit_Framework_TestCase
         $repository->setAllContentRecordsCaching(60);
         $repository->selectContentType('profiles');
 
+        $this->assertTrue($repository->hasExpirationCacheStrategy());
+        $this->assertFalse($repository->hasLastModifiedCacheStrategy());
+
         $record = $repository->getRecord(1);
         $this->assertEquals('UDG United Digital Group', $record->getName());
         $record->setName('UDG');
@@ -127,5 +130,6 @@ class SaveRecordsTest extends \PHPUnit_Framework_TestCase
         $record = $repository->getRecord(1);
         $this->assertEquals('UDG', $record->getName());
     }
+
 
 }

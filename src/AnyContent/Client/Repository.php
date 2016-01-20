@@ -539,7 +539,7 @@ class Repository implements FileManager
         $result = $this->writeConnection->saveRecord($record, $dataDimensions);
 
         KVMLogger::instance('anycontent-repository')
-                        ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
+                 ->info('Saving record ' . $record->getId() . ' for content type ' . $record->getContentTypeName());
 
         return $result;
 
@@ -563,7 +563,7 @@ class Repository implements FileManager
         {
             $record = reset($records);
             KVMLogger::instance('anycontent-repository')
-                            ->info('Saving ' . count($records) . ' records of content type ' . $record->getContentTypeName());
+                     ->info('Saving ' . count($records) . ' records of content type ' . $record->getContentTypeName());
         }
 
         return $result;
@@ -670,7 +670,7 @@ class Repository implements FileManager
         $result = $this->writeConnection->saveConfig($config, $dataDimensions);
 
         KVMLogger::instance('anycontent-repository')
-                        ->info('Saving config ' . $config->getConfigTypeName());
+                 ->info('Saving config ' . $config->getConfigTypeName());
 
         return $result;
 
@@ -738,7 +738,7 @@ class Repository implements FileManager
             $this->getRecordFactory()->registerRecordClassForContentType($contentTypeName, $classname);
 
             KVMLogger::instance('anycontent-repository')
-                            ->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
+                     ->info('Custom record class ' . $classname . ' for content type ' . $contentTypeName);
 
             return true;
         }
@@ -761,7 +761,7 @@ class Repository implements FileManager
             $this->getRecordFactory()->registerRecordClassForConfigType($configTypeName, $classname);
 
             KVMLogger::instance('anycontent-repository')
-                            ->info('Custom record class ' . $classname . ' for config type ' . $configTypeName);
+                     ->info('Custom record class ' . $classname . ' for config type ' . $configTypeName);
 
             return true;
         }
@@ -796,14 +796,15 @@ class Repository implements FileManager
     }
 
 
-    /**
-     * Check for last content/config or cmdl change within repository or for a distinct content/config type
-     *
-     * @param null $contentTypeName
-     * @param null $configTypeName
-     */
-    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null)
+    public function getLastModifiedDate($contentTypeName = null, $configTypeName = null, DataDimensions $dataDimensions = null)
     {
+        if ($this->writeConnection)
+        {
+            return $this->writeConnection->getLastModifiedDate($contentTypeName, $configTypeName, $dataDimensions);
+        }
+
+        return $this->readConnection->getLastModifiedDate($contentTypeName, $configTypeName, $dataDimensions);
 
     }
+
 }

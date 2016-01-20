@@ -118,7 +118,7 @@ TEMPLATE_COUNTERTABLE;
     }
 
 
-    public function addContentTypes($repositoryName)
+    public function addContentTypes($repositoryName = null)
     {
         if (!$this->getDatabase())
         {
@@ -146,6 +146,10 @@ TEMPLATE_COUNTERTABLE;
         }
         else // database based content/config types definition
         {
+            if ($repositoryName == null)
+            {
+                throw new AnyContentClientException('Please provide repository name or set cmdl folder path.');
+            }
             $sql = 'SELECT name, data_type FROM _cmdl_ WHERE repository = ?';
 
             $rows = $this->getDatabase()->fetchAllSQL($sql, [ $repositoryName ]);
@@ -162,7 +166,7 @@ TEMPLATE_COUNTERTABLE;
     }
 
 
-    public function addConfigTypes($repositoryName)
+    public function addConfigTypes($repositoryName = null)
     {
         if (!$this->getDatabase())
         {
@@ -190,6 +194,10 @@ TEMPLATE_COUNTERTABLE;
         }
         else // database based content/config types definition
         {
+            if ($repositoryName == null)
+            {
+                throw new AnyContentClientException('Please provide repository name or set cmdl folder path.');
+            }
             $sql = 'SELECT name, data_type FROM _cmdl_ WHERE repository = ?';
 
             $rows = $this->getDatabase()->fetchAllSQL($sql, [ $repositoryName ]);

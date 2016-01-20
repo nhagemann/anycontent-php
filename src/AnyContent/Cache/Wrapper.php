@@ -72,7 +72,7 @@ class Wrapper extends CacheProvider
      */
     protected function doFetch($id)
     {
-        $md5Key = md5($id);
+        $md5Key = $this->getNamespace() . md5($id);
 
         $kvm = KVMLogger::instance('anycontent-cache');
 
@@ -106,7 +106,7 @@ class Wrapper extends CacheProvider
     protected function doContains($id)
     {
 
-        $md5Key = md5($id);
+        $md5Key = $this->getNamespace() . md5($id);
 
         $kvm = KVMLogger::instance('anycontent-cache');
 
@@ -141,7 +141,7 @@ class Wrapper extends CacheProvider
      */
     protected function doSave($id, $data, $lifeTime = 0)
     {
-        $md5Key = md5($id);
+        $md5Key = $this->getNamespace() . md5($id);
 
         return $this->getCacheProvider()->doSave($md5Key, $data, $lifeTime);
     }
@@ -156,7 +156,7 @@ class Wrapper extends CacheProvider
      */
     protected function doDelete($id)
     {
-        $md5Key = md5($id);
+        $md5Key = $this->getNamespace() . md5($id);
 
         return $this->getCacheProvider()->doDelete($md5Key);
     }

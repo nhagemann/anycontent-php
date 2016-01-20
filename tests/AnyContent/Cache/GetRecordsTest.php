@@ -29,6 +29,7 @@ class GetRecordsTest extends \PHPUnit_Framework_TestCase
 
         $repository = new CachingRepository('phpunit', $connection);
 
+        $repository->selectLastModifiedCacheStrategy();
         $fs = new Filesystem();
 
         $fs->remove(__DIR__ . '/../../../tmp/phpfilecache');

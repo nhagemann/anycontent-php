@@ -2,6 +2,7 @@
 
 namespace AnyContent\Cache;
 
+use AnyContent\Client\Config;
 use AnyContent\Client\File;
 use AnyContent\Client\Folder;
 use AnyContent\Client\Record;
@@ -19,22 +20,23 @@ class CachingRepository extends Repository
      * Items are cached with last modified date of content/config type. Cache doesn't have to be flushed, but last
      * modified dates must be retrieved regulary.
      */
-    const CACHE_STRATEGY_HEARTBEAT = 1;
+    const CACHE_STRATEGY_LASTMODIFIED = 1;
 
     /**
      * Every save operation leads to a full flash of the cache. Very fast, if you don't have too much
      * write operations. Only eventually consistent, if you have more than one writing client connecting to
      * your repositories.
      */
-    const CACHE_STRATEGY_FULL_FLASH = 2;
+    const CACHE_STRATEGY_EXPIRATION = 2;
+
+    protected $cacheStrategy = self::CACHE_STRATEGY_EXPIRATION;
+
+    protected $duration = 300;
+
+    protected $confidence = 0;
 
     /** @var  CacheProvider */
     protected $cacheProvider;
-
-    /*
-     * caching realms
-     *
-     */
 
     protected $cmdlCaching = false;
 
@@ -50,11 +52,7 @@ class CachingRepository extends Repository
 
     protected $filesCaching = false;
 
-    /*
-     * caching strategies
-     */
-
-    protected $contentCachingStrategy = self::CACHE_STRATEGY_HEARTBEAT;
+    protected $lastModified = 0;
 
 
     /**
@@ -76,14 +74,17 @@ class CachingRepository extends Repository
      */
     public function setCacheProvider($cacheProvider)
     {
+        $namespace = '[<>]' . rtrim($this->getName() . '|' . $cacheProvider->getNamespace(), '|') . '[<>]';
 
         $arrayCache = new ArrayCache();
 
-        $cacheChain = new ChainCache([$arrayCache,$cacheProvider]);
+        $cacheChain = new ChainCache([ $arrayCache, $cacheProvider ]);
 
         $cacheProvider = new Wrapper($cacheChain);
 
         $cacheProvider = new Wrapper($cacheProvider);
+
+        $cacheProvider->setNamespace($namespace);
 
         $this->cacheProvider = $cacheProvider;
 
@@ -93,6 +94,33 @@ class CachingRepository extends Repository
         {
             $this->writeConnection->setCacheProvider($cacheProvider);
         }
+    }
+
+
+    public function selectExpirationCacheStrategy($duration = 300)
+    {
+        $this->cacheStrategy = self::CACHE_STRATEGY_EXPIRATION;
+        $this->duration      = 300;
+    }
+
+
+    public function selectLastModifiedCacheStrategy($confidence = 0)
+    {
+        $this->cacheStrategy = self::CACHE_STRATEGY_LASTMODIFIED;
+        $this->confidence    = 0;
+    }
+
+
+    public function hasLastModifiedCacheStrategy()
+    {
+        return $this->cacheStrategy == self::CACHE_STRATEGY_LASTMODIFIED ? true : false;
+    }
+
+
+    public function hasExpirationCacheStrategy()
+    {
+
+        return $this->cacheStrategy == self::CACHE_STRATEGY_EXPIRATION ? true : false;
     }
 
 
@@ -166,65 +194,88 @@ class CachingRepository extends Repository
     }
 
 
-    /**
-     * @return boolean
-     */
-    public function isContentRecordsForwardCaching()
+//    /**
+//     * @return boolean
+//     */
+//    public function isContentRecordsForwardCaching()
+//    {
+//        return $this->contentRecordsForwardCaching;
+//    }
+//
+//
+//    public function setContentRecordsForwardCaching($threshold)
+//    {
+//        $this->contentRecordsForwardCaching = $threshold;
+//    }
+
+//    /**
+//     * @return boolean
+//     */
+//    public function isConfigRecordCaching()
+//    {
+//        return $this->configRecordCaching;
+//    }
+//
+//
+//    public function setConfigRecordCaching($duration)
+//    {
+//        $this->configRecordCaching = $duration;
+//    }
+
+//    /**
+//     * @return boolean
+//     */
+//    public function isFilesCaching()
+//    {
+//        return $this->filesCaching;
+//    }
+//
+//
+//    public function setFilesCaching($duration)
+//    {
+//        $this->filesCaching = $duration;
+//    }
+
+    protected function createCacheKey($realm, $params = [ ])
     {
-        return $this->contentRecordsForwardCaching;
-    }
 
-
-    public function setContentRecordsForwardCaching($threshold)
-    {
-        $this->contentRecordsForwardCaching = $threshold;
-    }
-
-
-    /**
-     * @return boolean
-     */
-    public function isConfigRecordCaching()
-    {
-        return $this->configRecordCaching;
-    }
-
-
-    public function setConfigRecordCaching($duration)
-    {
-        $this->configRecordCaching = $duration;
-    }
-
-
-    /**
-     * @return boolean
-     */
-    public function isFilesCaching()
-    {
-        return $this->filesCaching;
-    }
-
-
-    public function setFilesCaching($duration)
-    {
-        $this->filesCaching = $duration;
-    }
-
-
-    protected function createCacheKey($namespace, $params = [ ])
-    {
         $dataDimensions = $this->getCurrentDataDimensions();
-        $cacheKey       = '[' . $this->getName() . '][' . $namespace . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
+        $cacheKey       = '[' . $this->getName() . '][' . $realm . '][' . (string)$dataDimensions . '][' . join(';', $params) . ']';
+
+        if ($this->hasLastModifiedCacheStrategy())
+        {
+
+            $cacheKey = '[' . $this->getLastModifiedDate() . ']' . $cacheKey;
+
+        }
 
         return $cacheKey;
     }
 
 
-    protected function flushCache()
+    protected function flushCacheBeforeChange()
     {
-        // TODO Check for caching strategy
-        // TODO Check if namespaced deleteAll is working too, if so use sub namespaces
-        $this->getCacheProvider()->flushAll();
+        if ($this->hasExpirationCacheStrategy())
+        {
+            $this->getCacheProvider()->flushAll();
+        }
+        else
+        {
+            $this->lastModified = $this->getLastModifiedDate();
+        }
+    }
+
+
+    protected function flushCacheAfterChange()
+    {
+        if ($this->hasLastModifiedCacheStrategy())
+        {
+            if ($this->lastModified == $this->getLastModifiedDate()) // clear cache, if last modified date hasn't change, otherwise old values could be retrieved accidentially
+            {
+                $this->getCacheProvider()->flushAll();
+            }
+        }
+
     }
 
 
@@ -356,34 +407,49 @@ class CachingRepository extends Repository
 
     public function saveRecord(Record $record)
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::saveRecord($record);
+        $result = parent::saveRecord($record);
+
+        $this->flushCacheAfterChange();
+
+        return $result;
     }
 
 
     public function saveRecords($records)
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::saveRecords($records);
+        $result = parent::saveRecords($records);
+
+        $this->flushCacheAfterChange();
+
+        return $result;
 
     }
 
 
     public function deleteRecord($recordId)
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::deleteRecord($recordId);
+        $result = parent::deleteRecord($recordId);
+
+        $this->flushCacheAfterChange();
+
+        return $result;
     }
 
 
     public function deleteRecords($recordIds)
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::deleteRecord($recordIds);
+        $result = parent::deleteRecord($recordIds);
+        $this->flushCacheAfterChange();
+
+        return $result;
     }
 
 
@@ -394,17 +460,36 @@ class CachingRepository extends Repository
      */
     public function sortRecords(array $sorting)
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::sortRecords($sorting);
+        $result = parent::sortRecords($sorting);
+        $this->flushCacheAfterChange();
+
+        return $result;
     }
 
 
     public function deleteAllRecords()
     {
-        $this->flushCache();
+        $this->flushCacheBeforeChange();
 
-        return parent::deleteAllRecords();
+        $result = parent::deleteAllRecords();
+        $this->flushCacheAfterChange();
+
+        return $result;
+    }
+
+
+    public function getConfig($configTypeName)
+    {
+
+        return parent::getConfig($configTypeName);
+    }
+
+
+    public function saveConfig(Config $config)
+    {
+        return parent::saveConfig($config);
     }
 
 
