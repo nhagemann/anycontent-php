@@ -72,7 +72,7 @@ class Wrapper extends CacheProvider
      */
     protected function doFetch($id)
     {
-        $md5Key = $this->getNamespace() . md5($id);
+        $md5Key = md5($id);
 
         $kvm = KVMLogger::instance('anycontent-cache');
 
@@ -81,13 +81,13 @@ class Wrapper extends CacheProvider
         if ($data)
         {
             $this->hit++;
-            $message = $kvm->createLogMessage('Cache hit', [ 'key' => $id, 'md5' => $md5Key, 'namespace' => $this->getNamespace() ]);
+            $message = $kvm->createLogMessage('Cache hit', [ 'key' => $id, 'md5' => md5($id), 'doctrine-namespace' => $this->getNamespace() ]);
             $kvm->debug($message);
         }
         else
         {
             $this->miss++;
-            $message = $kvm->createLogMessage('Cache miss', [ 'key' => $id, 'md5' => $md5Key, 'namespace' => $this->getNamespace() ]);
+            $message = $kvm->createLogMessage('Cache miss', [ 'key' => $id, 'md5' => md5($id), 'doctrine-namespace' => $this->getNamespace() ]);
             $kvm->debug($message);
         }
 
@@ -106,7 +106,7 @@ class Wrapper extends CacheProvider
     protected function doContains($id)
     {
 
-        $md5Key = $this->getNamespace() . md5($id);
+        $md5Key = md5($id);
 
         $kvm = KVMLogger::instance('anycontent-cache');
 
@@ -141,7 +141,7 @@ class Wrapper extends CacheProvider
      */
     protected function doSave($id, $data, $lifeTime = 0)
     {
-        $md5Key = $this->getNamespace() . md5($id);
+        $md5Key = md5($id);
 
         return $this->getCacheProvider()->doSave($md5Key, $data, $lifeTime);
     }
@@ -156,7 +156,7 @@ class Wrapper extends CacheProvider
      */
     protected function doDelete($id)
     {
-        $md5Key = $this->getNamespace() . md5($id);
+        $md5Key = md5($id);
 
         return $this->getCacheProvider()->doDelete($md5Key);
     }

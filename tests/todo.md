@@ -19,6 +19,6 @@
 - CachingRepository: ConfigCaching
 - CachingRepository: FilesCaching
 - CachingRepository: respect confidence value
-- Bug dopplet md5
+- CachingRepository: check only for cmdl modification
 
 - Decision: Property VALIDATION - NOT PART OF THE STORAGE ENGINGE  

@@ -82,8 +82,6 @@ class CachingRepository extends Repository
 
         $cacheProvider = new Wrapper($cacheChain);
 
-        $cacheProvider = new Wrapper($cacheProvider);
-
         $cacheProvider->setNamespace($namespace);
 
         $this->cacheProvider = $cacheProvider;
